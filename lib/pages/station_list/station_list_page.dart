@@ -1,6 +1,7 @@
 import 'package:epimetheus/dialogs/no_connection_dialog.dart';
 import 'package:epimetheus/libepimetheus/stations.dart';
 import 'package:epimetheus/models/model.dart';
+import 'package:epimetheus/widgets/station_list_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 
@@ -48,9 +49,7 @@ class _StationListPageState extends State<StationListPage> {
           if (model.stations == null) return child;
 
           return ListView.builder(
-            itemBuilder: (context, index) {
-              return Text(model.stations[index].title);
-            },
+            itemBuilder: (context, index) => StationListTile(model.stations[index]),
             itemCount: model.stations.length,
           );
         },
