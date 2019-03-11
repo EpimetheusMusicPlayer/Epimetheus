@@ -1,3 +1,4 @@
+import 'package:connectivity/connectivity.dart';
 import 'package:epimetheus/dialogs/invalid_credentials_dialog.dart';
 import 'package:epimetheus/dialogs/invalid_location_dialog.dart';
 import 'package:epimetheus/libepimetheus/authentication.dart';
@@ -5,6 +6,8 @@ import 'package:epimetheus/libepimetheus/exceptions.dart';
 import 'package:epimetheus/models/model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+// TODO NOW CONNECTIVITY AWARENESS
 
 class AuthPage extends StatefulWidget {
   @override
@@ -98,6 +101,7 @@ class _AuthPageState extends State<AuthPage> {
   }
 
   bool _hidePassword = true;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -196,14 +200,26 @@ class _AuthPageState extends State<AuthPage> {
                         ),
                       ),
                       SizedBox(width: 8),
-                      RaisedButton(
-                        onPressed: () {
-                          if (_formKey.currentState.validate()) {
-                            _formKey.currentState.save();
-                            signin(true);
+                      StreamBuilder<Object>(
+                        stream: Connectivity().onConnectivityChanged,
+                        builder: (context, snapshot) {
+                          if (snapshot.data != ConnectionState.none) {
+                            return RaisedButton(
+                              onPressed: () {
+                                if (_formKey.currentState.validate()) {
+                                  _formKey.currentState.save();
+                                  signin(true);
+                                }
+                              },
+                              child: Text('Sign in'),
+                            );
+                          } else {
+                            return RaisedButton(
+                              onPressed: null,
+                              child: Text('No connection'),
+                            );
                           }
                         },
-                        child: Text('Sign in'),
                       ),
                     ],
                   ),
