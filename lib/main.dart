@@ -6,11 +6,24 @@ import 'package:scoped_model/scoped_model.dart';
 
 void main() => runApp(Epimetheus());
 
-class Epimetheus extends StatelessWidget {
+class Epimetheus extends StatefulWidget {
+  @override
+  _EpimetheusState createState() => _EpimetheusState();
+}
+
+class _EpimetheusState extends State<Epimetheus> {
+  EpimetheusModel model;
+
+  @override
+  void initState() {
+    super.initState();
+    model = EpimetheusModel();
+  }
+
   @override
   Widget build(BuildContext context) {
     return ScopedModel(
-      model: EpimetheusModel(),
+      model: model,
       child: MaterialApp(
         theme: ThemeData(
           primarySwatch: Colors.blue,
