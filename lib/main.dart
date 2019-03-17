@@ -18,7 +18,6 @@ class Epimetheus extends StatefulWidget {
 
 class _EpimetheusState extends State<Epimetheus> with WidgetsBindingObserver {
   EpimetheusModel model;
-  Color _primarySwatch = Colors.blue;
 
   StreamSubscription<MediaItem> _currentMediaItemSubscription;
 
@@ -29,27 +28,15 @@ class _EpimetheusState extends State<Epimetheus> with WidgetsBindingObserver {
         final palette = await PaletteGenerator.fromImageProvider(
           NetworkImage(mediaItem.artUri),
         );
-        setState(() {
-          _primarySwatch = MaterialColor(
-            palette.dominantColor.color.value,
-            {
-              50: palette.dominantColor.color,
-              100: palette.dominantColor.color,
-              200: palette.dominantColor.color,
-              300: palette.dominantColor.color,
-              400: palette.dominantColor.color,
-              500: palette.dominantColor.color,
-              600: palette.dominantColor.color,
-              700: palette.dominantColor.color,
-              800: palette.dominantColor.color,
-              900: palette.dominantColor.color,
-            },
-          );
-        });
+        model.updateColors(
+          inheritedAlbumArtColor: palette.dominantColor.color,
+          inheritedAlbumArtBodyColor: palette.lightVibrantColor.color,
+        );
       } else {
-        setState(() {
-          _primarySwatch = Colors.blue;
-        });
+        model.updateColors(
+          inheritedAlbumArtColor: Theme.of(context).primaryColor,
+          inheritedAlbumArtBodyColor: Theme.of(context).primaryTextTheme.body1.color,
+        );
       }
     });
   }
@@ -94,7 +81,7 @@ class _EpimetheusState extends State<Epimetheus> with WidgetsBindingObserver {
       model: model,
       child: MaterialApp(
         theme: ThemeData(
-          primarySwatch: _primarySwatch,
+          primarySwatch: Colors.blue,
           buttonTheme: ButtonThemeData(
             buttonColor: Colors.blueAccent,
             textTheme: ButtonTextTheme.primary,

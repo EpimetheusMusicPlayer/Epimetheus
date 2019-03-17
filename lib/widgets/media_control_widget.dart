@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:audio_service/audio_service.dart';
+import 'package:epimetheus/models/model.dart';
 import 'package:flutter/material.dart';
 
 class MediaControlWidget extends StatefulWidget {
@@ -73,60 +74,63 @@ class _MediaControlWidgetState extends State<MediaControlWidget> with SingleTick
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: Theme.of(context).primaryColor,
         boxShadow: [BoxShadow(blurRadius: 4)],
         borderRadius: const BorderRadius.only(
           topLeft: const Radius.circular(2),
           topRight: const Radius.circular(2),
         ),
       ),
-      child: Material(
-        type: MaterialType.transparency,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            const IconButton(
-              color: Colors.white,
-              iconSize: 36,
-              icon: Icon(
-                Icons.stop,
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: 500),
+        color: EpimetheusModel.of(context, rebuildOnChange: true).inheritedAlbumArtColor,
+        child: Material(
+          type: MaterialType.transparency,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              const IconButton(
+                color: Colors.white,
+                iconSize: 36,
+                icon: Icon(
+                  Icons.stop,
+                ),
+                onPressed: AudioService.stop,
               ),
-              onPressed: AudioService.stop,
-            ),
-            const IconButton(
-              color: Colors.white,
-              iconSize: 36,
-              icon: Icon(
-                Icons.fast_rewind,
+              const IconButton(
+                color: Colors.white,
+                iconSize: 36,
+                icon: Icon(
+                  Icons.fast_rewind,
+                ),
+                onPressed: AudioService.rewind,
               ),
-              onPressed: AudioService.rewind,
-            ),
-            IconButton(
-              color: Colors.white,
-              iconSize: 36,
-              icon: AnimatedIcon(
-                icon: AnimatedIcons.play_pause,
-                progress: _controller,
+              IconButton(
+                color: Colors.white,
+                iconSize: 36,
+                icon: AnimatedIcon(
+                  icon: AnimatedIcons.play_pause,
+                  progress: _controller,
+                ),
+                onPressed: playPause,
               ),
-              onPressed: playPause,
-            ),
-            const IconButton(
-              color: Colors.white,
-              iconSize: 36,
-              icon: Icon(
-                Icons.fast_forward,
+              const IconButton(
+                color: Colors.white,
+                iconSize: 36,
+                icon: Icon(
+                  Icons.fast_forward,
+                ),
+                onPressed: AudioService.fastForward,
               ),
-              onPressed: AudioService.fastForward,
-            ),
-            const IconButton(
-              color: Colors.white,
-              iconSize: 36,
-              icon: Icon(
-                Icons.skip_next,
+              const IconButton(
+                color: Colors.white,
+                iconSize: 36,
+                icon: Icon(
+                  Icons.skip_next,
+                ),
+                onPressed: AudioService.skipToNext,
               ),
-              onPressed: AudioService.skipToNext,
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
