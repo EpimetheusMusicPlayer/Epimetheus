@@ -24,6 +24,9 @@ class _AuthPageState extends State<AuthPage> {
   bool _remember = true;
   bool _usePortaller = false;
 
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
   Future<void> writeToSecureStorage() {
     return Future.wait([
       storage.write(key: 'email', value: _email),
@@ -75,7 +78,7 @@ class _AuthPageState extends State<AuthPage> {
         _closeSigningInDialog = false;
         showDialog(context: context, builder: invalidCredentialsDialog);
       },
-      test: (e) => e is InvalidRequestException,
+      test: (e) => e is InvalidRequestException, // TODO not called on ssl error on wifi...
     ).catchError(
       (e) {
         _closeSigningInDialog = true;
@@ -96,7 +99,11 @@ class _AuthPageState extends State<AuthPage> {
       if (!values.containsKey('email') || !values.containsKey('password')) return;
       _email = values['email'];
       _password = values['password'];
-      signin(false);
+      _emailController.text = _email;
+      _passwordController.text = _password;
+      Connectivity().checkConnectivity().then((connectivityResult) {
+        if (connectivityResult != ConnectivityResult.none) signin(false);
+      });
     });
   }
 
@@ -117,6 +124,7 @@ class _AuthPageState extends State<AuthPage> {
               child: Column(
                 children: <Widget>[
                   TextFormField(
+                    controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
                       labelText: 'Email address',
@@ -136,6 +144,7 @@ class _AuthPageState extends State<AuthPage> {
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
+                    controller: _passwordController,
                     obscureText: _hidePassword,
                     decoration: InputDecoration(
                       labelText: 'Password',
@@ -203,7 +212,7 @@ class _AuthPageState extends State<AuthPage> {
                       StreamBuilder<Object>(
                         stream: Connectivity().onConnectivityChanged,
                         builder: (context, snapshot) {
-                          if (snapshot.data != ConnectionState.none) {
+                          if (snapshot.data != ConnectivityResult.none) {
                             return RaisedButton(
                               onPressed: () {
                                 if (_formKey.currentState.validate()) {
