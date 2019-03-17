@@ -6,7 +6,6 @@ import 'package:epimetheus/audio/music_provider.dart';
 import 'package:epimetheus/libepimetheus/authentication.dart';
 import 'package:epimetheus/libepimetheus/networking.dart';
 import 'package:epimetheus/pages/now_playing/song_tile_widget.dart';
-import 'package:epimetheus/widgets/dynamic_app_bar.dart';
 import 'package:epimetheus/widgets/media_control_widget.dart';
 import 'package:epimetheus/widgets/navigation_drawer_widget.dart';
 import 'package:flutter/material.dart';
@@ -45,7 +44,9 @@ class _NowPlayingPageState extends State<NowPlayingPage> with WidgetsBindingObse
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: DynamicAppBar('Now Playing'),
+      appBar: AppBar(
+        title: Text('Now Playing'),
+      ),
       drawer: const NavigationDrawerWidget('/now_playing'),
       body: StreamBuilder<List<MediaItem>>(
         initialData: AudioService.queue,

@@ -3,7 +3,6 @@ import 'package:epimetheus/dialogs/no_connection_dialog.dart';
 import 'package:epimetheus/libepimetheus/stations.dart';
 import 'package:epimetheus/models/model.dart';
 import 'package:epimetheus/pages/now_playing/now_playing_page.dart';
-import 'package:epimetheus/widgets/dynamic_app_bar.dart';
 import 'package:epimetheus/widgets/navigation_drawer_widget.dart';
 import 'package:epimetheus/widgets/station_list_tile_widget.dart';
 import 'package:flutter/material.dart';
@@ -57,7 +56,9 @@ class _StationListPageState extends State<StationListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: DynamicAppBar('Stations'),
+      appBar: AppBar(
+        title: Text('Stations'),
+      ),
       drawer: const NavigationDrawerWidget('/station_list'),
       body: ScopedModelDescendant<EpimetheusModel>(
         builder: (context, child, model) {

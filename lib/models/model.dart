@@ -21,32 +21,5 @@ class EpimetheusModel extends Model {
     notifyListeners();
   }
 
-  Color _inheritedAlbumArtColor;
-
-  Color get inheritedAlbumArtColor => _inheritedAlbumArtColor;
-
-  set inheritedAlbumArtColor(color) {
-    _inheritedAlbumArtColor = color;
-    notifyListeners();
-  }
-
-  Color _inheritedAlbumArtBodyColor;
-
-  Color get inheritedAlbumArtBodyColor => _inheritedAlbumArtColor;
-
-  set inheritedAlbumArtBodyColor(color) {
-    _inheritedAlbumArtBodyColor = color;
-    notifyListeners();
-  }
-
-  void updateColors({
-    @required Color inheritedAlbumArtColor,
-    @required Color inheritedAlbumArtBodyColor,
-  }) {
-    _inheritedAlbumArtColor = inheritedAlbumArtColor;
-    _inheritedAlbumArtBodyColor = inheritedAlbumArtBodyColor;
-    notifyListeners();
-  }
-
-  static EpimetheusModel of(BuildContext context, {bool rebuildOnChange = false}) => ScopedModel.of<EpimetheusModel>(context, rebuildOnChange: rebuildOnChange);
+  static EpimetheusModel of(BuildContext context) => ScopedModel.of<EpimetheusModel>(context);
 }
