@@ -22,30 +22,36 @@ class _EpimetheusState extends State<Epimetheus> with WidgetsBindingObserver {
 
   StreamSubscription<MediaItem> _currentMediaItemSubscription;
 
+  String _currentArtUri;
   void startListening() {
     _currentMediaItemSubscription?.cancel();
     _currentMediaItemSubscription = AudioService.currentMediaItemStream.listen((mediaItem) async {
+      if (mediaItem?.artUri == _currentArtUri) return;
+      _currentArtUri = mediaItem?.artUri;
       if (mediaItem?.artUri != null) {
         final palette = await PaletteGenerator.fromImageProvider(
           NetworkImage(mediaItem.artUri),
-        );
-        setState(() {
-          _primarySwatch = MaterialColor(
-            palette.dominantColor.color.value,
-            {
-              50: palette.dominantColor.color,
-              100: palette.dominantColor.color,
-              200: palette.dominantColor.color,
-              300: palette.dominantColor.color,
-              400: palette.dominantColor.color,
-              500: palette.dominantColor.color,
-              600: palette.dominantColor.color,
-              700: palette.dominantColor.color,
-              800: palette.dominantColor.color,
-              900: palette.dominantColor.color,
-            },
-          );
+        ).catchError((_) {
+          setState(() {
+            _primarySwatch = Colors.blue;
+          });
         });
+        _primarySwatch = MaterialColor(
+          palette.dominantColor.color.value,
+          {
+            50: palette.dominantColor.color,
+            100: palette.dominantColor.color,
+            200: palette.dominantColor.color,
+            300: palette.dominantColor.color,
+            400: palette.dominantColor.color,
+            500: palette.dominantColor.color,
+            600: palette.dominantColor.color,
+            700: palette.dominantColor.color,
+            800: palette.dominantColor.color,
+            900: palette.dominantColor.color,
+          },
+        );
+        setState(() {});
       } else {
         setState(() {
           _primarySwatch = Colors.blue;
@@ -63,7 +69,9 @@ class _EpimetheusState extends State<Epimetheus> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     model = EpimetheusModel();
-    startListening();
+    AudioService.connect().then((value) {
+      startListening();
+    });
   }
 
   @override
@@ -85,6 +93,7 @@ class _EpimetheusState extends State<Epimetheus> with WidgetsBindingObserver {
   @override
   void dispose() {
     stopListening();
+    AudioService.disconnect();
     super.dispose();
   }
 
@@ -92,28 +101,33 @@ class _EpimetheusState extends State<Epimetheus> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return ScopedModel(
       model: model,
-      child: MaterialApp(
-        theme: ThemeData(
-          primarySwatch: _primarySwatch,
-          buttonTheme: ButtonThemeData(
-            buttonColor: Colors.blueAccent,
-            textTheme: ButtonTextTheme.primary,
-          ),
-          pageTransitionsTheme: PageTransitionsTheme(
-            builders: {
-              TargetPlatform.android: OpenUpwardsPageTransitionsBuilder(),
-              TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-              TargetPlatform.fuchsia: OpenUpwardsPageTransitionsBuilder(),
-            },
-          ),
-        ),
-        title: 'Epimetheus',
-        routes: {
-          '/': (context) => AuthPage(),
-          '/station_list': (context) => StationListPage(),
-          '/now_playing': (context) => NowPlayingPage(),
-        },
-      ),
+      child: StreamBuilder<MediaItem>(
+          initialData: AudioService.currentMediaItem,
+          stream: AudioService.currentMediaItemStream,
+          builder: (context, snapshot) {
+            return MaterialApp(
+              theme: ThemeData(
+                primarySwatch: _primarySwatch,
+                buttonTheme: ButtonThemeData(
+                  buttonColor: Colors.blueAccent,
+                  textTheme: ButtonTextTheme.primary,
+                ),
+                pageTransitionsTheme: PageTransitionsTheme(
+                  builders: {
+                    TargetPlatform.android: OpenUpwardsPageTransitionsBuilder(),
+                    TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+                    TargetPlatform.fuchsia: OpenUpwardsPageTransitionsBuilder(),
+                  },
+                ),
+              ),
+              title: 'Epimetheus',
+              routes: {
+                '/': (context) => AuthPage(),
+                '/station_list': (context) => StationListPage(),
+                '/now_playing': (context) => NowPlayingPage(),
+              },
+            );
+          }),
     );
   }
 }

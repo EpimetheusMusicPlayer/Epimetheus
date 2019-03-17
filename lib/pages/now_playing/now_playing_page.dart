@@ -21,9 +21,23 @@ class NowPlayingPage extends StatefulWidget {
 }
 
 class _NowPlayingPageState extends State<NowPlayingPage> with WidgetsBindingObserver {
+  ScrollController _scrollController;
+  bool _elevateAppBar = false;
+
   @override
   void initState() {
     super.initState();
+    _scrollController = ScrollController();
+    _scrollController.addListener(() {
+      setState(() {
+        final elevate = _scrollController.position.pixels != 0;
+        if (_elevateAppBar != elevate) {
+          setState(() {
+            _elevateAppBar = elevate;
+          });
+        }
+      });
+    });
     initService();
   }
 
@@ -46,6 +60,7 @@ class _NowPlayingPageState extends State<NowPlayingPage> with WidgetsBindingObse
     return Scaffold(
       appBar: AppBar(
         title: Text('Now Playing'),
+        elevation: _elevateAppBar ? 4 : 0,
       ),
       drawer: const NavigationDrawerWidget('/now_playing'),
       body: StreamBuilder<List<MediaItem>>(
@@ -56,6 +71,7 @@ class _NowPlayingPageState extends State<NowPlayingPage> with WidgetsBindingObse
             children: <Widget>[
               Expanded(
                 child: ListView.builder(
+                  controller: _scrollController,
                   itemBuilder: (context, index) {
                     return SongTileWidget(
                       mediaItem: snapshot.data[index],

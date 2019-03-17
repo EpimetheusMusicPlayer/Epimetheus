@@ -2,14 +2,12 @@ package tk.hacker1024.qudio
 
 import android.content.Context
 import android.net.Uri
-import android.os.Handler
-import android.util.Log
-import com.google.android.exoplayer2.*
+import com.google.android.exoplayer2.C
+import com.google.android.exoplayer2.ExoPlayerFactory
+import com.google.android.exoplayer2.IllegalSeekPositionException
+import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource
 import com.google.android.exoplayer2.source.ExtractorMediaSource
-import com.google.android.exoplayer2.source.MediaSource
-import com.google.android.exoplayer2.source.MediaSourceEventListener
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import io.flutter.plugin.common.MethodCall
@@ -17,7 +15,6 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.Registrar
-import java.lang.IllegalArgumentException
 
 class QudioPlugin(context: Context, val channel: MethodChannel) : MethodCallHandler {
     companion object {
@@ -49,7 +46,6 @@ class QudioPlugin(context: Context, val channel: MethodChannel) : MethodCallHand
             }
 
             override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
-                Log.d("QUDIO", "Player state changed") // TODO checking this
                 channel.invokeMethod(
                     "onPlayerStateChanged",
                     mapOf(
@@ -60,7 +56,6 @@ class QudioPlugin(context: Context, val channel: MethodChannel) : MethodCallHand
             }
 
             override fun onPositionDiscontinuity(reason: Int) {
-                Log.d("QUDIO", "Discontinuity")
                 concatenatingMediaSource.removeMediaSourceRange(0, player.currentPeriodIndex)
                 channel.invokeMethod("onPositionDiscontinuity", reason)
             }
@@ -70,14 +65,12 @@ class QudioPlugin(context: Context, val channel: MethodChannel) : MethodCallHand
     override fun onMethodCall(call: MethodCall, result: Result) {
         when (call.method) {
             "begin" -> {
-                Log.d("QUDIO", "Begin")
                 player.prepare(concatenatingMediaSource)
                 player.playWhenReady = true
                 result.success(true)
             }
 
             "addToQueue" -> {
-                Log.d("QUDIO", "Add")
                 val index = call.argument<Int>("index")
 
                 if (index == null) {
@@ -103,7 +96,6 @@ class QudioPlugin(context: Context, val channel: MethodChannel) : MethodCallHand
             }
 
             "addAllToQueue" -> {
-                Log.d("QUDIO", "AddAll")
                 val index = call.argument<Int>("index")
 
                 if (index == null) {
@@ -125,7 +117,6 @@ class QudioPlugin(context: Context, val channel: MethodChannel) : MethodCallHand
             }
 
             "removeFromQueue" -> {
-                Log.d("QUDIO", "Remove")
                 try {
                     concatenatingMediaSource.removeMediaSource(call.argument<Int>("index")!!)
                     result.success(true)
@@ -135,7 +126,6 @@ class QudioPlugin(context: Context, val channel: MethodChannel) : MethodCallHand
             }
 
             "removeRangeFromQueue" -> {
-                Log.d("QUDIO", "RemoveRange")
                 try {
                     concatenatingMediaSource.removeMediaSourceRange(
                         call.argument<Int>("fromIndex")!!,
@@ -148,12 +138,10 @@ class QudioPlugin(context: Context, val channel: MethodChannel) : MethodCallHand
             }
 
             "pause" -> {
-                Log.d("QUDIO", "Pause")
                 player.playWhenReady = false
                 result.success(true)
             }
             "play" -> {
-                Log.d("QUDIO", "Play")
                 player.playWhenReady = true
                 result.success(true)
             }

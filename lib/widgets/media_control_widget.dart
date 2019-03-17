@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:audio_service/audio_service.dart';
+import 'package:epimetheus/widgets/art_image_widget.dart';
+import 'package:epimetheus/widgets/progress_widget.dart';
 import 'package:flutter/material.dart';
 
 class MediaControlWidget extends StatefulWidget {
@@ -12,8 +14,115 @@ class MediaControlWidget extends StatefulWidget {
   _MediaControlWidgetState createState() => _MediaControlWidgetState();
 }
 
-class _MediaControlWidgetState extends State<MediaControlWidget> with SingleTickerProviderStateMixin, WidgetsBindingObserver {
+class _MediaControlWidgetState extends State<MediaControlWidget> {
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Theme.of(context).primaryColor,
+        boxShadow: [BoxShadow(blurRadius: 2)],
+        borderRadius: const BorderRadius.only(
+          topLeft: const Radius.circular(2),
+          topRight: const Radius.circular(2),
+        ),
+      ),
+      child: FutureBuilder<bool>(
+        initialData: false,
+        future: AudioService.running,
+        builder: (context, snapshot) {
+          if (!snapshot.data) return SizedBox();
+          return widget._showHUD
+              ? Column(
+                  children: [_HUD(), _Buttons()],
+                )
+              : _Buttons();
+        },
+      ),
+    );
+  }
+}
+
+class _HUD extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final textColor = Theme.of(context).primaryTextTheme.title.color;
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).pushReplacementNamed('/now_playing');
+      },
+      child: StreamBuilder<MediaItem>(
+        initialData: AudioService.currentMediaItem,
+        stream: AudioService.currentMediaItemStream,
+        builder: (context, snapshot) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+            child: Row(
+              children: [
+                ArtImageWidget(snapshot.data.artUri, 72),
+                SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        snapshot.data.title,
+                        textScaleFactor: 1.1,
+                        overflow: TextOverflow.fade,
+                        softWrap: false,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: textColor,
+                        ),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        snapshot.data.artist,
+                        textScaleFactor: 1.1,
+                        overflow: TextOverflow.fade,
+                        softWrap: false,
+                        style: TextStyle(
+                          color: textColor,
+                        ),
+                      ),
+                      SizedBox(height: 2),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              snapshot.data.album,
+                              textScaleFactor: 1.1,
+                              overflow: TextOverflow.fade,
+                              softWrap: false,
+                              style: TextStyle(
+                                fontStyle: FontStyle.italic,
+                                color: textColor,
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 2),
+                          ProgressWidget(),
+                        ],
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _Buttons extends StatefulWidget {
+  @override
+  __ButtonsState createState() => __ButtonsState();
+}
+
+class __ButtonsState extends State<_Buttons> with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   AnimationController _controller;
+
   StreamSubscription<PlaybackState> _playbackStateSubscription;
 
   void startListening() {
@@ -62,31 +171,23 @@ class _MediaControlWidgetState extends State<MediaControlWidget> with SingleTick
   void playPause() {
     if (AudioService.playbackState.basicState == BasicPlaybackState.paused) {
       AudioService.play();
-      _controller.forward(from: 0);
     } else if (AudioService.playbackState.basicState == BasicPlaybackState.playing) {
       AudioService.pause();
-      _controller.reverse(from: 1);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: Theme.of(context).primaryColor,
-        boxShadow: [BoxShadow(blurRadius: 4)],
-        borderRadius: const BorderRadius.only(
-          topLeft: const Radius.circular(2),
-          topRight: const Radius.circular(2),
+    return Material(
+      type: MaterialType.transparency,
+      child: IconTheme(
+        data: IconThemeData(
+          color: Theme.of(context).primaryTextTheme.title.color,
         ),
-      ),
-      child: Material(
-        type: MaterialType.transparency,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             const IconButton(
-              color: Colors.white,
               iconSize: 36,
               icon: Icon(
                 Icons.stop,
@@ -94,7 +195,6 @@ class _MediaControlWidgetState extends State<MediaControlWidget> with SingleTick
               onPressed: AudioService.stop,
             ),
             const IconButton(
-              color: Colors.white,
               iconSize: 36,
               icon: Icon(
                 Icons.fast_rewind,
@@ -102,7 +202,6 @@ class _MediaControlWidgetState extends State<MediaControlWidget> with SingleTick
               onPressed: AudioService.rewind,
             ),
             IconButton(
-              color: Colors.white,
               iconSize: 36,
               icon: AnimatedIcon(
                 icon: AnimatedIcons.play_pause,
@@ -111,7 +210,6 @@ class _MediaControlWidgetState extends State<MediaControlWidget> with SingleTick
               onPressed: playPause,
             ),
             const IconButton(
-              color: Colors.white,
               iconSize: 36,
               icon: Icon(
                 Icons.fast_forward,
@@ -119,7 +217,6 @@ class _MediaControlWidgetState extends State<MediaControlWidget> with SingleTick
               onPressed: AudioService.fastForward,
             ),
             const IconButton(
-              color: Colors.white,
               iconSize: 36,
               icon: Icon(
                 Icons.skip_next,

@@ -16,8 +16,8 @@ class NavigationDrawerWidget extends StatelessWidget {
         children: <Widget>[
           model.user != null
               ? UserAccountsDrawerHeader(
-                  accountEmail: Text(model.user.email),
-                  accountName: Text(model.user.username),
+                  accountEmail: Text(model.user.email, style: TextStyle(color: Colors.white)),
+                  accountName: Text(model.user.username, style: TextStyle(color: Colors.white)),
                   decoration: BoxDecoration(
                     image: DecorationImage(
                       image: NetworkImage(model.user.profileImageUrl),
@@ -34,30 +34,34 @@ class NavigationDrawerWidget extends StatelessWidget {
                   child: SizedBox(width: 0, height: 0),
                 ),
           Expanded(
-            child: ListView(
-              padding: EdgeInsets.zero,
-              children: [
-                ListTile(
-                  leading: Icon(Icons.playlist_play),
-                  title: Text('Now Playing'),
-                  selected: currentPath == '/now_playing',
-                  onTap: () {
-                    final navigator = Navigator.of(context);
-                    navigator.pop();
-                    navigator.pushReplacementNamed('/now_playing');
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.library_music),
-                  title: Text('My Stations'),
-                  selected: currentPath == '/station_list',
-                  onTap: () {
-                    final navigator = Navigator.of(context);
-                    navigator.pop();
-                    navigator.pushReplacementNamed('/station_list');
-                  },
-                ),
-              ],
+            child: ListTileTheme(
+              selectedColor: Colors.blue,
+              style: ListTileStyle.drawer,
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  ListTile(
+                    leading: Icon(Icons.playlist_play),
+                    title: Text('Now Playing'),
+                    selected: currentPath == '/now_playing',
+                    onTap: () {
+                      final navigator = Navigator.of(context);
+                      navigator.pop();
+                      navigator.pushReplacementNamed('/now_playing');
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.library_music),
+                    title: Text('My Stations'),
+                    selected: currentPath == '/station_list',
+                    onTap: () {
+                      final navigator = Navigator.of(context);
+                      navigator.pop();
+                      navigator.pushReplacementNamed('/station_list');
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
           ListTile(

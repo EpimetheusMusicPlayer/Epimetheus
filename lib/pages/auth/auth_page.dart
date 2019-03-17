@@ -71,6 +71,7 @@ class _AuthPageState extends State<AuthPage> {
       if (write) {
         writeToSecureStorage();
       }
+      precacheImage(NetworkImage(user.profileImageUrl), context);
     }).catchError(
       (e) {
         _closeSigningInDialog = true;
@@ -93,6 +94,8 @@ class _AuthPageState extends State<AuthPage> {
   @override
   void initState() {
     super.initState();
+
+    Connectivity().checkConnectivity(); // TODO
 
     storage = FlutterSecureStorage();
     storage.readAll().then((values) {

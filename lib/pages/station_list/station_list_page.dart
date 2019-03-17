@@ -3,6 +3,7 @@ import 'package:epimetheus/dialogs/no_connection_dialog.dart';
 import 'package:epimetheus/libepimetheus/stations.dart';
 import 'package:epimetheus/models/model.dart';
 import 'package:epimetheus/pages/now_playing/now_playing_page.dart';
+import 'package:epimetheus/widgets/media_control_widget.dart';
 import 'package:epimetheus/widgets/navigation_drawer_widget.dart';
 import 'package:epimetheus/widgets/station_list_tile_widget.dart';
 import 'package:flutter/material.dart';
@@ -60,46 +61,53 @@ class _StationListPageState extends State<StationListPage> {
         title: Text('Stations'),
       ),
       drawer: const NavigationDrawerWidget('/station_list'),
-      body: ScopedModelDescendant<EpimetheusModel>(
-        builder: (context, child, model) {
-          if (model.stations == null) return child;
-          return RefreshIndicator(
-            onRefresh: loadStations,
-            child: ListView.separated(
-              physics: const AlwaysScrollableScrollPhysics(),
-              separatorBuilder: (context, index) => Divider(height: 0, indent: 88),
-              itemBuilder: (context, index) {
-                final int lastItemIndex = model.stations.length - 1;
-                return Container(
-                  margin: EdgeInsets.only(
-                    top: index == 0 ? 8 : 0,
-                    bottom: index == lastItemIndex ? 8 : 0,
-                  ),
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (BuildContext context) {
-                            EpimetheusModel model = EpimetheusModel.of(context);
-                            return NowPlayingPage(
-                              model.user,
-                              StationMusicProvider(model.stations, index),
+      body: Column(
+        children: <Widget>[
+          Expanded(
+            child: ScopedModelDescendant<EpimetheusModel>(
+              builder: (context, child, model) {
+                if (model.stations == null) return child;
+                return RefreshIndicator(
+                  onRefresh: loadStations,
+                  child: ListView.separated(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    separatorBuilder: (context, index) => Divider(height: 0, indent: 88),
+                    itemBuilder: (context, index) {
+                      final int lastItemIndex = model.stations.length - 1;
+                      return Container(
+                        margin: EdgeInsets.only(
+                          top: index == 0 ? 8 : 0,
+                          bottom: index == lastItemIndex ? 8 : 0,
+                        ),
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (BuildContext context) {
+                                  EpimetheusModel model = EpimetheusModel.of(context);
+                                  return NowPlayingPage(
+                                    model.user,
+                                    StationMusicProvider(model.stations, index),
+                                  );
+                                },
+                              ),
                             );
                           },
+                          child: StationListTile(model.stations[index]),
                         ),
                       );
                     },
-                    child: StationListTile(model.stations[index]),
+                    itemCount: model.stations.length,
                   ),
                 );
               },
-              itemCount: model.stations.length,
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
             ),
-          );
-        },
-        child: Center(
-          child: CircularProgressIndicator(),
-        ),
+          ),
+          MediaControlWidget(),
+        ],
       ),
     );
   }
