@@ -28,6 +28,10 @@ void audioTask() async {
   final ReceivePort receivePort = ReceivePort();
   IsolateNameServer.registerPortWithName(receivePort.sendPort, 'audio_task');
 
+  StreamSubscription<QudioPlaybackStatus> playbackStatusStream;
+  StreamSubscription<PositionDiscontinuityReason> positionDiscontinuityStream;
+  StreamSubscription<bool> sourceErrorStream;
+
   final List<MediaControl> mediaControls = <MediaControl>[
     MediaControl(label: 'Stop', androidIcon: 'drawable/ic_stop', action: MediaAction.stop),
     MediaControl(label: 'Rewind', androidIcon: 'drawable/ic_rewind', action: MediaAction.rewind),
@@ -61,6 +65,17 @@ void audioTask() async {
     );
   }
 
+  void stop() async {
+    await Future.wait([
+      playbackStatusStream.cancel(),
+      positionDiscontinuityStream.cancel(),
+      sourceErrorStream.cancel(),
+    ]);
+    await updateBasicPlaybackState(BasicPlaybackState.stopped);
+    await Qudio.stop();
+    serviceCompleter.complete();
+  }
+
   void onUrlsAdded(List<String> urls) {
     Qudio.addAllToQueue(urls);
     if (musicProvider.queue.length - urls.length <= 0) {
@@ -73,7 +88,12 @@ void audioTask() async {
     if (musicProvider.count == 0) {
       togglePlayPauseControl(true);
       updateBasicPlaybackState(BasicPlaybackState.buffering);
-      onUrlsAdded(await musicProvider.load(user));
+      final newUrls = await musicProvider.load(user);
+      if (newUrls == null) {
+        stop();
+        return;
+      }
+      onUrlsAdded(newUrls);
     }
     if (musicProvider.count <= (skipToNext ? 3 : 2)) {
       musicProvider.load(user).then((List<String> result) {
@@ -123,9 +143,6 @@ void audioTask() async {
     }
   });
 
-  StreamSubscription<QudioPlaybackStatus> playbackStatusStream;
-  StreamSubscription<PositionDiscontinuityReason> positionDiscontinuityStream;
-
   AudioServiceBackground.run(
     onStart: () {
       Qudio.connect();
@@ -147,11 +164,7 @@ void audioTask() async {
       newSong(true);
     },
     onStop: () async {
-      await Future.wait([playbackStatusStream.cancel(), positionDiscontinuityStream.cancel()]);
-      await updateBasicPlaybackState(BasicPlaybackState.stopped);
-      await Qudio.stop();
-      Qudio.disconnect();
-      serviceCompleter.complete();
+      stop();
     },
     onSetRating: (Rating rating, Map<dynamic, dynamic> extras) {
       print('RATING: $rating, $extras');
@@ -203,5 +216,9 @@ void audioTask() async {
       musicProvider.skip();
       newSong(false);
     }
+  });
+
+  sourceErrorStream = Qudio.sourceErrorStream.listen((error) {
+    if (error) stop();
   });
 }

@@ -81,7 +81,7 @@ class _StationListPageState extends State<StationListPage> {
                         ),
                         child: InkWell(
                           onTap: () {
-                            Navigator.of(context).push(
+                            Navigator.of(context).pushReplacement(
                               MaterialPageRoute(
                                 builder: (BuildContext context) {
                                   EpimetheusModel model = EpimetheusModel.of(context);

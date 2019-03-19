@@ -9,7 +9,9 @@ import 'package:flutter/material.dart';
 import 'package:palette_generator/palette_generator.dart';
 import 'package:scoped_model/scoped_model.dart';
 
-void main() => runApp(Epimetheus());
+void main() {
+  runApp(Epimetheus());
+}
 
 class Epimetheus extends StatefulWidget {
   @override

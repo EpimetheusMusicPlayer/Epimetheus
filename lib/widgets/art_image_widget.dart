@@ -17,6 +17,7 @@ class ArtImageWidget extends StatelessWidget {
           placeholder: 'assets/music_note.png',
           image: image,
           height: height,
+          fit: BoxFit.cover,
         ),
       ),
     );

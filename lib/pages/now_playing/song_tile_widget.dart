@@ -31,9 +31,12 @@ class SongTileWidget extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ArtImageWidget(
-            mediaItem.artUri,
-            128,
+          Hero(
+            tag: mediaItem.id + '/image',
+            child: ArtImageWidget(
+              mediaItem.artUri,
+              128,
+            ),
           ),
           SizedBox(width: _padding),
           Expanded(
