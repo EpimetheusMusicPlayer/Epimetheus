@@ -1,7 +1,5 @@
-import 'dart:convert';
-
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 
 import './authentication.dart';
 import './exceptions.dart';
@@ -16,34 +14,27 @@ Future<Map<String, dynamic>> makeApiRequest({
   bool usePortaller = false,
   AuthenticatedEntity user,
 }) async {
-  Map<String, dynamic> response = jsonDecode((await http.post(
-    Uri(
-      scheme: 'https',
-      host: 'pandora.com',
-      pathSegments: ['api', version] + endpoint.split('/'),
-    ),
-    encoding: Encoding.getByName('utf-8'),
-    body: jsonEncode(requestData),
-    headers: {
-      'Content-Type': 'application/json',
-      'Cookie': 'csrftoken=${csrfToken ??= await getCsrfToken()}',
+  var response = (await Dio().post(
+    'https://pandora.com/api/$version/$endpoint',
+    options: Options(responseType: ResponseType.json, headers: {
       'X-CsrfToken': csrfToken ??= await getCsrfToken(),
       'X-AuthToken': user?.authToken ?? '',
-    },
+      'Cookie': 'csrftoken=${csrfToken ??= await getCsrfToken()}',
+    }),
+    data: requestData,
   ))
-      .body);
+      .data;
 
   if (response.containsKey('errorCode')) throwException(response['errorString'], response['message'], response['errorCode']);
-
   return response;
 }
 
 Future<String> getCsrfToken() async {
   String _csrfToken;
 
-  for (String string in (await http.head('https://pandora.com/')).headers['set-cookie'].split(RegExp(r';|,'))) {
+  for (String string in (await Dio().head('https://pandora.com/')).headers['set-cookie']) {
     if (string.startsWith('csrftoken')) {
-      _csrfToken = string.split('=')[1];
+      _csrfToken = string.split('=')[1].split(';')[0];
     }
   }
 
