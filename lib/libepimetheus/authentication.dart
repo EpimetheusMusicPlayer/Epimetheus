@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:dio/dio.dart';
+import 'package:http/http.dart' as http;
 import 'package:meta/meta.dart';
 
 import './networking.dart';
@@ -70,18 +70,20 @@ class User extends AuthenticatedEntity {
   static Future<String> _getFacebookProfileImageUrl(Map<String, dynamic> facebookData) async {
     if (facebookData == null) return null;
 
-    return jsonDecode((await Dio().getUri(
-      Uri(
-        scheme: 'https',
-        host: 'graph.facebook.com',
-        pathSegments: [facebookData['facebookId'], 'picture'],
-        queryParameters: {
-          'type': 'large',
-          'redirect': 'false',
-        },
-      ),
-    ))
-        .data)['data']['url'];
+    return jsonDecode(
+      (await http.get(
+        Uri(
+          scheme: 'https',
+          host: 'graph.facebook.com',
+          pathSegments: [facebookData['facebookId'], 'picture'],
+          queryParameters: {
+            'type': 'large',
+            'redirect': 'false',
+          },
+        ),
+      ))
+          .body,
+    )['data']['url'];
   }
 
   @override
