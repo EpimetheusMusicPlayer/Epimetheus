@@ -33,21 +33,21 @@ void audioTask() async {
   StreamSubscription<bool> sourceErrorStream;
 
   final List<MediaControl> mediaControls = <MediaControl>[
-    MediaControl(label: 'Stop', androidIcon: 'drawable/ic_stop', action: MediaAction.stop),
-    MediaControl(label: 'Rewind', androidIcon: 'drawable/ic_rewind', action: MediaAction.rewind),
+    const MediaControl(label: 'Stop', androidIcon: 'drawable/ic_stop', action: MediaAction.stop),
+    const MediaControl(label: 'Rewind', androidIcon: 'drawable/ic_rewind', action: MediaAction.rewind),
     null,
-    MediaControl(label: 'Fast-forward', androidIcon: 'drawable/ic_fast_forward', action: MediaAction.fastForward),
-    MediaControl(label: 'Skip', androidIcon: 'drawable/ic_skip', action: MediaAction.skipToNext),
+    const MediaControl(label: 'Fast-forward', androidIcon: 'drawable/ic_fast_forward', action: MediaAction.fastForward),
+    const MediaControl(label: 'Skip', androidIcon: 'drawable/ic_skip', action: MediaAction.skipToNext),
   ];
 
   void togglePlayPauseControl(bool paused) {
     mediaControls[2] = paused
-        ? MediaControl(
+        ? const MediaControl(
             label: 'Play',
             androidIcon: 'drawable/ic_play',
             action: MediaAction.play,
           )
-        : MediaControl(
+        : const MediaControl(
             label: 'Pause',
             androidIcon: 'drawable/ic_pause',
             action: MediaAction.pause,
@@ -66,6 +66,7 @@ void audioTask() async {
   }
 
   void stop() async {
+    IsolateNameServer.removePortNameMapping('audio_task');
     await Future.wait([
       playbackStatusStream.cancel(),
       positionDiscontinuityStream.cancel(),
@@ -120,7 +121,7 @@ void audioTask() async {
 
       if (musicProvider != data[1]) {
         AudioServiceBackground.setMediaItem(
-          MediaItem(
+          const MediaItem(
             id: 'loading',
             title: 'Loading...',
             artist: 'Loading...',

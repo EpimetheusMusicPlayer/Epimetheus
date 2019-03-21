@@ -28,6 +28,7 @@ class _EpimetheusState extends State<Epimetheus> with WidgetsBindingObserver {
   void startListening() {
     _currentMediaItemSubscription?.cancel();
     _currentMediaItemSubscription = AudioService.currentMediaItemStream.listen((mediaItem) async {
+      print('New mediaItem: $mediaItem');
       if (mediaItem?.artUri == _currentArtUri) return;
       _currentArtUri = mediaItem?.artUri;
       if (mediaItem?.artUri != null) {

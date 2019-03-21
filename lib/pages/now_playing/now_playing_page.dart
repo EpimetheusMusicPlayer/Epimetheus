@@ -22,7 +22,7 @@ class NowPlayingPage extends StatefulWidget {
 
 class _NowPlayingPageState extends State<NowPlayingPage> with WidgetsBindingObserver {
   ScrollController _scrollController;
-  bool _elevateAppBar = false;
+  bool _elevateAppBar = (AudioService.queue?.isEmpty ?? false);
 
   @override
   void initState() {
@@ -30,7 +30,7 @@ class _NowPlayingPageState extends State<NowPlayingPage> with WidgetsBindingObse
     _scrollController = ScrollController();
     _scrollController.addListener(() {
       setState(() {
-        final elevate = _scrollController.position.pixels != 0;
+        final elevate = _scrollController.position.pixels != 0 || (AudioService.queue?.isEmpty ?? false);
         if (_elevateAppBar != elevate) {
           setState(() {
             _elevateAppBar = elevate;

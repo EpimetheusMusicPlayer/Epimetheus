@@ -11,9 +11,9 @@ packages:
   audio_service:
     dependency: "direct main"
     description:
-      name: audio_service
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: audio_service
+      relative: true
+    source: path
     version: "0.1.0"
   boolean_selector:
     dependency: transitive
