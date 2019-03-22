@@ -5,6 +5,26 @@ import './authentication.dart';
 import './exceptions.dart';
 
 String csrfToken;
+final Dio _dio = Dio();
+final Dio _portallerDio = () {
+  final Dio _portallerDio = Dio();
+  (_portallerDio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (client) {
+    client.badCertificateCallback = (cert, host, port) {
+      print('bad cert');
+      print(cert.issuer);
+      print(cert.subject);
+      print(host);
+      return true;
+    };
+  };
+  _portallerDio.interceptors.add(InterceptorsWrapper(
+    onError: (error) {
+      print('error');
+      print(error);
+    },
+  ));
+  return _portallerDio;
+}();
 
 /// Make a Pandora API request.
 Future<Map<String, dynamic>> makeApiRequest({
@@ -14,9 +34,10 @@ Future<Map<String, dynamic>> makeApiRequest({
   bool usePortaller = false,
   AuthenticatedEntity user,
 }) async {
-  var response = (await Dio().post(
-    'https://pandora.com/api/$version/$endpoint',
+  final response = (await _portallerDio.post(
+    'https://107.170.15.247/api/$version/$endpoint',
     options: Options(responseType: ResponseType.json, headers: {
+      'Host': 'pandora.com',
       'X-CsrfToken': csrfToken ??= await getCsrfToken(),
       'X-AuthToken': user?.authToken ?? '',
       'Cookie': 'csrftoken=${csrfToken ??= await getCsrfToken()}',
@@ -32,7 +53,15 @@ Future<Map<String, dynamic>> makeApiRequest({
 Future<String> getCsrfToken() async {
   String _csrfToken;
 
-  for (String string in (await Dio().head('https://pandora.com/')).headers['set-cookie']) {
+  for (String string in (await _portallerDio.head(
+    'https://107.170.15.247/',
+    options: Options(
+      headers: {
+        'Host': 'pandora.com',
+      },
+    ),
+  ))
+      .headers['set-cookie']) {
     if (string.startsWith('csrftoken')) {
       _csrfToken = string.split('=')[1].split(';')[0];
     }
