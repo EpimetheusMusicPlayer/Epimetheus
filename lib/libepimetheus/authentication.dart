@@ -31,8 +31,8 @@ class User extends AuthenticatedEntity {
   }) : super._internal(authToken);
 
   /// Creates a user object, authenticating with the given [email] and [password].
-  /// If the [usePortaller] boolean is true, the Portaller smart DNS service will be used.
-  static Future<User> create(email, String password, [usePortaller = false]) async {
+  /// If the [useProxy] boolean is true, a proxy service will be used.
+  static Future<User> create(email, String password, [useProxy = false]) async {
     var authResponse = await makeApiRequest(
       version: 'v1',
       endpoint: 'auth/login',
@@ -41,15 +41,15 @@ class User extends AuthenticatedEntity {
         'password': password,
         'keepLoggedIn': true,
       },
-      usePortaller: usePortaller,
+      useProxy: useProxy,
     );
 
     return User._internal(
       authToken: authResponse['authToken'],
-      usePortaller: usePortaller,
+      usePortaller: useProxy,
       email: email,
       password: password,
-      username: await _getUsername(AuthenticatedEntity._internal(authResponse['authToken']), authResponse['webname'], usePortaller),
+      username: await _getUsername(AuthenticatedEntity._internal(authResponse['authToken']), authResponse['webname'], useProxy),
       webname: authResponse['webname'],
       profileImageUrl: (await _getFacebookProfileImageUrl(authResponse['facebookData'])) ?? authResponse['placeholderProfileImageUrl'],
     );
@@ -60,7 +60,7 @@ class User extends AuthenticatedEntity {
       version: 'v1',
       endpoint: 'listener/getProfile',
       requestData: {'webname': webname},
-      usePortaller: usePortaller,
+      useProxy: usePortaller,
       user: auth,
     );
 

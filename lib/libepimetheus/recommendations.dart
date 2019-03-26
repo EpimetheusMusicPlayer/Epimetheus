@@ -85,11 +85,13 @@ Future<Recommendations> getRecommendations(User user) async {
     version: 'v1',
     endpoint: 'search/getStationRecommendations',
     user: user,
-    usePortaller: user.usePortaller,
+    useProxy: user.usePortaller,
   );
 
   return Recommendations._internal(
     artists: recommendations['artists'].map<ArtistRecommendation>((artistJSON) => ArtistRecommendation(artistJSON)).toList(growable: false),
-    genreStations: recommendations['genreStations'].map<GenreStationRecommendation>((genreStationJSON) => GenreStationRecommendation(genreStationJSON)).toList(growable: false),
+    genreStations: recommendations['genreStations']
+        .map<GenreStationRecommendation>((genreStationJSON) => GenreStationRecommendation(genreStationJSON))
+        .toList(growable: false),
   );
 }

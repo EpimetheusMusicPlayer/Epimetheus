@@ -26,8 +26,14 @@ class Station extends ArtItem {
   }) : super(artUrls);
 
   @override
-  bool operator ==(Object other) =>
-      other is Station ? stationId == other.stationId && pandoraId == other.pandoraId && isShuffle == other.isShuffle && isThumbprint == other.isThumbprint && canRename == other.canDelete && canRename == other.canRename : super == (other);
+  bool operator ==(Object other) => other is Station
+      ? stationId == other.stationId &&
+          pandoraId == other.pandoraId &&
+          isShuffle == other.isShuffle &&
+          isThumbprint == other.isThumbprint &&
+          canRename == other.canDelete &&
+          canRename == other.canRename
+      : super == (other);
 
   @override
   int get hashCode {
@@ -57,7 +63,7 @@ class Station extends ArtItem {
         'onDemandArtistMessageIdHex': null,
       },
       user: user,
-      usePortaller: user.usePortaller,
+      useProxy: user.usePortaller,
     ))['tracks'];
 
     List<Song> playlistFragment = playlistFragmentJSON.map((songJSON) => Song(Map<String, dynamic>.from(songJSON))).toList();
@@ -72,7 +78,7 @@ Future<List<Station>> getStations(User user, bool includeShuffle) async {
     endpoint: 'station/getStations',
     requestData: {'pageSize': 4096},
     user: user,
-    usePortaller: user.usePortaller,
+    useProxy: user.usePortaller,
   ))['stations'];
 
   if (includeShuffle) {
@@ -80,7 +86,7 @@ Future<List<Station>> getStations(User user, bool includeShuffle) async {
       version: 'v1',
       endpoint: 'station/shuffle',
       user: user,
-      usePortaller: user.usePortaller,
+      useProxy: user.usePortaller,
     ));
   }
 
