@@ -13,12 +13,14 @@ class ArtImageWidget extends StatelessWidget {
       borderRadius: artBorderRadius,
       child: DecoratedBox(
         decoration: BoxDecoration(color: artBackgroundColor),
-        child: FadeInImage.assetNetwork(
-          placeholder: 'assets/music_note.png',
-          image: image,
-          height: height,
-          fit: BoxFit.cover,
-        ),
+        child: image != null
+            ? FadeInImage.assetNetwork(
+                placeholder: 'assets/music_note.png',
+                image: image,
+                height: height,
+                fit: BoxFit.cover,
+              )
+            : SizedBox(),
       ),
     );
   }

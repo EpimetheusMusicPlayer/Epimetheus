@@ -16,9 +16,12 @@ class StationListTile extends StatelessWidget {
       ),
       child: Row(
         children: [
-          ArtImageWidget(
-            _station.getArtUrl(130),
-            56,
+          Hero(
+            tag: _station.pandoraId + '/image',
+            child: ArtImageWidget(
+              _station.getArtUrl(130),
+              56,
+            ),
           ),
           SizedBox(width: 16),
           Expanded(

@@ -87,12 +87,23 @@ class NavigationDrawerWidget extends StatelessWidget {
                     final stations = EpimetheusModel.of(context).stations;
                     final stationArts = List<Positioned>();
                     for (int i = 0; i < stations.length; i++) {
+                      final useHero = false; //currentPath != '/station_list'; TODO this is glitchy
+
+                      final image = Image.network(
+                        stations[i].getArtUrl(130),
+                        height: 72,
+                        fit: BoxFit.fitHeight,
+                      );
+
                       stationArts.add(
                         Positioned(
-                          left: (i * 55).toDouble(),
-                          child: Image.network(
-                            stations[i].getArtUrl(130),
-                          ),
+                          left: (i * 45).toDouble(),
+                          child: useHero
+                              ? Hero(
+                                  tag: stations[i].pandoraId + '/image',
+                                  child: image,
+                                )
+                              : image,
                         ),
                       );
                     }
