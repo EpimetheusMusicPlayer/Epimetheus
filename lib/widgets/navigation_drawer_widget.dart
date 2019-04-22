@@ -86,9 +86,8 @@ class NavigationDrawerWidget extends StatelessWidget {
                   backgroundBuilder: (context) {
                     final stations = EpimetheusModel.of(context).stations;
                     final stationArts = List<Positioned>();
+                    final useHero = false; //currentPath != '/station_list'; TODO this is glitchy
                     for (int i = 0; i < stations.length; i++) {
-                      final useHero = false; //currentPath != '/station_list'; TODO this is glitchy
-
                       final image = Image.network(
                         stations[i].getArtUrl(130),
                         height: 72,
