@@ -11,10 +11,10 @@ import 'package:epimetheus/widgets/navigation_drawer_widget.dart';
 import 'package:flutter/material.dart';
 
 class NowPlayingPage extends StatefulWidget {
-  final User user;
-  final MusicProvider musicProvider;
+  final User _user;
+  final MusicProvider _musicProvider;
 
-  NowPlayingPage([this.user, this.musicProvider]);
+  NowPlayingPage([this._user, this._musicProvider]);
 
   @override
   _NowPlayingPageState createState() => _NowPlayingPageState();
@@ -22,33 +22,26 @@ class NowPlayingPage extends StatefulWidget {
 
 class _NowPlayingPageState extends State<NowPlayingPage> with WidgetsBindingObserver {
   ScrollController _scrollController;
-  bool _elevateAppBar = (AudioService.queue?.isEmpty ?? false);
+  bool _elevated;
 
   @override
   void initState() {
     super.initState();
     _scrollController = ScrollController();
     _scrollController.addListener(() {
-      setState(() {
-        final elevate = _scrollController.position.pixels != 0 || (AudioService.queue?.isEmpty ?? false);
-        if (_elevateAppBar != elevate) {
-          setState(() {
-            _elevateAppBar = elevate;
-          });
-        }
-      });
+      if (_elevated != (_scrollController.hasClients && _scrollController.offset != 0)) setState(() {});
     });
     initService();
   }
 
   void initService() async {
     await AudioService.connect();
-    if (widget.user != null && widget.musicProvider != null) {
+    if (widget._user != null && widget._musicProvider != null) {
       await startAudioTask();
       IsolateNameServer.lookupPortByName('audio_task').send(
         <dynamic>[
-          widget.user,
-          widget.musicProvider,
+          widget._user,
+          widget._musicProvider,
           csrfToken,
         ],
       );
@@ -60,7 +53,7 @@ class _NowPlayingPageState extends State<NowPlayingPage> with WidgetsBindingObse
     return Scaffold(
       appBar: AppBar(
         title: Text('Now Playing'),
-        elevation: _elevateAppBar ? 4 : 0,
+        elevation: (_elevated = (_scrollController.hasClients && _scrollController.offset != 0)) ? 4 : 0,
       ),
       drawer: const NavigationDrawerWidget('/now_playing'),
       body: StreamBuilder<List<MediaItem>>(

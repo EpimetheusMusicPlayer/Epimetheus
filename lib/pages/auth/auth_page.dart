@@ -215,7 +215,7 @@ class _AuthPageState extends State<AuthPage> {
                       StreamBuilder<Object>(
                         stream: Connectivity().onConnectivityChanged,
                         builder: (context, snapshot) {
-                          if (snapshot.data != ConnectivityResult.none) {
+                          if (true || snapshot.data != ConnectivityResult.none) {
                             return RaisedButton(
                               onPressed: () {
                                 if (_formKey.currentState.validate()) {

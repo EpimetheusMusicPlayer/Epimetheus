@@ -5,6 +5,7 @@ import 'package:epimetheus/models/model.dart';
 import 'package:epimetheus/pages/auth/auth_page.dart';
 import 'package:epimetheus/pages/now_playing/now_playing_page.dart';
 import 'package:epimetheus/pages/station_list/station_list_page.dart';
+import 'package:epimetheus/theme_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:palette_generator/palette_generator.dart';
 import 'package:scoped_model/scoped_model.dart';
@@ -20,7 +21,8 @@ class Epimetheus extends StatefulWidget {
 
 class _EpimetheusState extends State<Epimetheus> with WidgetsBindingObserver {
   EpimetheusModel model;
-  Color _primarySwatch = Colors.blue;
+  Color _primarySwatch = default_primary_color;
+  Color _accentColor = default_accent_color;
 
   StreamSubscription<MediaItem> _currentMediaItemSubscription;
 
@@ -36,28 +38,32 @@ class _EpimetheusState extends State<Epimetheus> with WidgetsBindingObserver {
           NetworkImage(mediaItem.artUri),
         ).catchError((_) {
           setState(() {
-            _primarySwatch = Colors.blue;
+            _primarySwatch = default_primary_color;
+            _accentColor = default_accent_color;
           });
         });
-        _primarySwatch = MaterialColor(
-          palette.dominantColor.color.value,
-          {
-            50: palette.dominantColor.color,
-            100: palette.dominantColor.color,
-            200: palette.dominantColor.color,
-            300: palette.dominantColor.color,
-            400: palette.dominantColor.color,
-            500: palette.dominantColor.color,
-            600: palette.dominantColor.color,
-            700: palette.dominantColor.color,
-            800: palette.dominantColor.color,
-            900: palette.dominantColor.color,
-          },
-        );
-        setState(() {});
+        setState(() {
+          _primarySwatch = MaterialColor(
+            palette.dominantColor.color.value,
+            {
+              50: palette.dominantColor.color,
+              100: palette.dominantColor.color,
+              200: palette.dominantColor.color,
+              300: palette.dominantColor.color,
+              400: palette.dominantColor.color,
+              500: palette.dominantColor.color,
+              600: palette.dominantColor.color,
+              700: palette.dominantColor.color,
+              800: palette.dominantColor.color,
+              900: palette.dominantColor.color,
+            },
+          );
+          _accentColor = palette.lightVibrantColor?.color ?? palette.lightMutedColor?.color ?? Colors.black12;
+        });
       } else {
         setState(() {
-          _primarySwatch = Colors.blue;
+          _primarySwatch = default_primary_color;
+          _accentColor = default_accent_color;
         });
       }
     });
@@ -111,6 +117,7 @@ class _EpimetheusState extends State<Epimetheus> with WidgetsBindingObserver {
             return MaterialApp(
               theme: ThemeData(
                 primarySwatch: _primarySwatch,
+                accentColor: _accentColor,
                 buttonTheme: ButtonThemeData(
                   buttonColor: Colors.blueAccent,
                   textTheme: ButtonTextTheme.primary,

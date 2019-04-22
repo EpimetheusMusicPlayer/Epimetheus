@@ -17,8 +17,6 @@ Future<bool> startAudioTask() {
   );
 }
 
-// TODO network error handling
-
 void audioTask() async {
   Completer<void> serviceCompleter = Completer<void>();
 
