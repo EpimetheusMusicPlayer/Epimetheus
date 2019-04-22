@@ -53,13 +53,13 @@ class ArtfulDrawerTileWidget extends StatelessWidget {
               leading: Icon(icon),
               title: Text(title, style: TextStyle(fontWeight: selected ? FontWeight.w900 : FontWeight.w100)),
               selected: selected,
-              onTap: () {
-                if (!selected) {
-                  final navigator = Navigator.of(context);
-                  navigator.pop();
-                  navigator.pushReplacementNamed(routeName);
-                }
-              },
+              onTap: selected
+                  ? null
+                  : () {
+                      final navigator = Navigator.of(context);
+                      navigator.pop();
+                      navigator.pushReplacementNamed(routeName);
+                    },
             ),
           ),
         ],
