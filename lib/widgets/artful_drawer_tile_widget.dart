@@ -48,7 +48,7 @@ class ArtfulDrawerTileWidget extends StatelessWidget {
             style: ListTileStyle.drawer,
             selectedColor: foregroundColor,
             textColor: foregroundColor,
-            iconColor: foregroundColor,
+            iconColor: selected ? foregroundColor : foregroundColor.withOpacity(0.7),
             child: ListTile(
               leading: Icon(icon),
               title: Text(title, style: TextStyle(fontWeight: selected ? FontWeight.w900 : FontWeight.w100)),
