@@ -58,10 +58,7 @@ class _HUD extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
             child: Row(
               children: [
-                Hero(
-                  tag: (snapshot.data?.id ?? '') + '/image',
-                  child: ArtImageWidget(snapshot.data.artUri, 72),
-                ),
+                ArtImageWidget(snapshot.data.artUri, 72),
                 SizedBox(width: 16),
                 Expanded(
                   child: Column(

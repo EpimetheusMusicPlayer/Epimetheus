@@ -48,21 +48,32 @@ class NavigationDrawerWidget extends StatelessWidget {
                   selected: currentPath == '/now_playing',
                   foregroundColor: Colors.black,
                   backgroundBuilder: (context) {
-                    return Opacity(
-                      opacity: 0.2,
-                      child: AudioService.currentMediaItem?.artUri != null
-                          ? FadeInImage.assetNetwork(
-                              placeholder: 'assets/music_note.png',
-                              image: AudioService.currentMediaItem?.artUri,
-                              fit: BoxFit.cover,
-                              alignment: Alignment.center,
-                            )
-                          : Image.asset(
-                              'assets/music_note.png',
-                              fit: BoxFit.cover,
-                              alignment: Alignment.center,
-                            ),
-                    );
+                    final background = AudioService.currentMediaItem?.artUri != null
+                        ? FadeInImage.assetNetwork(
+                            placeholder: 'assets/music_note.png',
+                            image: AudioService.currentMediaItem.artUri,
+                            fit: BoxFit.cover,
+                            alignment: Alignment.center,
+                          )
+                        : Image.asset(
+                            'assets/music_note.png',
+                            fit: BoxFit.cover,
+                            alignment: Alignment.center,
+                          );
+                    if (currentPath == '/now_playing' || AudioService.currentMediaItem?.id == null) {
+                      return Opacity(
+                        opacity: 0.2,
+                        child: background,
+                      );
+                    } else {
+                      return Opacity(
+                        opacity: 0.2,
+                        child: Hero(
+                          tag: AudioService.currentMediaItem.id + '/image',
+                          child: background,
+                        ),
+                      );
+                    }
                   },
                   showBackground: true,
                 ),
