@@ -21,6 +21,7 @@ class ArtfulDrawerTileWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final canvasColor = Theme.of(context).canvasColor;
     return SizedBox(
       height: 72,
       child: Stack(
@@ -36,7 +37,7 @@ class ArtfulDrawerTileWidget extends StatelessWidget {
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [Theme.of(context).canvasColor, const Color(0x00FFFFFF)],
+                        colors: [canvasColor, canvasColor.withAlpha(0)],
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                       ),
