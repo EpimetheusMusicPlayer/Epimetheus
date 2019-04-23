@@ -1,10 +1,7 @@
-import 'dart:ui';
-
 import 'package:audio_service/audio_service.dart';
 import 'package:epimetheus/audio/audio_task.dart';
 import 'package:epimetheus/audio/music_provider.dart';
 import 'package:epimetheus/libepimetheus/authentication.dart';
-import 'package:epimetheus/libepimetheus/networking.dart';
 import 'package:epimetheus/pages/now_playing/song_tile_widget.dart';
 import 'package:epimetheus/widgets/app_bar_title_subtitle_widget.dart';
 import 'package:epimetheus/widgets/media_control_widget.dart';
@@ -35,7 +32,7 @@ class _NowPlayingPageState extends State<NowPlayingPage> with WidgetsBindingObse
     _scrollController.addListener(() {
       if (_elevated != (_scrollController.hasClients && _scrollController.offset != 0)) setState(() {});
     });
-    initService();
+    if (widget._user != null && widget._musicProvider != null) launchMusicProvider(widget._user, widget._musicProvider);
     if (widget._musicProvider != null) {
       _musicProviderType = widget._musicProvider.type;
       _musicProviderId = widget._musicProvider.id;
@@ -52,20 +49,6 @@ class _NowPlayingPageState extends State<NowPlayingPage> with WidgetsBindingObse
       _musicProviderName = data[2];
     } else {
       _musicProviderName = 'Nothing playing.';
-    }
-  }
-
-  void initService() async {
-    await AudioService.connect();
-    if (widget._user != null && widget._musicProvider != null) {
-      await startAudioTask();
-      IsolateNameServer.lookupPortByName('audio_task').send(
-        <dynamic>[
-          widget._user,
-          widget._musicProvider,
-          csrfToken,
-        ],
-      );
     }
   }
 

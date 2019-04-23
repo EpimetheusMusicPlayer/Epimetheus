@@ -6,9 +6,34 @@ import 'package:audio_service/audio_service.dart';
 import 'package:epimetheus/audio/music_provider.dart';
 import 'package:epimetheus/libepimetheus/authentication.dart';
 import 'package:epimetheus/libepimetheus/networking.dart';
+import 'package:meta/meta.dart';
 import 'package:qudio/qudio.dart';
 
-Future<bool> startAudioTask() {
+class _AudioTaskPayload {
+  final User user;
+  final MusicProvider musicProvider;
+  final String csrfToken;
+
+  _AudioTaskPayload({
+    @required this.user,
+    @required this.musicProvider,
+    @required this.csrfToken,
+  });
+}
+
+void launchMusicProvider(User user, MusicProvider musicProvider) async {
+  assert(user != null, 'User is null!');
+  assert(musicProvider != null, 'MusicProvider is null!');
+  await AudioService.connect();
+  await _startAudioTask();
+  IsolateNameServer.lookupPortByName('audio_task').send(_AudioTaskPayload(
+    user: user,
+    musicProvider: musicProvider,
+    csrfToken: csrfToken,
+  ));
+}
+
+Future<bool> _startAudioTask() {
   return AudioService.start(
     backgroundTask: audioTask,
     androidNotificationChannelName: 'Media',
@@ -112,12 +137,12 @@ void audioTask() async {
     updateBasicPlaybackState(AudioServiceBackground.state.basicState);
   }
 
-  receivePort.listen((data) async {
-    if (data is List<dynamic>) {
-      user = data[0];
-      csrfToken = data[2];
+  receivePort.listen((payload) async {
+    if (payload is _AudioTaskPayload) {
+      user = payload.user;
+      csrfToken = payload.csrfToken;
 
-      if (musicProvider != data[1]) {
+      if (musicProvider != payload.musicProvider) {
         AudioServiceBackground.setMediaItem(
           const MediaItem(
             id: 'loading',
@@ -134,7 +159,7 @@ void audioTask() async {
         updateBasicPlaybackState(BasicPlaybackState.buffering);
 
         Qudio.stop();
-        musicProvider = data[1];
+        musicProvider = payload.musicProvider;
 
         onUrlsAdded(await musicProvider.load(user));
         newSong(false);
