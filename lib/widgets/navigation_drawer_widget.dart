@@ -1,8 +1,22 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:epimetheus/art_constants.dart';
 import 'package:epimetheus/models/model.dart';
+import 'package:epimetheus/pages/feedback/feedback_page.dart';
 import 'package:epimetheus/widgets/artful_drawer_tile_widget.dart';
 import 'package:flutter/material.dart';
+
+void openFeedbackPage(BuildContext context, String stationName, String stationId) {
+  Navigator.of(context).push(
+    MaterialPageRoute(
+      builder: (BuildContext context) {
+        return FeedbackPage(
+          stationName: stationName,
+          stationId: stationId,
+        );
+      },
+    ),
+  );
+}
 
 class NavigationDrawerWidget extends StatelessWidget {
   final String currentPath;
@@ -19,8 +33,8 @@ class NavigationDrawerWidget extends StatelessWidget {
           model.user != null
               ? UserAccountsDrawerHeader(
                   margin: EdgeInsets.zero,
-                  accountEmail: Text(model.user.email, style: TextStyle(color: Colors.white)),
-                  accountName: Text(model.user.username, style: TextStyle(color: Colors.white)),
+                  accountEmail: Text(model.user.email, style: const TextStyle(color: Colors.white)),
+                  accountName: Text(model.user.username, style: const TextStyle(color: Colors.white)),
                   decoration: BoxDecoration(
                     image: DecorationImage(
                       image: NetworkImage(model.user.profileImageUrl),

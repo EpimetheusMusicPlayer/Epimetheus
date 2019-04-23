@@ -1,7 +1,9 @@
-class ArtItem {
+import 'package:epimetheus/libepimetheus/PandoraEntity.dart';
+
+class ArtItem extends PandoraEntity {
   final Map<int, String> artUrls;
 
-  ArtItem(this.artUrls);
+  const ArtItem(String pandoraId, this.artUrls) : super(pandoraId);
 
   String getArtUrl(int preferredSize) {
     if (artUrls.isNotEmpty) {

@@ -1,4 +1,5 @@
 import 'package:epimetheus/libepimetheus/songs.dart';
+import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
 import './art_item.dart';
@@ -7,23 +8,22 @@ import './networking.dart';
 
 class Station extends ArtItem {
   final String stationId;
-  final String pandoraId;
   final String title;
   final bool isShuffle;
   final bool isThumbprint;
   final bool canDelete;
   final bool canRename;
 
-  Station._internal({
+  const Station._internal({
+    @required String pandoraId,
     @required this.stationId,
-    @required this.pandoraId,
     @required this.title,
     @required this.isShuffle,
     @required this.isThumbprint,
     @required this.canDelete,
     @required this.canRename,
     @required artUrls,
-  }) : super(artUrls);
+  }) : super(pandoraId, artUrls);
 
   @override
   bool operator ==(Object other) => other is Station
@@ -46,6 +46,35 @@ class Station extends ArtItem {
     return result;
   }
 
+  // TODO finish writing this function
+  // TODO this shouldn't be a static function, but it's gotta be like this until I find a way to access the audio task's current station from the UI isolate.
+  static Future<FeedbackListSegment> getFeedback({
+    @required User user,
+    @required String stationId,
+    @required bool positive,
+    @required int pageSize,
+    int startIndex = 0,
+  }) async {
+    final feedbackListSegmentJSON = await makeApiRequest(
+      version: 'v1',
+      endpoint: 'station/getStationFeedback',
+      requestData: {
+        'pageSize': pageSize,
+        'positive': positive,
+        'startIndex': startIndex,
+        'stationId': stationId,
+      },
+      user: user,
+      useProxy: user.useProxy,
+    );
+
+    return FeedbackListSegment(
+        feedbackListSegmentJSON['total'],
+        (feedbackListSegmentJSON['feedback'] as List<dynamic>)
+            .map<Feedback>((feedbackJSON) => Feedback(Map<String, dynamic>.from(feedbackJSON)))
+            .toList(growable: false));
+  }
+
   @override
   String toString() => 'name: $title, isShuffle: $isShuffle, isThumbprint: $isThumbprint, canDelete: $canDelete, canRename: $canRename';
 
@@ -63,7 +92,7 @@ class Station extends ArtItem {
         'onDemandArtistMessageIdHex': null,
       },
       user: user,
-      useProxy: user.usePortaller,
+      useProxy: user.useProxy,
     ))['tracks'];
 
     List<Song> playlistFragment = playlistFragmentJSON.map((songJSON) => Song(Map<String, dynamic>.from(songJSON))).toList();
@@ -78,7 +107,7 @@ Future<List<Station>> getStations(User user, bool includeShuffle) async {
     endpoint: 'station/getStations',
     requestData: {'pageSize': 4096},
     user: user,
-    useProxy: user.usePortaller,
+    useProxy: user.useProxy,
   ))['stations'];
 
   if (includeShuffle) {
@@ -86,14 +115,14 @@ Future<List<Station>> getStations(User user, bool includeShuffle) async {
       version: 'v1',
       endpoint: 'station/shuffle',
       user: user,
-      useProxy: user.usePortaller,
+      useProxy: user.useProxy,
     ));
   }
 
   return stationsJSON.map((stationJSON) {
     return Station._internal(
-      stationId: stationJSON['stationId'],
       pandoraId: stationJSON['pandoraId'],
+      stationId: stationJSON['stationId'],
       title: stationJSON['name'],
       isShuffle: stationJSON['isShuffle'],
       isThumbprint: stationJSON['isThumbprint'],

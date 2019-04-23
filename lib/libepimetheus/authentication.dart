@@ -13,7 +13,7 @@ class AuthenticatedEntity {
 
 /// [User] class, required for all api calls.
 class User extends AuthenticatedEntity {
-  bool usePortaller;
+  bool useProxy;
   final String email;
   final String password;
   final String username;
@@ -22,7 +22,7 @@ class User extends AuthenticatedEntity {
 
   User._internal({
     @required authToken,
-    @required this.usePortaller,
+    @required this.useProxy,
     @required this.email,
     @required this.password,
     @required this.username,
@@ -46,7 +46,7 @@ class User extends AuthenticatedEntity {
 
     return User._internal(
       authToken: authResponse['authToken'],
-      usePortaller: useProxy,
+      useProxy: useProxy,
       email: email,
       password: password,
       username: await _getUsername(AuthenticatedEntity._internal(authResponse['authToken']), authResponse['webname'], useProxy),
@@ -87,5 +87,5 @@ class User extends AuthenticatedEntity {
   }
 
   @override
-  String toString() => 'usePortaller: $usePortaller, email: $email, username: $username, webname: $webname, profilePicUrl: $profileImageUrl';
+  String toString() => 'usePortaller: $useProxy, email: $email, username: $username, webname: $webname, profilePicUrl: $profileImageUrl';
 }

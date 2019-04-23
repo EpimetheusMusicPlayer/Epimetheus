@@ -88,6 +88,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.1.6"
+  paging:
+    dependency: "direct main"
+    description:
+      path: paging
+      relative: true
+    source: path
+    version: "0.1.0"
   palette_generator:
     dependency: "direct main"
     description:
@@ -192,5 +199,5 @@ packages:
     source: hosted
     version: "2.0.8"
 sdks:
-  dart: ">=2.2.0 <3.0.0"
+  dart: ">=2.2.2 <3.0.0"
   flutter: ">=1.2.0 <2.0.0"

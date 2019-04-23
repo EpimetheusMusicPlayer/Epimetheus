@@ -1,7 +1,18 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:epimetheus/libepimetheus/authentication.dart';
 
+enum MusicProviderType {
+  /// A station music provider
+  station,
+}
+
 abstract class MusicProvider {
+  /// The type of MusicProvider.
+  MusicProviderType get type;
+
+  /// A unique id for the MusicProvider.
+  String get id;
+
   /// A human-readable title for the music collection.
   String get title;
 
@@ -39,6 +50,11 @@ abstract class MusicProvider {
   /// Get a list of media groups to play (e.g. stations).
   List<MediaItem> getChildren(String parentId);
 
-  /// Returns true if the given provider is different to the current one.
-//  bool shouldReplace(MusicProvider other);
+  @override
+  bool operator ==(other) {
+    if (other is MusicProvider)
+      return id == other.id;
+    else
+      return false;
+  }
 }

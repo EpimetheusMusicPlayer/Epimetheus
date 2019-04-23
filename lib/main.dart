@@ -21,8 +21,8 @@ class Epimetheus extends StatefulWidget {
 
 class _EpimetheusState extends State<Epimetheus> with WidgetsBindingObserver {
   EpimetheusModel model;
-  Color _primarySwatch = default_primary_color;
-  Color _accentColor = default_accent_color;
+  Color _primarySwatch = defaultPrimaryColor;
+  Color _accentColor = defaultAccentColor;
 
   StreamSubscription<MediaItem> _currentMediaItemSubscription;
 
@@ -38,8 +38,8 @@ class _EpimetheusState extends State<Epimetheus> with WidgetsBindingObserver {
           NetworkImage(mediaItem.artUri),
         ).catchError((_) {
           setState(() {
-            _primarySwatch = default_primary_color;
-            _accentColor = default_accent_color;
+            _primarySwatch = defaultPrimaryColor;
+            _accentColor = defaultAccentColor;
           });
         });
         setState(() {
@@ -58,12 +58,12 @@ class _EpimetheusState extends State<Epimetheus> with WidgetsBindingObserver {
               900: palette.dominantColor.color,
             },
           );
-          _accentColor = palette.lightVibrantColor?.color ?? palette.lightMutedColor?.color ?? Colors.black12;
+          _accentColor = palette.lightVibrantColor?.color ?? palette.lightMutedColor?.color ?? palette.vibrantColor ?? palette.mutedColor ?? defaultAccentColor;
         });
       } else {
         setState(() {
-          _primarySwatch = default_primary_color;
-          _accentColor = default_accent_color;
+          _primarySwatch = defaultPrimaryColor;
+          _accentColor = defaultAccentColor;
         });
       }
     });

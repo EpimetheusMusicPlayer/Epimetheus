@@ -15,6 +15,8 @@ class StationListPage extends StatefulWidget {
 }
 
 class _StationListPageState extends State<StationListPage> {
+  Offset _stationMenuPosition;
+
   Future<void> loadStations() {
     final model = EpimetheusModel.of(context);
     return getStations(model.user, true).then(
@@ -54,6 +56,46 @@ class _StationListPageState extends State<StationListPage> {
     if (EpimetheusModel.of(context).stations == null) loadStations();
   }
 
+  void _storeStationMenuPosition(TapDownDetails details) {
+    _stationMenuPosition = details.globalPosition;
+  }
+
+  void _showStationMenu(Station station) {
+    showMenu<String>(
+      context: context,
+      position:
+          RelativeRect.fromRect(_stationMenuPosition & const Size(40, 40), Offset.zero & (Overlay.of(context).context.findRenderObject() as RenderBox).size),
+      items: [
+        PopupMenuItem<String>(
+          value: 'feedback',
+          child: const Text('Feedback'),
+        ),
+        if (station.canRename)
+          PopupMenuItem<String>(
+            value: 'rename',
+            child: const Text('Rename station'),
+          ),
+        if (station.canDelete)
+          PopupMenuItem<String>(
+            value: 'delete',
+            child: const Text('Delete station'),
+          ),
+      ],
+    ).then((value) {
+      switch (value) {
+        case 'feedback':
+          print('Feedback!');
+          break;
+        case 'rename':
+          print('Rename!');
+          break;
+        case 'delete':
+          print('Delete!');
+          break;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -73,6 +115,7 @@ class _StationListPageState extends State<StationListPage> {
                     physics: const AlwaysScrollableScrollPhysics(),
                     separatorBuilder: (context, index) => Divider(height: 0, indent: 88),
                     itemBuilder: (context, index) {
+                      final station = model.stations[index];
                       final int lastItemIndex = model.stations.length - 1;
                       return Container(
                         margin: EdgeInsets.only(
@@ -93,7 +136,11 @@ class _StationListPageState extends State<StationListPage> {
                               ),
                             );
                           },
-                          child: StationListTile(model.stations[index]),
+                          onTapDown: _storeStationMenuPosition,
+                          onLongPress: () {
+                            _showStationMenu(station);
+                          },
+                          child: StationListTile(station),
                         ),
                       );
                     },

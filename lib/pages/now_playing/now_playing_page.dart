@@ -6,6 +6,7 @@ import 'package:epimetheus/audio/music_provider.dart';
 import 'package:epimetheus/libepimetheus/authentication.dart';
 import 'package:epimetheus/libepimetheus/networking.dart';
 import 'package:epimetheus/pages/now_playing/song_tile_widget.dart';
+import 'package:epimetheus/widgets/app_bar_title_subtitle_widget.dart';
 import 'package:epimetheus/widgets/media_control_widget.dart';
 import 'package:epimetheus/widgets/navigation_drawer_widget.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +24,9 @@ class NowPlayingPage extends StatefulWidget {
 class _NowPlayingPageState extends State<NowPlayingPage> with WidgetsBindingObserver {
   ScrollController _scrollController;
   bool _elevated;
+  MusicProviderType _musicProviderType;
+  String _musicProviderId;
+  String _musicProviderName;
 
   @override
   void initState() {
@@ -32,6 +36,23 @@ class _NowPlayingPageState extends State<NowPlayingPage> with WidgetsBindingObse
       if (_elevated != (_scrollController.hasClients && _scrollController.offset != 0)) setState(() {});
     });
     initService();
+    if (widget._musicProvider != null) {
+      _musicProviderType = widget._musicProvider.type;
+      _musicProviderId = widget._musicProvider.id;
+      _musicProviderName = widget._musicProvider.title;
+    } else if (AudioService.currentMediaItem != null) {
+      final data = AudioService.currentMediaItem.genre.split('||');
+      assert(data.length < 4, 'To many data segments!');
+      switch (data[0]) {
+        case 'station':
+          _musicProviderType = MusicProviderType.station;
+          break;
+      }
+      _musicProviderId = data[1];
+      _musicProviderName = data[2];
+    } else {
+      _musicProviderName = 'Nothing playing.';
+    }
   }
 
   void initService() async {
@@ -52,8 +73,19 @@ class _NowPlayingPageState extends State<NowPlayingPage> with WidgetsBindingObse
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Now Playing'),
+        title: AppBarTitleSubtitleWidget('Now Playing', _musicProviderName),
         elevation: (_elevated = (_scrollController.hasClients && _scrollController.offset != 0)) ? 4 : 0,
+        actions: _musicProviderId != null && _musicProviderType == MusicProviderType.station
+            ? <Widget>[
+                IconButton(
+                  icon: Icon(Icons.thumbs_up_down),
+                  tooltip: 'Station feedback',
+                  onPressed: () {
+                    openFeedbackPage(context, _musicProviderName, _musicProviderId);
+                  },
+                )
+              ]
+            : null,
       ),
       drawer: const NavigationDrawerWidget('/now_playing'),
       body: StreamBuilder<List<MediaItem>>(

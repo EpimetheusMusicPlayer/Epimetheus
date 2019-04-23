@@ -14,6 +14,12 @@ class StationMusicProvider extends MusicProvider {
   StationMusicProvider(this._stations, this._stationIndex);
 
   @override
+  MusicProviderType get type => MusicProviderType.station;
+
+  @override
+  String get id => _stations[_stationIndex].stationId;
+
+  @override
   String get title => _stations[_stationIndex].title;
 
   @override
@@ -43,17 +49,17 @@ class StationMusicProvider extends MusicProvider {
   @override
   MediaItem get currentMediaItem {
     return MediaItem(
-      id: _songs[0].pandoraId,
-      title: _songs[0].title,
-      artist: _songs[0].artistTitle,
-      album: _songs[0].albumTitle,
-      artUri: _songs[0].getArtUrl(serviceArtSize),
-      displayTitle: _songs[0].title,
-      displaySubtitle: '${_songs[0].artistTitle} - ${_songs[0].albumTitle}',
-      displayDescription: '$title',
-      playable: true,
-      rating: _songs[0].rating,
-    );
+        id: _songs[0].pandoraId,
+        title: _songs[0].title,
+        artist: _songs[0].artistTitle,
+        album: _songs[0].albumTitle,
+        artUri: _songs[0].getArtUrl(serviceArtSize),
+        displayTitle: _songs[0].title,
+        displaySubtitle: '${_songs[0].artistTitle} - ${_songs[0].albumTitle}',
+        displayDescription: '$title',
+        playable: true,
+        rating: _songs[0].rating,
+        genre: "station||$id||$title");
   }
 
   @override
@@ -90,14 +96,5 @@ class StationMusicProvider extends MusicProvider {
 
   List<MediaItem> getChildren(String parentId) {
     // TODO implement getChildren()
-  }
-
-  @override
-  bool operator ==(dynamic other) {
-    if (other is StationMusicProvider) {
-      return _stations[_stationIndex].pandoraId == other._stations[other._stationIndex].pandoraId;
-    } else {
-      return true;
-    }
   }
 }

@@ -1,3 +1,4 @@
 analyzer:
   exclude:
     - audio_service/**
+    - paging_library/**

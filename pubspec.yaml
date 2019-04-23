@@ -4,7 +4,7 @@ description: The open-source Pandora Music client for Android.
 version: 0.1.0
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.2.2 <3.0.0"
 
 dependencies:
   flutter:
@@ -18,6 +18,8 @@ dependencies:
   qudio:
     path: './qudio'
   palette_generator: ^0.1.1
+  paging:
+    path: './paging'
 
 dev_dependencies:
   flutter_test:
