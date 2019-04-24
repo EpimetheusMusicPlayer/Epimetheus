@@ -129,7 +129,7 @@ class _FeedbackTabContentState extends State<FeedbackTabContent> with AutomaticK
           Container(
             width: double.infinity,
             height: double.infinity,
-            color: Colors.white,
+            color: Theme.of(context).canvasColor,
           ),
         if (!_loaded)
           Center(

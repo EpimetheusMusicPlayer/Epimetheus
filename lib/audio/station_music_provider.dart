@@ -29,6 +29,22 @@ class StationMusicProvider extends MusicProvider {
 
   @override
   List<MediaItem> get queue {
+    return [
+      for (int i = 0; i < _songs.length; i++)
+        MediaItem(
+          id: i.toString(),
+          title: _songs[i].title,
+          artist: _songs[i].artistTitle,
+          album: _songs[i].albumTitle,
+          artUri: _songs[i].getArtUrl(serviceArtSize),
+          displayTitle: _songs[i].title,
+          displaySubtitle: '${_songs[i].artistTitle} - ${_songs[i].albumTitle}',
+          displayDescription: title,
+          playable: true,
+          rating: _songs[i].rating,
+          genre: _songs[i].pendingRating.isRated() ? _songs[i].pendingRating.isThumbUp().toString() : 'null',
+        ),
+    ];
     return _songs.map<MediaItem>((Song song) {
       return MediaItem(
         id: song.pandoraId,
@@ -49,7 +65,7 @@ class StationMusicProvider extends MusicProvider {
   @override
   MediaItem get currentMediaItem {
     return MediaItem(
-      id: _songs[0].pandoraId,
+      id: '0',
       title: _songs[0].title,
       artist: _songs[0].artistTitle,
       album: _songs[0].albumTitle,

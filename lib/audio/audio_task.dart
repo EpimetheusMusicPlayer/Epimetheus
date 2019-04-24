@@ -191,6 +191,9 @@ void audioTask() async {
     onSkipToNext: () {
       newSong(true);
     },
+    onSkipToQueueItem: (String index) {
+      Qudio.skipTo(int.parse(index));
+    },
     onStop: () async {
       stop();
     },
@@ -244,9 +247,9 @@ void audioTask() async {
     }
   });
 
-  positionDiscontinuityStream = Qudio.positionDiscontinuityStream.listen((PositionDiscontinuityReason reason) {
+  positionDiscontinuityStream = Qudio.positionDiscontinuityStream.listen((PositionDiscontinuityReason reason) async {
     if (reason == PositionDiscontinuityReason.DISCONTINUITY_REASON_PERIOD_TRANSITION) {
-      musicProvider.skip();
+      musicProvider.skipTo(musicProvider.count - await Qudio.queueSize);
       newSong(false);
     }
   });

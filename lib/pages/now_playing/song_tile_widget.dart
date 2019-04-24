@@ -78,7 +78,21 @@ class SongTileWidget extends StatelessWidget {
                 Row(
                   children: <Widget>[
                     Expanded(
-                      child: index == 0 ? ProgressWidget() : Container(),
+                      child: index == 0
+                          ? ProgressWidget()
+                          : Align(
+                              alignment: Alignment.centerLeft,
+                              child: Transform.translate(
+                                offset: const Offset(-18, 0),
+                                child: IconButton(
+                                  icon: Icon(Icons.play_arrow),
+                                  tooltip: 'Skip to song',
+                                  onPressed: () {
+                                    AudioService.skipToQueueItem(index.toString());
+                                  },
+                                ),
+                              ),
+                            ),
                     ),
                     mediaItem.genre == 'false' && mediaItem.genre != 'null'
                         ? Padding(

@@ -29,7 +29,9 @@ class _NowPlayingPageState extends State<NowPlayingPage> with WidgetsBindingObse
     final model = EpimetheusModel.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: AppBarTitleSubtitleWidget('Now Playing', model.currentMusicProvider?.title ?? 'Nothing playing.'),
+        title: AppBarTitleSubtitleWidget('Now Playing', model.currentMusicProvider?.title ?? 'Nothing playing.', () {
+          Navigator.of(context).pushReplacementNamed('/station_list');
+        }),
         elevation: (_elevated = (_scrollController.hasClients && _scrollController.offset != 0)) ? 4 : 0,
         actions: model.currentMusicProvider != null
             ? model.currentMusicProvider.getActions(this).map((action) {

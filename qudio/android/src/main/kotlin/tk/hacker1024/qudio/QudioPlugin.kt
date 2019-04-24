@@ -132,6 +132,7 @@ class QudioPlugin(context: Context, val channel: MethodChannel) : MethodCallHand
                         call.argument<Int>("fromIndex")!!,
                         call.argument<Int>("toIndex")!!
                     )
+                    channel.invokeMethod("onPositionDiscontinuity", Player.DISCONTINUITY_REASON_PERIOD_TRANSITION)
                     result.success(true)
                 } catch (e: IllegalArgumentException) {
                     result.success(false)
@@ -180,7 +181,8 @@ class QudioPlugin(context: Context, val channel: MethodChannel) : MethodCallHand
             }
             "skipTo" -> {
                 try {
-                    player.seekToDefaultPosition(call.argument<Int>("index")!!)
+                    concatenatingMediaSource.removeMediaSourceRange(0, call.argument<Int>("index")!!)
+                    channel.invokeMethod("onPositionDiscontinuity", Player.DISCONTINUITY_REASON_PERIOD_TRANSITION)
                     result.success(true)
                 } catch (e: IllegalSeekPositionException) {
                     result.success(false)
