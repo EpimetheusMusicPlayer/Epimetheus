@@ -58,7 +58,11 @@ class _EpimetheusState extends State<Epimetheus> with WidgetsBindingObserver {
               900: palette.dominantColor.color,
             },
           );
-          _accentColor = palette.lightVibrantColor?.color ?? palette.lightMutedColor?.color ?? palette.vibrantColor ?? palette.mutedColor ?? defaultAccentColor;
+          _accentColor = (palette.lightVibrantColor.color != _primarySwatch ? palette.lightVibrantColor?.color : null) ??
+              (palette.lightMutedColor.color != _primarySwatch ? palette.lightMutedColor?.color : null) ??
+              (palette.vibrantColor.color != _primarySwatch ? palette.vibrantColor : null) ??
+              (palette.mutedColor.color != _primarySwatch ? palette.mutedColor : null) ??
+              defaultAccentColor;
         });
       } else {
         setState(() {
