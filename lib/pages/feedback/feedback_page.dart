@@ -97,7 +97,7 @@ class _FeedbackTabContentState extends State<FeedbackTabContent> with AutomaticK
               startIndex: currentSize,
             );
             _totalFeedbackItems = segment.total;
-            if (!_loaded) {
+            if (!_loaded && mounted) {
               setState(() {
                 _loaded = true;
               });
@@ -122,7 +122,6 @@ class _FeedbackTabContentState extends State<FeedbackTabContent> with AutomaticK
                   strokeWidth: 1,
                 ),
               ),
-//              child: const Text('Loading more...'),
             ),
           ),
         ),
