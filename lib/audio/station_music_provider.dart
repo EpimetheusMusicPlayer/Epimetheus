@@ -4,6 +4,8 @@ import 'package:epimetheus/audio/music_provider.dart';
 import 'package:epimetheus/libepimetheus/authentication.dart';
 import 'package:epimetheus/libepimetheus/songs.dart';
 import 'package:epimetheus/libepimetheus/stations.dart';
+import 'package:epimetheus/widgets/navigation_drawer_widget.dart';
+import 'package:flutter/material.dart';
 
 class StationMusicProvider extends MusicProvider {
   final List<Station> _stations;
@@ -12,9 +14,6 @@ class StationMusicProvider extends MusicProvider {
   final List<Song> _songs = List<Song>();
 
   StationMusicProvider(this._stations, this._stationIndex);
-
-  @override
-  MusicProviderType get type => MusicProviderType.station;
 
   @override
   String get id => _stations[_stationIndex].stationId;
@@ -49,17 +48,18 @@ class StationMusicProvider extends MusicProvider {
   @override
   MediaItem get currentMediaItem {
     return MediaItem(
-        id: _songs[0].pandoraId,
-        title: _songs[0].title,
-        artist: _songs[0].artistTitle,
-        album: _songs[0].albumTitle,
-        artUri: _songs[0].getArtUrl(serviceArtSize),
-        displayTitle: _songs[0].title,
-        displaySubtitle: '${_songs[0].artistTitle} - ${_songs[0].albumTitle}',
-        displayDescription: '$title',
-        playable: true,
-        rating: _songs[0].rating,
-        genre: "station||$id||$title");
+      id: _songs[0].pandoraId,
+      title: _songs[0].title,
+      artist: _songs[0].artistTitle,
+      album: _songs[0].albumTitle,
+      artUri: _songs[0].getArtUrl(serviceArtSize),
+      displayTitle: _songs[0].title,
+      displaySubtitle: '${_songs[0].artistTitle} - ${_songs[0].albumTitle}',
+      displayDescription: '$title',
+      playable: true,
+      rating: _songs[0].rating,
+    );
+//        genre: "station||$id||$title");
   }
 
   @override
@@ -94,7 +94,20 @@ class StationMusicProvider extends MusicProvider {
     }
   }
 
+  @override
   List<MediaItem> getChildren(String parentId) {
     // TODO implement getChildren()
   }
+
+  @override
+  List<MusicProviderAction> getActions(State state) => [
+        if (!_stations[_stationIndex].isShuffle)
+          MusicProviderAction(
+            iconData: Icons.thumbs_up_down,
+            label: 'Station feedback',
+            onTap: () {
+              openFeedbackPage(state.context, _stations[_stationIndex]);
+            },
+          )
+      ];
 }

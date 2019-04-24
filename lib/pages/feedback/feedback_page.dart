@@ -8,19 +8,14 @@ import 'package:flutter/material.dart' hide Feedback;
 import 'package:paging/paging.dart';
 
 class FeedbackPage extends StatefulWidget {
-  final String stationName;
-  final String stationId;
+  final Station station;
 
-  const FeedbackPage({
-    @required this.stationName,
-    @required this.stationId,
-  });
+  const FeedbackPage(this.station);
 
   @override
   _FeedbackPageState createState() => _FeedbackPageState();
 }
 
-// TODO do this
 class _FeedbackPageState extends State<FeedbackPage> {
   @override
   Widget build(BuildContext context) {
@@ -29,7 +24,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
       initialIndex: 1,
       child: Scaffold(
         appBar: AppBar(
-          title: AppBarTitleSubtitleWidget('Feedback', widget.stationName),
+          title: AppBarTitleSubtitleWidget('Feedback', widget.station.title),
           bottom: TabBar(
             tabs: <Widget>[
               Tab(
@@ -47,11 +42,11 @@ class _FeedbackPageState extends State<FeedbackPage> {
           controller: DefaultTabController.of(context),
           children: <Widget>[
             FeedbackTabContent(
-              stationId: widget.stationId,
+              station: widget.station,
               positive: false,
             ),
             FeedbackTabContent(
-              stationId: widget.stationId,
+              station: widget.station,
               positive: true,
             ),
           ],
@@ -62,11 +57,11 @@ class _FeedbackPageState extends State<FeedbackPage> {
 }
 
 class FeedbackTabContent extends StatefulWidget {
-  final String stationId;
+  final Station station;
   final bool positive;
 
   FeedbackTabContent({
-    @required this.stationId,
+    @required this.station,
     @required this.positive,
   });
 
@@ -82,9 +77,8 @@ class _FeedbackTabContentState extends State<FeedbackTabContent> with AutomaticK
   bool get wantKeepAlive => true;
 
   Future<FeedbackListSegment> getFeedback({int pageSize = 30, int startIndex = 0}) async {
-    return await Station.getFeedback(
+    return await widget.station.getFeedback(
       user: EpimetheusModel.of(context).user,
-      stationId: widget.stationId,
       positive: widget.positive,
       pageSize: pageSize,
       startIndex: startIndex,

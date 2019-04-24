@@ -1,15 +1,20 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:epimetheus/libepimetheus/authentication.dart';
+import 'package:flutter/widgets.dart';
 
-enum MusicProviderType {
-  /// A station music provider
-  station,
+class MusicProviderAction {
+  final IconData iconData;
+  final String label;
+  final VoidCallback onTap;
+
+  const MusicProviderAction({
+    @required this.iconData,
+    @required this.label,
+    @required this.onTap,
+  });
 }
 
 abstract class MusicProvider {
-  /// The type of MusicProvider.
-  MusicProviderType get type;
-
   /// A unique id for the MusicProvider.
   String get id;
 
@@ -49,6 +54,9 @@ abstract class MusicProvider {
 
   /// Get a list of media groups to play (e.g. stations).
   List<MediaItem> getChildren(String parentId);
+
+  /// A list of actions related to the MusicProvider to be shown in the UI.
+  List<MusicProviderAction> getActions(State state) => const [];
 
   @override
   bool operator ==(other) {

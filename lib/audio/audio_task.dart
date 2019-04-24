@@ -6,6 +6,7 @@ import 'package:audio_service/audio_service.dart';
 import 'package:epimetheus/audio/music_provider.dart';
 import 'package:epimetheus/libepimetheus/authentication.dart';
 import 'package:epimetheus/libepimetheus/networking.dart';
+import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 import 'package:qudio/qudio.dart';
 
@@ -21,16 +22,19 @@ class _AudioTaskPayload {
   });
 }
 
-void launchMusicProvider(User user, MusicProvider musicProvider) async {
+/// Only to be invoked from the UI isolate.
+Future<void> launchMusicProvider(User user, MusicProvider musicProvider) async {
   assert(user != null, 'User is null!');
   assert(musicProvider != null, 'MusicProvider is null!');
   await AudioService.connect();
   await _startAudioTask();
-  IsolateNameServer.lookupPortByName('audio_task').send(_AudioTaskPayload(
-    user: user,
-    musicProvider: musicProvider,
-    csrfToken: csrfToken,
-  ));
+  IsolateNameServer.lookupPortByName('audio_task').send(
+    _AudioTaskPayload(
+      user: user,
+      musicProvider: musicProvider,
+      csrfToken: csrfToken,
+    ),
+  );
 }
 
 Future<bool> _startAudioTask() {

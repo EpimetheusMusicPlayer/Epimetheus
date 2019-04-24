@@ -2,7 +2,6 @@ import 'package:epimetheus/audio/station_music_provider.dart';
 import 'package:epimetheus/dialogs/no_connection_dialog.dart';
 import 'package:epimetheus/libepimetheus/stations.dart';
 import 'package:epimetheus/models/model.dart';
-import 'package:epimetheus/pages/now_playing/now_playing_page.dart';
 import 'package:epimetheus/widgets/media_control_widget.dart';
 import 'package:epimetheus/widgets/navigation_drawer_widget.dart';
 import 'package:epimetheus/widgets/station_list_tile_widget.dart';
@@ -66,10 +65,11 @@ class _StationListPageState extends State<StationListPage> {
       position:
           RelativeRect.fromRect(_stationMenuPosition & const Size(40, 40), Offset.zero & (Overlay.of(context).context.findRenderObject() as RenderBox).size),
       items: [
-        PopupMenuItem<String>(
-          value: 'feedback',
-          child: const Text('Feedback'),
-        ),
+        if (!station.isShuffle)
+          PopupMenuItem<String>(
+            value: 'feedback',
+            child: const Text('Feedback'),
+          ),
         if (station.canRename)
           PopupMenuItem<String>(
             value: 'rename',
@@ -84,7 +84,7 @@ class _StationListPageState extends State<StationListPage> {
     ).then((value) {
       switch (value) {
         case 'feedback':
-          print('Feedback!');
+          openFeedbackPage(context, station);
           break;
         case 'rename':
           print('Rename!');
@@ -100,7 +100,7 @@ class _StationListPageState extends State<StationListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Stations'),
+        title: Text('My Stations'),
       ),
       drawer: const NavigationDrawerWidget('/station_list'),
       body: Column(
@@ -124,17 +124,8 @@ class _StationListPageState extends State<StationListPage> {
                         ),
                         child: InkWell(
                           onTap: () {
-                            Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                builder: (BuildContext context) {
-                                  EpimetheusModel model = EpimetheusModel.of(context);
-                                  return NowPlayingPage(
-                                    model.user,
-                                    StationMusicProvider(model.stations, index),
-                                  );
-                                },
-                              ),
-                            );
+                            model.currentMusicProvider = StationMusicProvider(model.stations, index);
+                            Navigator.of(context).pushReplacementNamed('/now_playing');
                           },
                           onTapDown: _storeStationMenuPosition,
                           onLongPress: () {

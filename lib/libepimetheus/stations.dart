@@ -46,35 +46,6 @@ class Station extends ArtItem {
     return result;
   }
 
-  // TODO finish writing this function
-  // TODO this shouldn't be a static function, but it's gotta be like this until I find a way to access the audio task's current station from the UI isolate.
-  static Future<FeedbackListSegment> getFeedback({
-    @required User user,
-    @required String stationId,
-    @required bool positive,
-    @required int pageSize,
-    int startIndex = 0,
-  }) async {
-    final feedbackListSegmentJSON = await makeApiRequest(
-      version: 'v1',
-      endpoint: 'station/getStationFeedback',
-      requestData: {
-        'pageSize': pageSize,
-        'positive': positive,
-        'startIndex': startIndex,
-        'stationId': stationId,
-      },
-      user: user,
-      useProxy: user.useProxy,
-    );
-
-    return FeedbackListSegment(
-        feedbackListSegmentJSON['total'],
-        (feedbackListSegmentJSON['feedback'] as List<dynamic>)
-            .map<Feedback>((feedbackJSON) => Feedback(Map<String, dynamic>.from(feedbackJSON)))
-            .toList(growable: false));
-  }
-
   @override
   String toString() => 'name: $title, isShuffle: $isShuffle, isThumbprint: $isThumbprint, canDelete: $canDelete, canRename: $canRename';
 
@@ -98,6 +69,32 @@ class Station extends ArtItem {
     List<Song> playlistFragment = playlistFragmentJSON.map((songJSON) => Song(Map<String, dynamic>.from(songJSON))).toList();
     playlistFragment.removeWhere((Song song) => song.trackType == TrackType.ARTIST_MESSAGE);
     return playlistFragment;
+  }
+
+  Future<FeedbackListSegment> getFeedback({
+    @required User user,
+    @required bool positive,
+    @required int pageSize,
+    int startIndex = 0,
+  }) async {
+    final feedbackListSegmentJSON = await makeApiRequest(
+      version: 'v1',
+      endpoint: 'station/getStationFeedback',
+      requestData: {
+        'pageSize': pageSize,
+        'positive': positive,
+        'startIndex': startIndex,
+        'stationId': stationId,
+      },
+      user: user,
+      useProxy: user.useProxy,
+    );
+
+    return FeedbackListSegment(
+        feedbackListSegmentJSON['total'],
+        (feedbackListSegmentJSON['feedback'] as List<dynamic>)
+            .map<Feedback>((feedbackJSON) => Feedback(Map<String, dynamic>.from(feedbackJSON)))
+            .toList(growable: false));
   }
 }
 
