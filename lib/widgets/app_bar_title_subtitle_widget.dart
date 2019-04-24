@@ -16,11 +16,14 @@ class AppBarTitleSubtitleWidget extends StatelessWidget {
       children: <Widget>[
         Text(title),
         const SizedBox(height: 1),
-        GestureDetector(
-          onTap: onSubtitleTap,
-          child: Text(
-            subtitle,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w100),
+        Tooltip(
+          message: 'Back to My Stations',
+          child: InkWell(
+            onTap: onSubtitleTap,
+            child: Text(
+              subtitle,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w100),
+            ),
           ),
         ),
       ],
