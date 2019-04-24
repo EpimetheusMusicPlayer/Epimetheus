@@ -99,8 +99,9 @@ class _AuthPageState extends State<AuthPage> {
 
     storage = FlutterSecureStorage();
     storage.readAll().then((values) {
-      if (!values.containsKey('email') || !values.containsKey('password')) return;
+      if (!values.containsKey('email')) return;
       _email = values['email'];
+      if (!values.containsKey('password')) return;
       _password = values['password'];
       _emailController.text = _email;
       _passwordController.text = _password;

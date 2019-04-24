@@ -195,7 +195,12 @@ void audioTask() async {
       stop();
     },
     onSetRating: (Rating rating, Map<dynamic, dynamic> extras) {
-      print('RATING: $rating, $extras');
+      musicProvider.rate(user, extras['index'], rating).then((value) {
+        // When this future completes, the rating is complete. Update the queue to tell the UI this.
+        AudioServiceBackground.setQueue(musicProvider.queue);
+      });
+      // At this point, the rating is pending. Update the queue to tell the UI this.
+      AudioServiceBackground.setQueue(musicProvider.queue);
     },
   );
 

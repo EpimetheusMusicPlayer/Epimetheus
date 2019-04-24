@@ -43,7 +43,7 @@ abstract class MusicProvider {
   void remove(int index);
 
   /// Rates the media item at the given index.
-  void rate(int index, Rating rating);
+  Future<void> rate(User user, int index, Rating rating);
 
   /// Shelves the media item for a month.
   void tired(int index);

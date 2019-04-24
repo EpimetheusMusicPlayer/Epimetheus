@@ -41,6 +41,7 @@ class StationMusicProvider extends MusicProvider {
         displayDescription: title,
         playable: true,
         rating: song.rating,
+        genre: song.pendingRating.isRated() ? song.pendingRating.isThumbUp().toString() : 'null',
       );
     }).toList(growable: false);
   }
@@ -58,8 +59,8 @@ class StationMusicProvider extends MusicProvider {
       displayDescription: '$title',
       playable: true,
       rating: _songs[0].rating,
+      genre: _songs[0].pendingRating.isRated() ? _songs[0].pendingRating.isThumbUp().toString() : 'null',
     );
-//        genre: "station||$id||$title");
   }
 
   @override
@@ -78,7 +79,13 @@ class StationMusicProvider extends MusicProvider {
   }
 
   @override
-  void rate(int index, Rating rating) {}
+  Future<void> rate(User user, int index, Rating rating) {
+    if (rating.isRated()) {
+      return _songs[index].addFeedback(user, rating.isThumbUp());
+    } else {
+      return _songs[index].deleteFeedback(user);
+    }
+  }
 
   @override
   void tired(int index) {}

@@ -5,6 +5,7 @@ import 'package:epimetheus/models/model.dart';
 import 'package:epimetheus/pages/feedback/feedback_page.dart';
 import 'package:epimetheus/widgets/artful_drawer_tile_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 void openFeedbackPage(BuildContext context, Station station) {
   Navigator.of(context).push(
@@ -27,21 +28,52 @@ class NavigationDrawerWidget extends StatelessWidget {
       child: Column(
         children: <Widget>[
           model.user != null
-              ? UserAccountsDrawerHeader(
-                  margin: EdgeInsets.zero,
-                  accountEmail: Text(model.user.email, style: const TextStyle(color: Colors.white)),
-                  accountName: Text(model.user.username, style: const TextStyle(color: Colors.white)),
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: NetworkImage(model.user.profileImageUrl),
-                      fit: BoxFit.cover,
-                      colorFilter: ColorFilter.mode(
-                        const Color(0x8F000000),
-                        BlendMode.multiply,
+              ? Stack(
+                  alignment: Alignment.topRight,
+                  children: <Widget>[
+                    UserAccountsDrawerHeader(
+                      margin: EdgeInsets.zero,
+                      accountEmail: Text(model.user.email, style: const TextStyle(color: Colors.white)),
+                      accountName: Text(model.user.username, style: const TextStyle(color: Colors.white)),
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: NetworkImage(model.user.profileImageUrl),
+                          fit: BoxFit.cover,
+                          colorFilter: ColorFilter.mode(
+                            const Color(0x8F000000),
+                            BlendMode.multiply,
+                          ),
+                        ),
+                        color: artBackgroundColor,
                       ),
                     ),
-                    color: artBackgroundColor,
-                  ),
+                    SafeArea(
+                      child: PopupMenuButton<String>(
+                        icon: Icon(
+                          Icons.more_vert,
+                          color: Colors.white,
+                        ),
+                        tooltip: 'More',
+                        itemBuilder: (context) {
+                          return const [
+                            const PopupMenuItem<String>(
+                              value: 'sign_out',
+                              child: const Text('Sign out'),
+                            )
+                          ];
+                        },
+                        onSelected: (value) async {
+                          switch (value) {
+                            case 'sign_out':
+                              await FlutterSecureStorage().delete(key: 'password');
+                              await AudioService.stop();
+                              Navigator.of(context).pushReplacementNamed('/');
+                              break;
+                          }
+                        },
+                      ),
+                    )
+                  ],
                 )
               : SafeArea(
                   child: SizedBox(width: 0, height: 0),
@@ -95,7 +127,13 @@ class NavigationDrawerWidget extends StatelessWidget {
                   foregroundColor: Colors.black,
                   backgroundBuilder: (context) {
                     final stations = EpimetheusModel.of(context).stations;
-                    final stationArts = List<Positioned>();
+                    final stationArts = <Widget>[
+                      SizedBox.expand(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(color: const Color(0x8A000000)),
+                        ),
+                      ),
+                    ];
                     final useHero = false; //currentPath != '/station_list'; TODO this is glitchy
                     for (int i = 0; i < stations.length; i++) {
                       final image = Image.network(

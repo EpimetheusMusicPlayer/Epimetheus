@@ -119,7 +119,7 @@ class _EpimetheusState extends State<Epimetheus> with WidgetsBindingObserver {
                 primarySwatch: _primarySwatch,
                 accentColor: _accentColor,
                 buttonTheme: ButtonThemeData(
-                  buttonColor: Colors.blueAccent,
+                  buttonColor: _accentColor,
                   textTheme: ButtonTextTheme.primary,
                 ),
                 pageTransitionsTheme: PageTransitionsTheme(

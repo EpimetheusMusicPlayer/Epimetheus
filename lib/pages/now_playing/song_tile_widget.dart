@@ -80,24 +80,60 @@ class SongTileWidget extends StatelessWidget {
                     Expanded(
                       child: index == 0 ? ProgressWidget() : Container(),
                     ),
-                    IconButton(
-                      icon: Transform.translate(
-                        offset: Offset(0, 2.7),
-                        child: Icon(Icons.thumb_down),
-                      ),
-                      tooltip: 'Ban',
-                      color: mediaItem.rating.isRated() && !mediaItem.rating.isThumbUp() ? foregroundAccentColor : foregroundColor,
-                      onPressed: () {},
-                    ),
-                    IconButton(
-                      icon: Transform.translate(
-                        offset: const Offset(0, -2.7),
-                        child: Icon(Icons.thumb_up),
-                      ),
-                      tooltip: 'Love',
-                      color: mediaItem.rating.isRated() && mediaItem.rating.isThumbUp() ? foregroundAccentColor : foregroundColor,
-                      onPressed: () {},
-                    ),
+                    mediaItem.genre == 'false' && mediaItem.genre != 'null'
+                        ? Padding(
+                            padding: const EdgeInsets.all(14),
+                            child: SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(foregroundColor),
+                              ),
+                            ),
+                          )
+                        : IconButton(
+                            icon: Transform.translate(
+                              offset: Offset(0, 2.7),
+                              child: Icon(Icons.thumb_down),
+                            ),
+                            tooltip: 'Ban',
+                            color: mediaItem.rating.isRated() && !mediaItem.rating.isThumbUp() ? foregroundAccentColor : foregroundColor,
+                            onPressed: () {
+                              AudioService.setRating(
+                                !mediaItem.rating.isRated() || mediaItem.rating.isThumbUp()
+                                    ? Rating.newThumbRating(false)
+                                    : Rating.newUnratedRating(RatingStyle.thumbUpDown),
+                                {'index': index},
+                              );
+                            },
+                          ),
+                    mediaItem.genre == 'true' && mediaItem.genre != 'null'
+                        ? Padding(
+                            padding: const EdgeInsets.all(14),
+                            child: SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(foregroundColor),
+                              ),
+                            ),
+                          )
+                        : IconButton(
+                            icon: Transform.translate(
+                              offset: const Offset(0, -2.7),
+                              child: Icon(Icons.thumb_up),
+                            ),
+                            tooltip: 'Love',
+                            color: mediaItem.rating.isRated() && mediaItem.rating.isThumbUp() ? foregroundAccentColor : foregroundColor,
+                            onPressed: () {
+                              AudioService.setRating(
+                                !mediaItem.rating.isRated() || !mediaItem.rating.isThumbUp()
+                                    ? Rating.newThumbRating(true)
+                                    : Rating.newUnratedRating(RatingStyle.thumbUpDown),
+                                {'index': index},
+                              );
+                            },
+                          ),
                   ],
                 )
               ],
