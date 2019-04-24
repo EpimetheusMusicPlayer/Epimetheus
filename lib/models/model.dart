@@ -22,10 +22,9 @@ class EpimetheusModel extends Model {
   MusicProvider _currentMusicProvider;
   MusicProvider get currentMusicProvider => _currentMusicProvider;
   set currentMusicProvider(musicProvider) {
-    launchMusicProvider(user, musicProvider).then((value) {
-      _currentMusicProvider = musicProvider;
-      notifyListeners();
-    });
+    launchMusicProvider(user, musicProvider);
+    _currentMusicProvider = musicProvider;
+    notifyListeners();
   }
 
   static EpimetheusModel of(BuildContext context) => ScopedModel.of<EpimetheusModel>(context);

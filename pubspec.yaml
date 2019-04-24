@@ -18,6 +18,7 @@ dependencies:
   qudio:
     path: './qudio'
   palette_generator: ^0.1.1
+  flare_flutter: ^1.3.13
   paging:
     path: './paging'
 
@@ -28,4 +29,4 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/music_note.png
+    - assets/
