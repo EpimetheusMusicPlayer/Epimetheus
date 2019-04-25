@@ -14,6 +14,12 @@ void main() {
   runApp(Epimetheus());
 }
 
+final StreamController<PaletteGenerator> _paletteStreamController = StreamController.broadcast();
+Stream<PaletteGenerator> get paletteStream => _paletteStreamController.stream;
+
+PaletteGenerator _palette;
+PaletteGenerator get palette => _palette;
+
 class Epimetheus extends StatefulWidget {
   @override
   _EpimetheusState createState() => _EpimetheusState();
@@ -21,54 +27,28 @@ class Epimetheus extends StatefulWidget {
 
 class _EpimetheusState extends State<Epimetheus> with WidgetsBindingObserver {
   EpimetheusModel model;
-  Color _primarySwatch = defaultPrimaryColor;
-  Color _accentColor = defaultAccentColor;
 
   StreamSubscription<MediaItem> _currentMediaItemSubscription;
 
   String _currentArtUri;
+
   void startListening() {
     _currentMediaItemSubscription?.cancel();
     _currentMediaItemSubscription = AudioService.currentMediaItemStream.listen((mediaItem) async {
-      print('New mediaItem: $mediaItem');
-      if (mediaItem?.artUri == _currentArtUri) return;
-      _currentArtUri = mediaItem?.artUri;
-      if (mediaItem?.artUri != null) {
-        final palette = await PaletteGenerator.fromImageProvider(
-          NetworkImage(mediaItem.artUri),
-        ).catchError((_) {
-          setState(() {
-            _primarySwatch = defaultPrimaryColor;
-            _accentColor = defaultAccentColor;
-          });
-        });
-        setState(() {
-          _primarySwatch = MaterialColor(
-            palette.dominantColor.color.value,
-            {
-              50: palette.dominantColor.color,
-              100: palette.dominantColor.color,
-              200: palette.dominantColor.color,
-              300: palette.dominantColor.color,
-              400: palette.dominantColor.color,
-              500: palette.dominantColor.color,
-              600: palette.dominantColor.color,
-              700: palette.dominantColor.color,
-              800: palette.dominantColor.color,
-              900: palette.dominantColor.color,
-            },
-          );
-          _accentColor = (palette.lightVibrantColor?.color != _primarySwatch ? palette.lightVibrantColor?.color : null) ??
-              (palette.lightMutedColor?.color != _primarySwatch ? palette.lightMutedColor?.color : null) ??
-              (palette.vibrantColor?.color != _primarySwatch ? palette.vibrantColor.color : null) ??
-              (palette.mutedColor?.color != _primarySwatch ? palette.mutedColor.color : null) ??
-              defaultAccentColor;
-        });
-      } else {
-        setState(() {
-          _primarySwatch = defaultPrimaryColor;
-          _accentColor = defaultAccentColor;
-        });
+      if (mediaItem?.artUri != _currentArtUri) {
+        _currentArtUri = mediaItem?.artUri;
+        if (mediaItem?.artUri == null) {
+          _palette = null;
+          _paletteStreamController.add(null);
+        } else {
+          try {
+            _palette = await PaletteGenerator.fromImageProvider(NetworkImage(mediaItem.artUri));
+            _paletteStreamController.add(palette);
+          } catch (error) {
+            _palette = null;
+            _paletteStreamController.add(null);
+          }
+        }
       }
     });
   }
@@ -114,34 +94,92 @@ class _EpimetheusState extends State<Epimetheus> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return ScopedModel(
       model: model,
-      child: StreamBuilder<MediaItem>(
-          initialData: AudioService.currentMediaItem,
-          stream: AudioService.currentMediaItemStream,
-          builder: (context, snapshot) {
-            return MaterialApp(
-              theme: ThemeData(
-                primarySwatch: _primarySwatch,
-                accentColor: _accentColor,
-                buttonTheme: ButtonThemeData(
-                  buttonColor: _accentColor,
-                  textTheme: ButtonTextTheme.primary,
-                ),
-                pageTransitionsTheme: PageTransitionsTheme(
-                  builders: {
-                    TargetPlatform.android: OpenUpwardsPageTransitionsBuilder(),
-                    TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-                    TargetPlatform.fuchsia: OpenUpwardsPageTransitionsBuilder(),
-                  },
-                ),
-              ),
-              title: 'Epimetheus',
-              routes: {
-                '/': (context) => AuthPage(),
-                '/station_list': (context) => StationListPage(),
-                '/now_playing': (context) => NowPlayingPage(),
-              },
-            );
-          }),
+      child: MaterialApp(
+        theme: ThemeData(
+          primarySwatch: defaultPrimaryColor,
+          accentColor: defaultAccentColor,
+          buttonTheme: ButtonThemeData(
+            buttonColor: defaultAccentColor,
+            textTheme: ButtonTextTheme.primary,
+          ),
+          pageTransitionsTheme: const PageTransitionsTheme(
+            builders: const {
+              TargetPlatform.android: const OpenUpwardsPageTransitionsBuilder(),
+              TargetPlatform.iOS: const CupertinoPageTransitionsBuilder(),
+              TargetPlatform.fuchsia: const OpenUpwardsPageTransitionsBuilder(),
+            },
+          ),
+        ),
+        title: 'Epimetheus',
+        routes: {
+          '/': (context) => AuthPage(),
+          '/station_list': (context) => StationListPage(),
+          '/now_playing': (context) => NowPlayingPage(),
+        },
+      ),
+    );
+  }
+}
+
+class EpimetheusThemedPage extends StatefulWidget {
+  final Widget child;
+
+  const EpimetheusThemedPage({
+    @required this.child,
+  });
+
+  @override
+  _EpimetheusThemedPageState createState() => _EpimetheusThemedPageState();
+}
+
+class _EpimetheusThemedPageState extends State<EpimetheusThemedPage> {
+  Color _primaryColor;
+  Color _accentColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<PaletteGenerator>(
+      stream: _paletteStreamController.stream,
+      initialData: _palette,
+      builder: (context, snapshot) {
+        if (snapshot.data == null) {
+          _primaryColor = defaultPrimaryColor;
+          _accentColor = defaultAccentColor;
+        } else {
+          final primaryColor = snapshot.data.dominantColor.color;
+          _primaryColor = MaterialColor(
+            primaryColor.value,
+            {
+              50: primaryColor,
+              100: primaryColor,
+              200: primaryColor,
+              300: primaryColor,
+              400: primaryColor,
+              500: primaryColor,
+              600: primaryColor,
+              700: primaryColor,
+              800: primaryColor,
+              900: primaryColor,
+            },
+          );
+          _accentColor = (snapshot.data.lightVibrantColor?.color?.value != _primaryColor.value ? snapshot.data.lightVibrantColor?.color : null) ??
+              (snapshot.data.lightMutedColor?.color?.value != _primaryColor.value ? snapshot.data.lightMutedColor?.color : null) ??
+              (snapshot.data.vibrantColor?.color?.value != _primaryColor.value ? snapshot.data.vibrantColor?.color : null) ??
+              (snapshot.data.mutedColor?.color?.value != _primaryColor.value ? snapshot.data.mutedColor?.color : null) ??
+              defaultAccentColor;
+        }
+        return Theme(
+          data: ThemeData(
+            primarySwatch: _primaryColor,
+            accentColor: _accentColor,
+            buttonTheme: ButtonThemeData(
+              buttonColor: _accentColor,
+              textTheme: ButtonTextTheme.primary,
+            ),
+          ),
+          child: widget.child,
+        );
+      },
     );
   }
 }

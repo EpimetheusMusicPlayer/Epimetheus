@@ -68,6 +68,7 @@ class NavigationDrawerWidget extends StatelessWidget {
                               await FlutterSecureStorage().delete(key: 'password');
                               await AudioService.stop();
                               Navigator.of(context).pushReplacementNamed('/');
+                              model.stations = null;
                               break;
                           }
                         },

@@ -1,4 +1,5 @@
 import 'package:audio_service/audio_service.dart';
+import 'package:epimetheus/theme_constants.dart';
 import 'package:epimetheus/widgets/art_image_widget.dart';
 import 'package:epimetheus/widgets/progress_widget.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +21,7 @@ class SongTileWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final foregroundColor = index == 0 ? theme.primaryTextTheme.title.color : Colors.black;
-    final foregroundAccentColor = index == 0 ? theme.accentColor : Colors.blue;
+    final foregroundAccentColor = index == 0 ? theme.accentColor : defaultPrimaryColor;
     return Container(
       height: index == 0 || index == lastItemIndex ? 128 + _padding / 2 : 128,
       padding: EdgeInsets.only(
@@ -88,7 +89,7 @@ class SongTileWidget extends StatelessWidget {
                                   icon: Icon(Icons.play_arrow),
                                   tooltip: 'Skip to song',
                                   onPressed: () {
-                                    AudioService.skipToQueueItem(index.toString());
+                                    AudioService.skipToQueueItem(mediaItem.id);
                                   },
                                 ),
                               ),
@@ -117,7 +118,10 @@ class SongTileWidget extends StatelessWidget {
                                 !mediaItem.rating.isRated() || mediaItem.rating.isThumbUp()
                                     ? Rating.newThumbRating(false)
                                     : Rating.newUnratedRating(RatingStyle.thumbUpDown),
-                                {'index': index},
+                                {
+                                  'index': index,
+                                  'update': false,
+                                },
                               );
                             },
                           ),
@@ -144,7 +148,10 @@ class SongTileWidget extends StatelessWidget {
                                 !mediaItem.rating.isRated() || !mediaItem.rating.isThumbUp()
                                     ? Rating.newThumbRating(true)
                                     : Rating.newUnratedRating(RatingStyle.thumbUpDown),
-                                {'index': index},
+                                {
+                                  'index': index,
+                                  'update': false,
+                                },
                               );
                             },
                           ),

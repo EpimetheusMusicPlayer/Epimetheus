@@ -191,14 +191,15 @@ void audioTask() async {
     onSkipToNext: () {
       newSong(true);
     },
-    onSkipToQueueItem: (String index) {
-      Qudio.skipTo(int.parse(index));
+    onSkipToQueueItem: (String id) {
+      Qudio.skipTo(musicProvider.queue.indexWhere((mediaItem) => mediaItem.id == id));
     },
     onStop: () async {
       stop();
     },
     onSetRating: (Rating rating, Map<dynamic, dynamic> extras) {
-      musicProvider.rate(user, extras['index'], rating).then((value) {
+      if (!extras.containsKey('index') || !extras.containsKey('update')) return;
+      musicProvider.rate(user, extras['index'], rating, extras['update']).then((value) {
         // When this future completes, the rating is complete. Update the queue to tell the UI this.
         AudioServiceBackground.setQueue(musicProvider.queue);
       });

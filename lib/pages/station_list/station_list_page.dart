@@ -1,6 +1,7 @@
 import 'package:epimetheus/audio/station_music_provider.dart';
 import 'package:epimetheus/dialogs/no_connection_dialog.dart';
 import 'package:epimetheus/libepimetheus/stations.dart';
+import 'package:epimetheus/main.dart';
 import 'package:epimetheus/models/model.dart';
 import 'package:epimetheus/widgets/media_control_widget.dart';
 import 'package:epimetheus/widgets/navigation_drawer_widget.dart';
@@ -98,54 +99,56 @@ class _StationListPageState extends State<StationListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('My Stations'),
-      ),
-      drawer: const NavigationDrawerWidget('/station_list'),
-      body: Column(
-        children: <Widget>[
-          Expanded(
-            child: ScopedModelDescendant<EpimetheusModel>(
-              builder: (context, child, model) {
-                if (model.stations == null) return child;
-                return RefreshIndicator(
-                  onRefresh: loadStations,
-                  child: ListView.separated(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    separatorBuilder: (context, index) => Divider(height: 0, indent: 88),
-                    itemBuilder: (context, index) {
-                      final station = model.stations[index];
-                      final int lastItemIndex = model.stations.length - 1;
-                      return Container(
-                        margin: EdgeInsets.only(
-                          top: index == 0 ? 8 : 0,
-                          bottom: index == lastItemIndex ? 8 : 0,
-                        ),
-                        child: InkWell(
-                          onTap: () {
-                            model.currentMusicProvider = StationMusicProvider(model.stations, index);
-                            Navigator.of(context).pushReplacementNamed('/now_playing');
-                          },
-                          onTapDown: _storeStationMenuPosition,
-                          onLongPress: () {
-                            _showStationMenu(station);
-                          },
-                          child: StationListTile(station),
-                        ),
-                      );
-                    },
-                    itemCount: model.stations.length,
-                  ),
-                );
-              },
-              child: Center(
-                child: CircularProgressIndicator(),
+    return EpimetheusThemedPage(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('My Stations'),
+        ),
+        drawer: const NavigationDrawerWidget('/station_list'),
+        body: Column(
+          children: <Widget>[
+            Expanded(
+              child: ScopedModelDescendant<EpimetheusModel>(
+                builder: (context, child, model) {
+                  if (model.stations == null) return child;
+                  return RefreshIndicator(
+                    onRefresh: loadStations,
+                    child: ListView.separated(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      separatorBuilder: (context, index) => Divider(height: 0, indent: 88),
+                      itemBuilder: (context, index) {
+                        final station = model.stations[index];
+                        final int lastItemIndex = model.stations.length - 1;
+                        return Container(
+                          margin: EdgeInsets.only(
+                            top: index == 0 ? 8 : 0,
+                            bottom: index == lastItemIndex ? 8 : 0,
+                          ),
+                          child: InkWell(
+                            onTap: () {
+                              model.currentMusicProvider = StationMusicProvider(model.stations, index);
+                              Navigator.of(context).pushReplacementNamed('/now_playing');
+                            },
+                            onTapDown: _storeStationMenuPosition,
+                            onLongPress: () {
+                              _showStationMenu(station);
+                            },
+                            child: StationListTile(station),
+                          ),
+                        );
+                      },
+                      itemCount: model.stations.length,
+                    ),
+                  );
+                },
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
               ),
             ),
-          ),
-          MediaControlWidget(),
-        ],
+            MediaControlWidget(),
+          ],
+        ),
       ),
     );
   }

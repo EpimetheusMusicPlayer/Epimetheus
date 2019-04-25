@@ -73,6 +73,10 @@ class Feedback extends Track {
           createArtMapFromDecodedJSON(feedbackJSON['albumArt']),
         );
 
+  void updateFeedbackLocally(Rating rating) {
+    _rating = rating;
+  }
+
   Future<void> deleteFeedback(User user) async {
     if (!_rating.isRated()) {
       _feedbackId = null;

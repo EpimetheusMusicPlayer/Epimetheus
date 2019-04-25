@@ -1,11 +1,13 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:epimetheus/libepimetheus/songs.dart';
 import 'package:epimetheus/libepimetheus/stations.dart';
+import 'package:epimetheus/main.dart';
 import 'package:epimetheus/models/model.dart';
 import 'package:epimetheus/pages/feedback/feedback_tile_widget.dart';
 import 'package:epimetheus/widgets/app_bar_title_subtitle_widget.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Feedback;
-import 'package:paging/paging.dart';
+import 'package:flutter_pagewise/flutter_pagewise.dart';
 
 class FeedbackPage extends StatefulWidget {
   final Station station;
@@ -19,37 +21,39 @@ class FeedbackPage extends StatefulWidget {
 class _FeedbackPageState extends State<FeedbackPage> {
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      initialIndex: 1,
-      child: Scaffold(
-        appBar: AppBar(
-          title: AppBarTitleSubtitleWidget('Feedback', widget.station.title),
-          bottom: TabBar(
-            tabs: <Widget>[
-              Tab(
-                icon: Icon(Icons.thumb_down),
-                text: 'Banned',
+    return EpimetheusThemedPage(
+      child: DefaultTabController(
+        length: 2,
+        initialIndex: 1,
+        child: Scaffold(
+          appBar: AppBar(
+            title: AppBarTitleSubtitleWidget('Feedback', widget.station.title),
+            bottom: TabBar(
+              tabs: <Widget>[
+                Tab(
+                  icon: Icon(Icons.thumb_down),
+                  text: 'Banned',
+                ),
+                Tab(
+                  icon: Icon(Icons.thumb_up),
+                  text: 'Loved',
+                ),
+              ],
+            ),
+          ),
+          body: TabBarView(
+            controller: DefaultTabController.of(context),
+            children: <Widget>[
+              FeedbackTabContent(
+                station: widget.station,
+                positive: false,
               ),
-              Tab(
-                icon: Icon(Icons.thumb_up),
-                text: 'Loved',
+              FeedbackTabContent(
+                station: widget.station,
+                positive: true,
               ),
             ],
           ),
-        ),
-        body: TabBarView(
-          controller: DefaultTabController.of(context),
-          children: <Widget>[
-            FeedbackTabContent(
-              station: widget.station,
-              positive: false,
-            ),
-            FeedbackTabContent(
-              station: widget.station,
-              positive: true,
-            ),
-          ],
         ),
       ),
     );
@@ -70,8 +74,7 @@ class FeedbackTabContent extends StatefulWidget {
 }
 
 class _FeedbackTabContentState extends State<FeedbackTabContent> with AutomaticKeepAliveClientMixin<FeedbackTabContent> {
-  bool _loaded = false;
-  int _totalFeedbackItems;
+  PagewiseLoadController<Feedback> _pageLoadController;
 
   @override
   bool get wantKeepAlive => true;
@@ -86,58 +89,93 @@ class _FeedbackTabContentState extends State<FeedbackTabContent> with AutomaticK
   }
 
   @override
+  void initState() {
+    super.initState();
+    _pageLoadController = PagewiseLoadController<Feedback>(
+      pageSize: 30,
+      pageFuture: (index) async => (await getFeedback(pageSize: 30, startIndex: index * 30)).segment,
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Stack(
-      children: <Widget>[
-        Pagination<Feedback>(
-          pageBuilder: (currentSize) async {
-            if (currentSize == _totalFeedbackItems) return const [];
-            final segment = await getFeedback(
-              startIndex: currentSize,
-            );
-            _totalFeedbackItems = segment.total;
-            if (!_loaded && mounted) {
-              setState(() {
-                _loaded = true;
+    return PagewiseListView<Feedback>(
+      pageLoadController: _pageLoadController,
+      showRetry: false,
+      itemBuilder: (context, feedback, index) {
+        return FeedbackTileWidget(
+          feedback: feedback,
+          first: index == 0,
+          last: index == _pageLoadController.loadedItems.length - 1,
+          delete: () async {
+            await _pageLoadController.loadedItems[index].deleteFeedback(EpimetheusModel.of(context).user);
+            if (await AudioService.running) {
+              AudioService.setRating(Rating.newUnratedRating(RatingStyle.thumbUpDown), {
+                'index': AudioService.queue.indexWhere((mediaItem) => mediaItem.id == feedback.pandoraId),
+                'update': true,
               });
             }
-            return segment.segment;
+            if (mounted) {
+              setState(() {
+                _pageLoadController.loadedItems.removeAt(index);
+              });
+            }
           },
-          itemBuilder: (index, currentListSize, feedback) {
-            return FeedbackTileWidget(
-              feedback: feedback,
-              first: index == 0,
-              last: index == currentListSize - 1,
-            );
-          },
-          progress: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: SizedBox(
-                width: 16,
-                height: 16,
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
-                  strokeWidth: 1,
-                ),
+        );
+      },
+      loadingBuilder: (context) {
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
+                strokeWidth: 1,
               ),
             ),
           ),
-        ),
-        if (!_loaded)
-          Container(
-            width: double.infinity,
-            height: double.infinity,
-            color: Theme.of(context).canvasColor,
-          ),
-        if (!_loaded)
-          Center(
-            child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
+        );
+      },
+      noItemsFoundBuilder: (context) {
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: const Text(
+              'No feedback.',
+              textAlign: TextAlign.center,
             ),
           ),
-      ],
+        );
+      },
+      errorBuilder: (context, error) {
+        return Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            children: <Widget>[
+              const Text(
+                  'An error has occured. Please make sure you\'re connected to the Internet and have a US IP address. If so, report it to the developer.'),
+              const SizedBox(height: 16),
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  color: Colors.black12,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Text(
+                    error.toString(),
+                    style: TextStyle(
+                      fontFamily: 'monospace',
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

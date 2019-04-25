@@ -32,7 +32,7 @@ class StationMusicProvider extends MusicProvider {
     return [
       for (int i = 0; i < _songs.length; i++)
         MediaItem(
-          id: i.toString(),
+          id: _songs[i].pandoraId,
           title: _songs[i].title,
           artist: _songs[i].artistTitle,
           album: _songs[i].albumTitle,
@@ -45,27 +45,12 @@ class StationMusicProvider extends MusicProvider {
           genre: _songs[i].pendingRating.isRated() ? _songs[i].pendingRating.isThumbUp().toString() : 'null',
         ),
     ];
-    return _songs.map<MediaItem>((Song song) {
-      return MediaItem(
-        id: song.pandoraId,
-        title: song.title,
-        artist: song.artistTitle,
-        album: song.albumTitle,
-        artUri: song.getArtUrl(serviceArtSize),
-        displayTitle: song.title,
-        displaySubtitle: '${song.artistTitle} - ${song.albumTitle}',
-        displayDescription: title,
-        playable: true,
-        rating: song.rating,
-        genre: song.pendingRating.isRated() ? song.pendingRating.isThumbUp().toString() : 'null',
-      );
-    }).toList(growable: false);
   }
 
   @override
   MediaItem get currentMediaItem {
     return MediaItem(
-      id: '0',
+      id: _songs[0].pandoraId,
       title: _songs[0].title,
       artist: _songs[0].artistTitle,
       album: _songs[0].albumTitle,
@@ -95,11 +80,16 @@ class StationMusicProvider extends MusicProvider {
   }
 
   @override
-  Future<void> rate(User user, int index, Rating rating) {
-    if (rating.isRated()) {
-      return _songs[index].addFeedback(user, rating.isThumbUp());
+  Future<void> rate(User user, int index, Rating rating, bool update) {
+    if (update) {
+      _songs[index].updateFeedbackLocally(rating);
+      return Future.value();
     } else {
-      return _songs[index].deleteFeedback(user);
+      if (rating.isRated()) {
+        return _songs[index].addFeedback(user, rating.isThumbUp());
+      } else {
+        return _songs[index].deleteFeedback(user);
+      }
     }
   }
 

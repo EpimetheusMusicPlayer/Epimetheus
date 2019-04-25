@@ -125,8 +125,6 @@ class __ButtonsState extends State<_Buttons> with SingleTickerProviderStateMixin
   AnimationController _controller;
   StreamSubscription<PlaybackState> _playbackStateSubscription;
 
-  String _fastForwardAnimationName;
-
   void startListening() {
     _playbackStateSubscription?.cancel();
     _playbackStateSubscription = AudioService.playbackStateStream.listen((state) {
