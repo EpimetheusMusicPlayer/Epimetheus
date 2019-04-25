@@ -224,48 +224,5 @@ class _EpimetheusThemedPageState extends State<EpimetheusThemedPage> with Widget
       ),
       child: widget.child,
     );
-//    return StreamBuilder<PaletteGenerator>(
-//      stream: _paletteStreamController.stream,
-//      initialData: _palette,
-//      builder: (context, snapshot) {
-//        if (snapshot.data == null) {
-//          _primaryColor = defaultPrimaryColor;
-//          _accentColor = defaultAccentColor;
-//        } else {
-//          final primaryColor = snapshot.data.dominantColor?.color ?? Colors.black12;
-//          _primaryColor = MaterialColor(
-//            primaryColor.value,
-//            {
-//              50: primaryColor,
-//              100: primaryColor,
-//              200: primaryColor,
-//              300: primaryColor,
-//              400: primaryColor,
-//              500: primaryColor,
-//              600: primaryColor,
-//              700: primaryColor,
-//              800: primaryColor,
-//              900: primaryColor,
-//            },
-//          );
-//          _accentColor = (snapshot.data.lightVibrantColor?.color?.value != _primaryColor.value ? snapshot.data.lightVibrantColor?.color : null) ??
-//              (snapshot.data.lightMutedColor?.color?.value != _primaryColor.value ? snapshot.data.lightMutedColor?.color : null) ??
-//              (snapshot.data.vibrantColor?.color?.value != _primaryColor.value ? snapshot.data.vibrantColor?.color : null) ??
-//              (snapshot.data.mutedColor?.color?.value != _primaryColor.value ? snapshot.data.mutedColor?.color : null) ??
-//              defaultAccentColor;
-//        }
-//        return AnimatedTheme(
-//          data: ThemeData(
-//            primarySwatch: _primaryColor,
-//            accentColor: _accentColor,
-//            buttonTheme: ButtonThemeData(
-//              buttonColor: _accentColor,
-//              textTheme: ButtonTextTheme.primary,
-//            ),
-//          ),
-//          child: widget.child,
-//        );
-//      },
-//    );
   }
 }
