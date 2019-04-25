@@ -7,17 +7,21 @@ import 'package:epimetheus/pages/now_playing/now_playing_page.dart';
 import 'package:epimetheus/pages/station_list/station_list_page.dart';
 import 'package:epimetheus/theme_constants.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:palette_generator/palette_generator.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 void main() {
+  timeDilation = 10;
   runApp(Epimetheus());
 }
 
 final StreamController<PaletteGenerator> _paletteStreamController = StreamController.broadcast();
+
 Stream<PaletteGenerator> get paletteStream => _paletteStreamController.stream;
 
 PaletteGenerator _palette;
+
 PaletteGenerator get palette => _palette;
 
 class Epimetheus extends StatefulWidget {
@@ -132,54 +136,136 @@ class EpimetheusThemedPage extends StatefulWidget {
   _EpimetheusThemedPageState createState() => _EpimetheusThemedPageState();
 }
 
-class _EpimetheusThemedPageState extends State<EpimetheusThemedPage> {
-  Color _primaryColor;
-  Color _accentColor;
+class _EpimetheusThemedPageState extends State<EpimetheusThemedPage> with WidgetsBindingObserver {
+  Color _primaryColor = defaultPrimaryColor;
+  Color _accentColor = defaultAccentColor;
+
+  StreamSubscription<PaletteGenerator> _subscription;
+
+  @override
+  void initState() {
+    super.initState();
+    startListening();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        startListening();
+        break;
+      case AppLifecycleState.paused:
+        stopListening();
+        break;
+      default:
+        break;
+    }
+  }
+
+  @override
+  void dispose() {
+    stopListening();
+    super.dispose();
+  }
+
+  void startListening() {
+    _subscription?.cancel();
+    _subscription = _paletteStreamController.stream.listen((palette) {
+      if (palette == null) {
+        setState(() {
+          _primaryColor = defaultPrimaryColor;
+          _accentColor = defaultAccentColor;
+        });
+      } else {
+        final primaryColor = palette.dominantColor?.color ?? Colors.grey;
+        final primaryColorSwatch = MaterialColor(
+          primaryColor.value,
+          {
+            50: primaryColor,
+            100: primaryColor,
+            200: primaryColor,
+            300: primaryColor,
+            400: primaryColor,
+            500: primaryColor,
+            600: primaryColor,
+            700: primaryColor,
+            800: primaryColor,
+            900: primaryColor,
+          },
+        );
+        final accentColor = (palette.lightVibrantColor?.color?.value != _primaryColor.value ? palette.lightVibrantColor?.color : null) ??
+            (palette.lightMutedColor?.color?.value != _primaryColor.value ? palette.lightMutedColor?.color : null) ??
+            (palette.vibrantColor?.color?.value != _primaryColor.value ? palette.vibrantColor?.color : null) ??
+            (palette.mutedColor?.color?.value != _primaryColor.value ? palette.mutedColor?.color : null) ??
+            defaultAccentColor;
+        setState(() {
+          _primaryColor = primaryColorSwatch;
+          _accentColor = accentColor;
+        });
+      }
+    });
+  }
+
+  void stopListening() {
+    _subscription.cancel();
+    _subscription = null;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<PaletteGenerator>(
-      stream: _paletteStreamController.stream,
-      initialData: _palette,
-      builder: (context, snapshot) {
-        if (snapshot.data == null) {
-          _primaryColor = defaultPrimaryColor;
-          _accentColor = defaultAccentColor;
-        } else {
-          final primaryColor = snapshot.data.dominantColor.color;
-          _primaryColor = MaterialColor(
-            primaryColor.value,
-            {
-              50: primaryColor,
-              100: primaryColor,
-              200: primaryColor,
-              300: primaryColor,
-              400: primaryColor,
-              500: primaryColor,
-              600: primaryColor,
-              700: primaryColor,
-              800: primaryColor,
-              900: primaryColor,
-            },
-          );
-          _accentColor = (snapshot.data.lightVibrantColor?.color?.value != _primaryColor.value ? snapshot.data.lightVibrantColor?.color : null) ??
-              (snapshot.data.lightMutedColor?.color?.value != _primaryColor.value ? snapshot.data.lightMutedColor?.color : null) ??
-              (snapshot.data.vibrantColor?.color?.value != _primaryColor.value ? snapshot.data.vibrantColor?.color : null) ??
-              (snapshot.data.mutedColor?.color?.value != _primaryColor.value ? snapshot.data.mutedColor?.color : null) ??
-              defaultAccentColor;
-        }
-        return Theme(
-          data: ThemeData(
-            primarySwatch: _primaryColor,
-            accentColor: _accentColor,
-            buttonTheme: ButtonThemeData(
-              buttonColor: _accentColor,
-              textTheme: ButtonTextTheme.primary,
-            ),
-          ),
-          child: widget.child,
-        );
-      },
+    return AnimatedTheme(
+      data: ThemeData(
+        primarySwatch: _primaryColor,
+        accentColor: _accentColor,
+        buttonTheme: ButtonThemeData(
+          buttonColor: _accentColor,
+          textTheme: ButtonTextTheme.primary,
+        ),
+      ),
+      child: widget.child,
     );
+//    return StreamBuilder<PaletteGenerator>(
+//      stream: _paletteStreamController.stream,
+//      initialData: _palette,
+//      builder: (context, snapshot) {
+//        if (snapshot.data == null) {
+//          _primaryColor = defaultPrimaryColor;
+//          _accentColor = defaultAccentColor;
+//        } else {
+//          final primaryColor = snapshot.data.dominantColor?.color ?? Colors.black12;
+//          _primaryColor = MaterialColor(
+//            primaryColor.value,
+//            {
+//              50: primaryColor,
+//              100: primaryColor,
+//              200: primaryColor,
+//              300: primaryColor,
+//              400: primaryColor,
+//              500: primaryColor,
+//              600: primaryColor,
+//              700: primaryColor,
+//              800: primaryColor,
+//              900: primaryColor,
+//            },
+//          );
+//          _accentColor = (snapshot.data.lightVibrantColor?.color?.value != _primaryColor.value ? snapshot.data.lightVibrantColor?.color : null) ??
+//              (snapshot.data.lightMutedColor?.color?.value != _primaryColor.value ? snapshot.data.lightMutedColor?.color : null) ??
+//              (snapshot.data.vibrantColor?.color?.value != _primaryColor.value ? snapshot.data.vibrantColor?.color : null) ??
+//              (snapshot.data.mutedColor?.color?.value != _primaryColor.value ? snapshot.data.mutedColor?.color : null) ??
+//              defaultAccentColor;
+//        }
+//        return AnimatedTheme(
+//          data: ThemeData(
+//            primarySwatch: _primaryColor,
+//            accentColor: _accentColor,
+//            buttonTheme: ButtonThemeData(
+//              buttonColor: _accentColor,
+//              textTheme: ButtonTextTheme.primary,
+//            ),
+//          ),
+//          child: widget.child,
+//        );
+//      },
+//    );
   }
 }
