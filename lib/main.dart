@@ -7,12 +7,10 @@ import 'package:epimetheus/pages/now_playing/now_playing_page.dart';
 import 'package:epimetheus/pages/station_list/station_list_page.dart';
 import 'package:epimetheus/theme_constants.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:palette_generator/palette_generator.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 void main() {
-  timeDilation = 10;
   runApp(Epimetheus());
 }
 
