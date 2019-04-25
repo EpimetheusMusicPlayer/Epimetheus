@@ -18,7 +18,7 @@ dependencies:
   qudio:
     path: './qudio'
   palette_generator: ^0.1.1
-  flare_flutter: ^1.3.13
+  flare_flutter: ^1.5.0
   paging:
     path: './paging'
 

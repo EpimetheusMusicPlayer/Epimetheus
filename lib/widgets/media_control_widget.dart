@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:audio_service/audio_service.dart';
 import 'package:epimetheus/widgets/art_image_widget.dart';
 import 'package:epimetheus/widgets/progress_widget.dart';
+import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
 
 class MediaControlWidget extends StatefulWidget {
@@ -122,8 +123,9 @@ class _Buttons extends StatefulWidget {
 
 class __ButtonsState extends State<_Buttons> with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   AnimationController _controller;
-
   StreamSubscription<PlaybackState> _playbackStateSubscription;
+
+  String _fastForwardAnimationName;
 
   void startListening() {
     _playbackStateSubscription?.cancel();
@@ -194,12 +196,15 @@ class __ButtonsState extends State<_Buttons> with SingleTickerProviderStateMixin
               ),
               onPressed: AudioService.stop,
             ),
-            const IconButton(
-              iconSize: 36,
-              icon: Icon(
-                Icons.fast_rewind,
+            Transform(
+              transform: Matrix4.diagonal3Values(-1, 1, 1),
+              origin: const Offset(24, 0),
+              child: AnimatedMediaIconButton(
+                animationPath: 'assets/fast_forward.flr',
+                animationName: 'fast_forward',
+                tooltip: 'Rewind',
+                onPressed: AudioService.rewind,
               ),
-              onPressed: AudioService.rewind,
             ),
             IconButton(
               iconSize: 36,
@@ -209,23 +214,74 @@ class __ButtonsState extends State<_Buttons> with SingleTickerProviderStateMixin
               ),
               onPressed: playPause,
             ),
-            const IconButton(
-              iconSize: 36,
-              icon: Icon(
-                Icons.fast_forward,
-              ),
+            AnimatedMediaIconButton(
+              animationPath: 'assets/fast_forward.flr',
+              animationName: 'fast_forward',
+              tooltip: 'Fast-forward',
               onPressed: AudioService.fastForward,
             ),
-            const IconButton(
-              iconSize: 36,
-              icon: Icon(
-                Icons.skip_next,
-              ),
+            AnimatedMediaIconButton(
+              animationPath: 'assets/skip.flr',
+              animationName: 'skip',
+              tooltip: 'Skip',
               onPressed: AudioService.skipToNext,
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class AnimatedMediaIconButton extends StatefulWidget {
+  final String animationPath;
+  final String animationName;
+  final String tooltip;
+  final VoidCallback onPressed;
+
+  AnimatedMediaIconButton({
+    @required this.animationPath,
+    @required this.animationName,
+    this.tooltip,
+    @required this.onPressed,
+  });
+
+  @override
+  _AnimatedMediaIconButtonState createState() => _AnimatedMediaIconButtonState();
+}
+
+class _AnimatedMediaIconButtonState extends State<AnimatedMediaIconButton> {
+  String _animationName;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = Theme.of(context).primaryTextTheme.title.color;
+    return IconButton(
+      iconSize: 36,
+      tooltip: widget.tooltip,
+      icon: ShaderMask(
+        shaderCallback: (bounds) {
+          return LinearGradient(
+            colors: [color, color],
+          ).createShader(bounds);
+        },
+        child: FlareActor(
+          widget.animationPath,
+          animation: _animationName,
+          color: Colors.white,
+          callback: ((name) {
+            setState(() {
+              _animationName = null;
+            });
+          }),
+        ),
+      ),
+      onPressed: () {
+        setState(() {
+          _animationName = widget.animationName;
+        });
+        widget.onPressed();
+      },
     );
   }
 }
