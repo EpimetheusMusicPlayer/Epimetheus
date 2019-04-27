@@ -4,6 +4,7 @@ import 'package:epimetheus/models/model.dart';
 import 'package:epimetheus/widgets/art_image_widget.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
+import 'package:scoped_model/scoped_model.dart';
 
 class StationListTile extends StatelessWidget {
   final Station _station;
@@ -32,12 +33,19 @@ class StationListTile extends StatelessWidget {
               _station.title,
             ),
           ),
-          if (EpimetheusModel.of(context).currentMusicProvider != null)
-            AnimatedOpacity(
-              duration: const Duration(milliseconds: 200),
-              opacity: EpimetheusModel.of(context).currentMusicProvider.id == _station.stationId ? 0.75 : 0,
-              child: _MediaPlayingAnimation(),
-            ),
+          ScopedModelDescendant<EpimetheusModel>(
+            rebuildOnChange: true,
+            builder: (context, child, model) {
+              if (model.currentMusicProvider != null) {
+                return AnimatedOpacity(
+                  duration: const Duration(milliseconds: 200),
+                  opacity: model.currentMusicProvider.id == _station.stationId ? 0.75 : 0,
+                  child: _MediaPlayingAnimation(),
+                );
+              } else
+                return SizedBox();
+            },
+          ),
         ],
       ),
     );
@@ -56,7 +64,7 @@ class _MediaPlayingAnimation extends StatelessWidget {
           return FlareActor(
             'assets/media_playing.flr',
             animation: 'bars',
-            isPaused: snapshot.data.basicState != BasicPlaybackState.playing,
+            isPaused: snapshot.data?.basicState != BasicPlaybackState.playing,
           );
         },
       ),

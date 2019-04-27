@@ -40,6 +40,7 @@ class _EpimetheusState extends State<Epimetheus> with WidgetsBindingObserver {
       if (mediaItem?.artUri != _currentArtUri) {
         _currentArtUri = mediaItem?.artUri;
         if (mediaItem?.artUri == null) {
+          model?.currentMusicProvider = null;
           _palette = null;
           _paletteStreamController.add(null);
         } else {

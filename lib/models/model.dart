@@ -22,6 +22,7 @@ class EpimetheusModel extends Model {
   MusicProvider _currentMusicProvider;
   MusicProvider get currentMusicProvider => _currentMusicProvider;
   set currentMusicProvider(musicProvider) {
+    if (musicProvider == null) return;
     launchMusicProvider(user, musicProvider);
     _currentMusicProvider = musicProvider;
     notifyListeners();

@@ -20,6 +20,7 @@ dependencies:
   palette_generator: ^0.1.1
   flare_flutter: ^1.5.0
   flutter_pagewise: ^1.2.3
+  animated_stream_list: ^0.0.4
 
 dev_dependencies:
   flutter_test:

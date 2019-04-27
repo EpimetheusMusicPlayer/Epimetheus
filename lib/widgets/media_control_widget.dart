@@ -55,61 +55,64 @@ class _HUD extends StatelessWidget {
         initialData: AudioService.currentMediaItem,
         stream: AudioService.currentMediaItemStream,
         builder: (context, snapshot) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-            child: Row(
-              children: [
-                ArtImageWidget(snapshot.data.artUri, 72),
-                SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        snapshot.data.title,
-                        textScaleFactor: 1.1,
-                        overflow: TextOverflow.fade,
-                        softWrap: false,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: textColor,
+          if (snapshot.data != null) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+              child: Row(
+                children: [
+                  ArtImageWidget(snapshot.data.artUri, 72),
+                  SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          snapshot.data.title,
+                          textScaleFactor: 1.1,
+                          overflow: TextOverflow.fade,
+                          softWrap: false,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: textColor,
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 2),
-                      Text(
-                        snapshot.data.artist,
-                        textScaleFactor: 1.1,
-                        overflow: TextOverflow.fade,
-                        softWrap: false,
-                        style: TextStyle(
-                          color: textColor,
+                        SizedBox(height: 2),
+                        Text(
+                          snapshot.data.artist,
+                          textScaleFactor: 1.1,
+                          overflow: TextOverflow.fade,
+                          softWrap: false,
+                          style: TextStyle(
+                            color: textColor,
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 2),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              snapshot.data.album,
-                              textScaleFactor: 1.1,
-                              overflow: TextOverflow.fade,
-                              softWrap: false,
-                              style: TextStyle(
-                                fontStyle: FontStyle.italic,
-                                color: textColor,
+                        SizedBox(height: 2),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                snapshot.data.album,
+                                textScaleFactor: 1.1,
+                                overflow: TextOverflow.fade,
+                                softWrap: false,
+                                style: TextStyle(
+                                  fontStyle: FontStyle.italic,
+                                  color: textColor,
+                                ),
                               ),
                             ),
-                          ),
-                          SizedBox(width: 2),
-                          ProgressWidget(),
-                        ],
-                      ),
-                    ],
-                  ),
-                )
-              ],
-            ),
-          );
+                            SizedBox(width: 2),
+                            ProgressWidget(),
+                          ],
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            );
+          } else
+            return const SizedBox();
         },
       ),
     );
@@ -128,9 +131,9 @@ class __ButtonsState extends State<_Buttons> with SingleTickerProviderStateMixin
   void startListening() {
     _playbackStateSubscription?.cancel();
     _playbackStateSubscription = AudioService.playbackStateStream.listen((state) {
-      if (state.basicState == BasicPlaybackState.paused) {
+      if (state?.basicState == BasicPlaybackState.paused) {
         _controller.reverse(from: 1);
-      } else if (state.basicState == BasicPlaybackState.playing) {
+      } else if (state?.basicState == BasicPlaybackState.playing) {
         _controller.forward(from: 0);
       }
     });
