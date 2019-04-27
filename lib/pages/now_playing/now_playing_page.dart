@@ -1,3 +1,4 @@
+import 'package:animated_stream_list/animated_stream_list.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:epimetheus/main.dart';
 import 'package:epimetheus/models/model.dart';
@@ -24,6 +25,25 @@ class _NowPlayingPageState extends State<NowPlayingPage> with WidgetsBindingObse
     _scrollController.addListener(() {
       if (_elevated != (_scrollController.hasClients && _scrollController.offset != 0)) setState(() {});
     });
+  }
+
+  Widget _itemBuilder(MediaItem mediaItem, int index, BuildContext context, Animation<double> animation) {
+    return SizeTransition(
+      sizeFactor: animation,
+      child: ClipRect(
+        child: DecoratedBox(
+          decoration: BoxDecoration(color: index == 0 ? Theme.of(context).primaryColor : Colors.transparent),
+          child: FadeTransition(
+            opacity: animation,
+            child: SongTileWidget(
+              mediaItem: mediaItem,
+              index: index,
+              lastItemIndex: AudioService.queue.length - 1,
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -53,54 +73,18 @@ class _NowPlayingPageState extends State<NowPlayingPage> with WidgetsBindingObse
           ),
         );
       },
-//        body: AnimatedStreamList<MediaItem>(
-//          streamList: AudioService.queueStream,
-//          itemBuilder: (mediaItem, index, context, animation) {
-//            return SizeTransition(
-//              axis: Axis.vertical,
-//              sizeFactor: animation,
-//              child: SongTileWidget(
-//                mediaItem: mediaItem,
-//                index: index,
-//                lastItemIndex: AudioService.queue.length - 1,
-//              ),
-//            );
-//          },
-//          itemRemovedBuilder: (mediaItem, index, context, animation) {
-//            return SizeTransition(
-//              axis: Axis.vertical,
-//              sizeFactor: animation,
-//              child: SongTileWidget(
-//                mediaItem: mediaItem,
-//                index: index,
-//                lastItemIndex: AudioService.queue.length - 1,
-//              ),
-//            );
-//          },
-//        ),
-      child: StreamBuilder<List<MediaItem>>(
-        initialData: AudioService.queue,
-        stream: AudioService.queueStream,
-        builder: (context, snapshot) {
-          return Column(
-            children: <Widget>[
-              Expanded(
-                child: ListView.builder(
-                  controller: _scrollController,
-                  itemBuilder: (context, index) {
-                    return SongTileWidget(
-                      mediaItem: snapshot.data[index],
-                      index: index,
-                      lastItemIndex: snapshot.data.length - 1,
-                    );
-                  },
-                  itemCount: snapshot.hasData ? snapshot.data.length : 0,
-                ),
-              ),
-              MediaControlWidget(false),
-            ],
-          );
-        },
+      child: Column(
+        children: <Widget>[
+          Expanded(
+            child: AnimatedStreamList<MediaItem>(
+              streamList: AudioService.queueStream,
+              initialList: AudioService.queue,
+              itemBuilder: _itemBuilder,
+              itemRemovedBuilder: _itemBuilder,
+            ),
+          ),
+          MediaControlWidget(false),
+        ],
       ),
     );
   }

@@ -4,9 +4,9 @@ packages:
   animated_stream_list:
     dependency: "direct main"
     description:
-      name: animated_stream_list
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: animated-stream-list
+      relative: true
+    source: path
     version: "0.0.4"
   async:
     dependency: transitive

@@ -15,11 +15,9 @@ void main() {
 }
 
 final StreamController<PaletteGenerator> _paletteStreamController = StreamController.broadcast();
-
 Stream<PaletteGenerator> get paletteStream => _paletteStreamController.stream;
 
 PaletteGenerator _palette;
-
 PaletteGenerator get palette => _palette;
 
 class Epimetheus extends StatefulWidget {
@@ -39,8 +37,8 @@ class _EpimetheusState extends State<Epimetheus> with WidgetsBindingObserver {
     _currentMediaItemSubscription = AudioService.currentMediaItemStream.listen((mediaItem) async {
       if (mediaItem?.artUri != _currentArtUri) {
         _currentArtUri = mediaItem?.artUri;
+        if (mediaItem == null) model.currentMusicProvider = null;
         if (mediaItem?.artUri == null) {
-          model?.currentMusicProvider = null;
           _palette = null;
           _paletteStreamController.add(null);
         } else {
@@ -136,8 +134,8 @@ class EpimetheusThemedPage extends StatefulWidget {
 }
 
 class _EpimetheusThemedPageState extends State<EpimetheusThemedPage> with WidgetsBindingObserver {
-  Color _primaryColor = defaultPrimaryColor;
-  Color _accentColor = defaultAccentColor;
+  static Color _primaryColor = defaultPrimaryColor;
+  static Color _accentColor = defaultAccentColor;
 
   StreamSubscription<PaletteGenerator> _subscription;
 
