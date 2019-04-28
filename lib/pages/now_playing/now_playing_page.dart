@@ -1,4 +1,3 @@
-import 'package:animated_stream_list/animated_stream_list.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:epimetheus/main.dart';
 import 'package:epimetheus/models/model.dart';
@@ -27,24 +26,22 @@ class _NowPlayingPageState extends State<NowPlayingPage> with WidgetsBindingObse
     });
   }
 
-  Widget _itemBuilder(MediaItem mediaItem, int index, BuildContext context, Animation<double> animation) {
-    return SizeTransition(
-      sizeFactor: animation,
-      child: ClipRect(
-        child: DecoratedBox(
-          decoration: BoxDecoration(color: index == 0 ? Theme.of(context).primaryColor : Colors.transparent),
-          child: FadeTransition(
-            opacity: animation,
-            child: SongTileWidget(
-              mediaItem: mediaItem,
-              index: index,
-              lastItemIndex: AudioService.queue.length - 1,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+//  Widget _itemBuilder(MediaItem mediaItem, int index, BuildContext context, Animation<double> animation) {
+//    return SizeTransition(
+//      sizeFactor: animation,
+//      child: DecoratedBox(
+//        decoration: BoxDecoration(color: index == 0 ? Theme.of(context).primaryColor : Colors.transparent),
+//        child: FadeTransition(
+//          opacity: animation,
+//          child: SongTileWidget(
+//            mediaItem: mediaItem,
+//            index: index,
+//            lastItemIndex: AudioService.queue.length - 1,
+//          ),
+//        ),
+//      ),
+//    );
+//  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,12 +73,33 @@ class _NowPlayingPageState extends State<NowPlayingPage> with WidgetsBindingObse
       child: Column(
         children: <Widget>[
           Expanded(
-            child: AnimatedStreamList<MediaItem>(
-              streamList: AudioService.queueStream,
-              initialList: AudioService.queue,
-              itemBuilder: _itemBuilder,
-              itemRemovedBuilder: _itemBuilder,
+            child: StreamBuilder<List<MediaItem>>(
+              stream: AudioService.queueStream,
+              initialData: AudioService.queue,
+              builder: (context, snapshot) {
+                if (snapshot.data == null || snapshot.data.isEmpty) {
+                  return const Center(child: const Text('Noting playing.'));
+                } else {
+                  return ListView.builder(
+                    itemCount: snapshot.data.length,
+                    itemBuilder: (context, index) {
+                      return SongTileWidget(
+                        mediaItem: snapshot.data[index],
+                        index: index,
+                        lastItemIndex: snapshot.data.length - 1,
+                      );
+                    },
+                  );
+                }
+              },
             ),
+//            child: AnimatedStreamList<MediaItem>(
+//              streamList: AudioService.queueStream,
+//              initialList: AudioService.queue,
+//              equals: (o1, o2) => false,
+//              itemBuilder: _itemBuilder,
+//              itemRemovedBuilder: _itemBuilder,
+//            ),
           ),
           MediaControlWidget(false),
         ],

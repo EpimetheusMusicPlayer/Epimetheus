@@ -23,7 +23,7 @@ class _ProgressWidgetState extends State<ProgressWidget> with WidgetsBindingObse
       (_) {
         final position = AudioService.playbackState?.basicState == BasicPlaybackState.playing
             ? (DateTime.now().millisecondsSinceEpoch - AudioService.playbackState.updateTime + AudioService.playbackState.position) / 1000
-            : AudioService.playbackState.position / 1000;
+            : AudioService.playbackState?.position ?? 0 / 1000;
         final duration = (AudioService.currentMediaItem.duration ?? 0) / 1000;
         setState(() {
           _positionMinutes = (position / 60).floor().toString().padLeft(2, '0');
