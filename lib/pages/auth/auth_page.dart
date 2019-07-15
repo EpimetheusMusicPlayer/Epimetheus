@@ -141,6 +141,7 @@ class _AuthPageState extends State<AuthPage> {
                           .hasMatch(value)) {
                         return 'Please enter a valid email address.';
                       }
+                      return null;
                     },
                     onSaved: (value) {
                       _email = value;
@@ -164,6 +165,7 @@ class _AuthPageState extends State<AuthPage> {
                     ),
                     validator: (value) {
                       if (value.isEmpty) return 'Please enter a password.';
+                      return null;
                     },
                     onSaved: (value) {
                       _password = value;

@@ -93,6 +93,7 @@ class Qudio {
             _sourceErrorStream.add(true);
             break;
         }
+        return null;
       });
     }
   }
