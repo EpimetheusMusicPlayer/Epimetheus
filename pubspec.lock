@@ -42,21 +42,21 @@ packages:
       name: connectivity
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.4.3+1"
+    version: "0.4.3+7"
   flare_dart:
     dependency: transitive
     description:
       name: flare_dart
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.4.0"
+    version: "1.4.4"
   flare_flutter:
     dependency: "direct main"
     description:
       name: flare_flutter
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.5.0"
+    version: "1.5.5"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -115,7 +115,7 @@ packages:
       name: palette_generator
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.1.1"
+    version: "0.2.0"
   path:
     dependency: transitive
     description:
@@ -150,7 +150,7 @@ packages:
       name: rxdart
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.22.0"
+    version: "0.22.1+1"
   scoped_model:
     dependency: "direct main"
     description:
@@ -221,4 +221,4 @@ packages:
     version: "2.0.8"
 sdks:
   dart: ">=2.2.2 <3.0.0"
-  flutter: ">=1.2.0 <2.0.0"
+  flutter: ">=1.7.8+hotfix.3 <2.0.0"
