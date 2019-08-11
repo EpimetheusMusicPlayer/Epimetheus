@@ -1,7 +1,23 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:epimetheus/libepimetheus/authentication.dart';
+import 'package:flutter/widgets.dart';
+
+class MusicProviderAction {
+  final IconData iconData;
+  final String label;
+  final VoidCallback onTap;
+
+  const MusicProviderAction({
+    @required this.iconData,
+    @required this.label,
+    @required this.onTap,
+  });
+}
 
 abstract class MusicProvider {
+  /// A unique id for the MusicProvider.
+  String get id;
+
   /// A human-readable title for the music collection.
   String get title;
 
@@ -27,7 +43,7 @@ abstract class MusicProvider {
   void remove(int index);
 
   /// Rates the media item at the given index.
-  void rate(int index, Rating rating);
+  Future<void> rate(User user, int index, Rating rating, bool update);
 
   /// Shelves the media item for a month.
   void tired(int index);
@@ -39,6 +55,14 @@ abstract class MusicProvider {
   /// Get a list of media groups to play (e.g. stations).
   List<MediaItem> getChildren(String parentId);
 
-  /// Returns true if the given provider is different to the current one.
-//  bool shouldReplace(MusicProvider other);
+  /// A list of actions related to the MusicProvider to be shown in the UI.
+  List<MusicProviderAction> getActions(State state) => const [];
+
+  @override
+  bool operator ==(other) {
+    if (other is MusicProvider)
+      return id == other.id;
+    else
+      return false;
+  }
 }

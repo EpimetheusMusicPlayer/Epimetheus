@@ -1,0 +1,4 @@
+analyzer:
+  exclude:
+    - audio_service/**
+    - animated-stream-list/**

@@ -1,6 +1,19 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:epimetheus/art_constants.dart';
+import 'package:epimetheus/libepimetheus/stations.dart';
 import 'package:epimetheus/models/model.dart';
+import 'package:epimetheus/pages/feedback/feedback_page.dart';
+import 'package:epimetheus/widgets/artful_drawer_tile_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+void openFeedbackPage(BuildContext context, Station station) {
+  Navigator.of(context).push(
+    MaterialPageRoute(
+      builder: (BuildContext context) => FeedbackPage(station),
+    ),
+  );
+}
 
 class NavigationDrawerWidget extends StatelessWidget {
   final String currentPath;
@@ -15,53 +28,143 @@ class NavigationDrawerWidget extends StatelessWidget {
       child: Column(
         children: <Widget>[
           model.user != null
-              ? UserAccountsDrawerHeader(
-                  accountEmail: Text(model.user.email, style: TextStyle(color: Colors.white)),
-                  accountName: Text(model.user.username, style: TextStyle(color: Colors.white)),
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: NetworkImage(model.user.profileImageUrl),
-                      fit: BoxFit.cover,
-                      colorFilter: ColorFilter.mode(
-                        const Color(0x88000000),
-                        BlendMode.multiply,
+              ? Stack(
+                  alignment: Alignment.topRight,
+                  children: <Widget>[
+                    UserAccountsDrawerHeader(
+                      margin: EdgeInsets.zero,
+                      accountEmail: Text(model.user.email, style: const TextStyle(color: Colors.white)),
+                      accountName: Text(model.user.username, style: const TextStyle(color: Colors.white)),
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: NetworkImage(model.user.profileImageUrl),
+                          fit: BoxFit.cover,
+                          colorFilter: ColorFilter.mode(
+                            const Color(0x8F000000),
+                            BlendMode.multiply,
+                          ),
+                        ),
+                        color: artBackgroundColor,
                       ),
                     ),
-                    color: artBackgroundColor,
-                  ),
+                    SafeArea(
+                      child: PopupMenuButton<String>(
+                        icon: Icon(
+                          Icons.more_vert,
+                          color: Colors.white,
+                        ),
+                        tooltip: 'More',
+                        itemBuilder: (context) {
+                          return const [
+                            const PopupMenuItem<String>(
+                              value: 'sign_out',
+                              child: const Text('Sign out'),
+                            )
+                          ];
+                        },
+                        onSelected: (value) async {
+                          switch (value) {
+                            case 'sign_out':
+                              await FlutterSecureStorage().delete(key: 'password');
+                              await AudioService.stop();
+                              Navigator.of(context).pushReplacementNamed('/');
+                              model.stations = null;
+                              break;
+                          }
+                        },
+                      ),
+                    )
+                  ],
                 )
               : SafeArea(
                   child: SizedBox(width: 0, height: 0),
                 ),
+          Divider(height: 0),
           Expanded(
-            child: ListTileTheme(
-              selectedColor: Colors.blue,
-              style: ListTileStyle.drawer,
-              child: ListView(
-                padding: EdgeInsets.zero,
-                children: [
-                  ListTile(
-                    leading: Icon(Icons.playlist_play),
-                    title: Text('Now Playing'),
-                    selected: currentPath == '/now_playing',
-                    onTap: () {
-                      final navigator = Navigator.of(context);
-                      navigator.pop();
-                      navigator.pushReplacementNamed('/now_playing');
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.library_music),
-                    title: Text('My Stations'),
-                    selected: currentPath == '/station_list',
-                    onTap: () {
-                      final navigator = Navigator.of(context);
-                      navigator.pop();
-                      navigator.pushReplacementNamed('/station_list');
-                    },
-                  ),
-                ],
-              ),
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                ArtfulDrawerTileWidget(
+                  icon: Icons.playlist_play,
+                  title: 'Now Playing',
+                  routeName: '/now_playing',
+                  selected: currentPath == '/now_playing',
+                  foregroundColor: Colors.black,
+                  backgroundBuilder: (context) {
+                    final background = AudioService.currentMediaItem?.artUri != null
+                        ? FadeInImage.assetNetwork(
+                            placeholder: 'assets/music_note.png',
+                            image: AudioService.currentMediaItem.artUri,
+                            fit: BoxFit.cover,
+                            alignment: Alignment.center,
+                          )
+                        : Image.asset(
+                            'assets/music_note.png',
+                            fit: BoxFit.cover,
+                            alignment: Alignment.center,
+                          );
+                    if (currentPath == '/now_playing' || AudioService.currentMediaItem?.id == null) {
+                      return Opacity(
+                        opacity: 0.2,
+                        child: background,
+                      );
+                    } else {
+                      return Opacity(
+                        opacity: 0.2,
+                        child: Hero(
+                          tag: AudioService.currentMediaItem.id + '/image',
+                          child: background,
+                        ),
+                      );
+                    }
+                  },
+                  showBackground: true,
+                ),
+                ArtfulDrawerTileWidget(
+                  icon: Icons.library_music,
+                  title: 'My Stations',
+                  routeName: '/station_list',
+                  selected: currentPath == '/station_list',
+                  foregroundColor: Colors.black,
+                  backgroundBuilder: (context) {
+                    final stations = EpimetheusModel.of(context).stations;
+                    final stationArts = <Widget>[
+                      SizedBox.expand(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(color: const Color(0x8A000000)),
+                        ),
+                      ),
+                    ];
+                    final useHero = false; //currentPath != '/station_list'; TODO this is glitchy
+                    for (int i = 0; i < stations.length; i++) {
+                      final image = Image.network(
+                        stations[i].getArtUrl(130),
+                        height: 72,
+                        fit: BoxFit.fitHeight,
+                      );
+
+                      stationArts.add(
+                        Positioned(
+                          left: (i * 45).toDouble(),
+                          child: useHero
+                              ? Hero(
+                                  tag: stations[i].pandoraId + '/image',
+                                  child: image,
+                                )
+                              : image,
+                        ),
+                      );
+                    }
+                    return Opacity(
+                      opacity: 0.2,
+                      child: Stack(
+                        children: stationArts,
+                      ),
+                    );
+                  },
+                  showBackground: EpimetheusModel.of(context).stations != null,
+                ),
+              ],
             ),
           ),
           ListTile(

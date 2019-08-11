@@ -4,6 +4,8 @@ import 'package:epimetheus/audio/music_provider.dart';
 import 'package:epimetheus/libepimetheus/authentication.dart';
 import 'package:epimetheus/libepimetheus/songs.dart';
 import 'package:epimetheus/libepimetheus/stations.dart';
+import 'package:epimetheus/widgets/navigation_drawer_widget.dart';
+import 'package:flutter/material.dart';
 
 class StationMusicProvider extends MusicProvider {
   final List<Station> _stations;
@@ -12,6 +14,9 @@ class StationMusicProvider extends MusicProvider {
   final List<Song> _songs = List<Song>();
 
   StationMusicProvider(this._stations, this._stationIndex);
+
+  @override
+  String get id => _stations[_stationIndex].stationId;
 
   @override
   String get title => _stations[_stationIndex].title;
@@ -24,20 +29,22 @@ class StationMusicProvider extends MusicProvider {
 
   @override
   List<MediaItem> get queue {
-    return _songs.map<MediaItem>((Song song) {
-      return MediaItem(
-        id: song.pandoraId,
-        title: song.title,
-        artist: song.artistTitle,
-        album: song.albumTitle,
-        artUri: song.getArtUrl(serviceArtSize),
-        displayTitle: song.title,
-        displaySubtitle: '${song.artistTitle} - ${song.albumTitle}',
-        displayDescription: title,
-        playable: true,
-        rating: song.rating,
-      );
-    }).toList(growable: false);
+    return [
+      for (int i = 0; i < _songs.length; i++)
+        MediaItem(
+          id: _songs[i].pandoraId,
+          title: _songs[i].title,
+          artist: _songs[i].artistTitle,
+          album: _songs[i].albumTitle,
+          artUri: _songs[i].getArtUrl(serviceArtSize),
+          displayTitle: _songs[i].title,
+          displaySubtitle: '${_songs[i].artistTitle} - ${_songs[i].albumTitle}',
+          displayDescription: title,
+          playable: true,
+          rating: _songs[i].rating,
+          genre: _songs[i].pendingRating.isRated() ? _songs[i].pendingRating.isThumbUp().toString() : 'null',
+        ),
+    ];
   }
 
   @override
@@ -53,6 +60,7 @@ class StationMusicProvider extends MusicProvider {
       displayDescription: '$title',
       playable: true,
       rating: _songs[0].rating,
+      genre: _songs[0].pendingRating.isRated() ? _songs[0].pendingRating.isThumbUp().toString() : 'null',
     );
   }
 
@@ -72,7 +80,18 @@ class StationMusicProvider extends MusicProvider {
   }
 
   @override
-  void rate(int index, Rating rating) {}
+  Future<void> rate(User user, int index, Rating rating, bool update) {
+    if (update) {
+      _songs[index].updateFeedbackLocally(rating);
+      return Future.value();
+    } else {
+      if (rating.isRated()) {
+        return _songs[index].addFeedback(user, rating.isThumbUp());
+      } else {
+        return _songs[index].deleteFeedback(user);
+      }
+    }
+  }
 
   @override
   void tired(int index) {}
@@ -88,16 +107,20 @@ class StationMusicProvider extends MusicProvider {
     }
   }
 
+  @override
   List<MediaItem> getChildren(String parentId) {
     // TODO implement getChildren()
   }
 
   @override
-  bool operator ==(dynamic other) {
-    if (other is StationMusicProvider) {
-      return _stations[_stationIndex].pandoraId == other._stations[other._stationIndex].pandoraId;
-    } else {
-      return true;
-    }
-  }
+  List<MusicProviderAction> getActions(State state) => [
+        if (!_stations[_stationIndex].isShuffle)
+          MusicProviderAction(
+            iconData: Icons.thumbs_up_down,
+            label: 'Station feedback',
+            onTap: () {
+              openFeedbackPage(state.context, _stations[_stationIndex]);
+            },
+          )
+      ];
 }

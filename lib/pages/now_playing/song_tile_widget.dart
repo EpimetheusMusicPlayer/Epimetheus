@@ -1,4 +1,5 @@
 import 'package:audio_service/audio_service.dart';
+import 'package:epimetheus/theme_constants.dart';
 import 'package:epimetheus/widgets/art_image_widget.dart';
 import 'package:epimetheus/widgets/progress_widget.dart';
 import 'package:flutter/material.dart';
@@ -19,8 +20,10 @@ class SongTileWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final foregroundColor = index == 0 ? theme.primaryTextTheme.title.color : Colors.black;
+    final foregroundAccentColor = index == 0 ? theme.accentColor : defaultPrimaryColor;
     return Container(
-      height: index == 0 ? 128 + _padding / 2 : 128,
+      height: index == 0 || index == lastItemIndex ? 128 + _padding / 2 : 128,
       padding: EdgeInsets.only(
         left: _padding,
         right: _padding,
@@ -31,9 +34,12 @@ class SongTileWidget extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ArtImageWidget(
-            mediaItem.artUri,
-            128,
+          Hero(
+            tag: mediaItem.id + '/image',
+            child: ArtImageWidget(
+              mediaItem.artUri,
+              128,
+            ),
           ),
           SizedBox(width: _padding),
           Expanded(
@@ -47,7 +53,7 @@ class SongTileWidget extends StatelessWidget {
                   softWrap: false,
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    color: index == 0 ? theme.primaryTextTheme.title.color : Colors.black,
+                    color: foregroundColor,
                   ),
                 ),
                 SizedBox(height: 2),
@@ -56,7 +62,7 @@ class SongTileWidget extends StatelessWidget {
                   textScaleFactor: 1.1,
                   overflow: TextOverflow.fade,
                   softWrap: false,
-                  style: TextStyle(color: index == 0 ? theme.primaryTextTheme.title.color : Colors.black),
+                  style: TextStyle(color: foregroundColor),
                 ),
                 SizedBox(height: 2),
                 Text(
@@ -66,18 +72,91 @@ class SongTileWidget extends StatelessWidget {
                   softWrap: false,
                   style: TextStyle(
                     fontStyle: FontStyle.italic,
-                    color: index == 0 ? theme.primaryTextTheme.title.color : Colors.black,
+                    color: foregroundColor,
                   ),
                 ),
-                index == 0
-                    ? Expanded(
-                        child: Row(
-                          children: <Widget>[
-                            ProgressWidget(),
-                          ],
-                        ),
-                      )
-                    : SizedBox(),
+                SizedBox(height: 2),
+                Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: index == 0
+                          ? ProgressWidget()
+                          : Align(
+                              alignment: Alignment.centerLeft,
+                              child: Transform.translate(
+                                offset: const Offset(-18, 0),
+                                child: IconButton(
+                                  icon: Icon(Icons.play_arrow),
+                                  tooltip: 'Skip to song',
+                                  onPressed: () {
+                                    AudioService.skipToQueueItem(mediaItem.id);
+                                  },
+                                ),
+                              ),
+                            ),
+                    ),
+                    mediaItem.genre == 'false' && mediaItem.genre != 'null'
+                        ? Padding(
+                            padding: const EdgeInsets.all(14),
+                            child: SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(foregroundColor),
+                              ),
+                            ),
+                          )
+                        : IconButton(
+                            icon: Transform.translate(
+                              offset: Offset(0, 2.7),
+                              child: Icon(Icons.thumb_down),
+                            ),
+                            tooltip: 'Ban',
+                            color: mediaItem.rating.isRated() && !mediaItem.rating.isThumbUp() ? foregroundAccentColor : foregroundColor,
+                            onPressed: () {
+                              AudioService.setRating(
+                                !mediaItem.rating.isRated() || mediaItem.rating.isThumbUp()
+                                    ? Rating.newThumbRating(false)
+                                    : Rating.newUnratedRating(RatingStyle.thumbUpDown),
+                                {
+                                  'index': index,
+                                  'update': false,
+                                },
+                              );
+                            },
+                          ),
+                    mediaItem.genre == 'true' && mediaItem.genre != 'null'
+                        ? Padding(
+                            padding: const EdgeInsets.all(14),
+                            child: SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(foregroundColor),
+                              ),
+                            ),
+                          )
+                        : IconButton(
+                            icon: Transform.translate(
+                              offset: const Offset(0, -2.7),
+                              child: Icon(Icons.thumb_up),
+                            ),
+                            tooltip: 'Love',
+                            color: mediaItem.rating.isRated() && mediaItem.rating.isThumbUp() ? foregroundAccentColor : foregroundColor,
+                            onPressed: () {
+                              AudioService.setRating(
+                                !mediaItem.rating.isRated() || !mediaItem.rating.isThumbUp()
+                                    ? Rating.newThumbRating(true)
+                                    : Rating.newUnratedRating(RatingStyle.thumbUpDown),
+                                {
+                                  'index': index,
+                                  'update': false,
+                                },
+                              );
+                            },
+                          ),
+                  ],
+                )
               ],
             ),
           ),

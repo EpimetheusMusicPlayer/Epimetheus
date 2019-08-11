@@ -66,6 +66,10 @@ class Qudio {
   static Stream<PositionDiscontinuityReason> get positionDiscontinuityStream => _positionDiscontinuityStream.stream;
   static StreamController<PositionDiscontinuityReason> _positionDiscontinuityStream = StreamController<PositionDiscontinuityReason>.broadcast();
 
+  /// A stream broadcasting source (network) errors.
+  static Stream<bool> get sourceErrorStream => _sourceErrorStream.stream;
+  static StreamController<bool> _sourceErrorStream = StreamController<bool>.broadcast();
+
   static void connect() {
     if (!_connected) {
       _connected = true;
@@ -83,10 +87,13 @@ class Qudio {
             _isLoadingStream.add(_isLoading);
             break;
           case "onPositionDiscontinuity":
-            print('Discontinuity');
             _positionDiscontinuityStream.add(PositionDiscontinuityReason.values[call.arguments]);
             break;
+          case "onSourceError":
+            _sourceErrorStream.add(true);
+            break;
         }
+        return null;
       });
     }
   }

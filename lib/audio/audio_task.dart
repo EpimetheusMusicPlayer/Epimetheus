@@ -6,9 +6,38 @@ import 'package:audio_service/audio_service.dart';
 import 'package:epimetheus/audio/music_provider.dart';
 import 'package:epimetheus/libepimetheus/authentication.dart';
 import 'package:epimetheus/libepimetheus/networking.dart';
+import 'package:flutter/widgets.dart';
+import 'package:meta/meta.dart';
 import 'package:qudio/qudio.dart';
 
-Future<bool> startAudioTask() {
+class _AudioTaskPayload {
+  final User user;
+  final MusicProvider musicProvider;
+  final String csrfToken;
+
+  _AudioTaskPayload({
+    @required this.user,
+    @required this.musicProvider,
+    @required this.csrfToken,
+  });
+}
+
+/// Only to be invoked from the UI isolate.
+Future<void> launchMusicProvider(User user, MusicProvider musicProvider) async {
+  assert(user != null, 'User is null!');
+  assert(musicProvider != null, 'MusicProvider is null!');
+  await AudioService.connect();
+  await _startAudioTask();
+  IsolateNameServer.lookupPortByName('audio_task').send(
+    _AudioTaskPayload(
+      user: user,
+      musicProvider: musicProvider,
+      csrfToken: csrfToken,
+    ),
+  );
+}
+
+Future<bool> _startAudioTask() {
   return AudioService.start(
     backgroundTask: audioTask,
     androidNotificationChannelName: 'Media',
@@ -16,8 +45,6 @@ Future<bool> startAudioTask() {
     androidNotificationOngoing: true,
   );
 }
-
-// TODO network error handling
 
 void audioTask() async {
   Completer<void> serviceCompleter = Completer<void>();
@@ -28,22 +55,26 @@ void audioTask() async {
   final ReceivePort receivePort = ReceivePort();
   IsolateNameServer.registerPortWithName(receivePort.sendPort, 'audio_task');
 
+  StreamSubscription<QudioPlaybackStatus> playbackStatusStream;
+  StreamSubscription<PositionDiscontinuityReason> positionDiscontinuityStream;
+  StreamSubscription<bool> sourceErrorStream;
+
   final List<MediaControl> mediaControls = <MediaControl>[
-    MediaControl(label: 'Stop', androidIcon: 'drawable/ic_stop', action: MediaAction.stop),
-    MediaControl(label: 'Rewind', androidIcon: 'drawable/ic_rewind', action: MediaAction.rewind),
+    const MediaControl(label: 'Stop', androidIcon: 'drawable/ic_stop', action: MediaAction.stop),
+    const MediaControl(label: 'Rewind', androidIcon: 'drawable/ic_rewind', action: MediaAction.rewind),
     null,
-    MediaControl(label: 'Fast-forward', androidIcon: 'drawable/ic_fast_forward', action: MediaAction.fastForward),
-    MediaControl(label: 'Skip', androidIcon: 'drawable/ic_skip', action: MediaAction.skipToNext),
+    const MediaControl(label: 'Fast-forward', androidIcon: 'drawable/ic_fast_forward', action: MediaAction.fastForward),
+    const MediaControl(label: 'Skip', androidIcon: 'drawable/ic_skip', action: MediaAction.skipToNext),
   ];
 
   void togglePlayPauseControl(bool paused) {
     mediaControls[2] = paused
-        ? MediaControl(
+        ? const MediaControl(
             label: 'Play',
             androidIcon: 'drawable/ic_play',
             action: MediaAction.play,
           )
-        : MediaControl(
+        : const MediaControl(
             label: 'Pause',
             androidIcon: 'drawable/ic_pause',
             action: MediaAction.pause,
@@ -61,6 +92,18 @@ void audioTask() async {
     );
   }
 
+  void stop() async {
+    IsolateNameServer.removePortNameMapping('audio_task');
+    await Future.wait([
+      playbackStatusStream.cancel(),
+      positionDiscontinuityStream.cancel(),
+      sourceErrorStream.cancel(),
+    ]);
+    await updateBasicPlaybackState(BasicPlaybackState.stopped);
+    await Qudio.stop();
+    serviceCompleter.complete();
+  }
+
   void onUrlsAdded(List<String> urls) {
     Qudio.addAllToQueue(urls);
     if (musicProvider.queue.length - urls.length <= 0) {
@@ -73,7 +116,12 @@ void audioTask() async {
     if (musicProvider.count == 0) {
       togglePlayPauseControl(true);
       updateBasicPlaybackState(BasicPlaybackState.buffering);
-      onUrlsAdded(await musicProvider.load(user));
+      final newUrls = await musicProvider.load(user);
+      if (newUrls == null) {
+        stop();
+        return;
+      }
+      onUrlsAdded(newUrls);
     }
     if (musicProvider.count <= (skipToNext ? 3 : 2)) {
       musicProvider.load(user).then((List<String> result) {
@@ -93,14 +141,14 @@ void audioTask() async {
     updateBasicPlaybackState(AudioServiceBackground.state.basicState);
   }
 
-  receivePort.listen((data) async {
-    if (data is List<dynamic>) {
-      user = data[0];
-      csrfToken = data[2];
+  receivePort.listen((payload) async {
+    if (payload is _AudioTaskPayload) {
+      user = payload.user;
+      csrfToken = payload.csrfToken;
 
-      if (musicProvider != data[1]) {
+      if (musicProvider != payload.musicProvider) {
         AudioServiceBackground.setMediaItem(
-          MediaItem(
+          const MediaItem(
             id: 'loading',
             title: 'Loading...',
             artist: 'Loading...',
@@ -115,16 +163,13 @@ void audioTask() async {
         updateBasicPlaybackState(BasicPlaybackState.buffering);
 
         Qudio.stop();
-        musicProvider = data[1];
+        musicProvider = payload.musicProvider;
 
         onUrlsAdded(await musicProvider.load(user));
         newSong(false);
       }
     }
   });
-
-  StreamSubscription<QudioPlaybackStatus> playbackStatusStream;
-  StreamSubscription<PositionDiscontinuityReason> positionDiscontinuityStream;
 
   AudioServiceBackground.run(
     onStart: () {
@@ -146,15 +191,20 @@ void audioTask() async {
     onSkipToNext: () {
       newSong(true);
     },
+    onSkipToQueueItem: (String id) {
+      Qudio.skipTo(musicProvider.queue.indexWhere((mediaItem) => mediaItem.id == id));
+    },
     onStop: () async {
-      await Future.wait([playbackStatusStream.cancel(), positionDiscontinuityStream.cancel()]);
-      await updateBasicPlaybackState(BasicPlaybackState.stopped);
-      await Qudio.stop();
-      Qudio.disconnect();
-      serviceCompleter.complete();
+      stop();
     },
     onSetRating: (Rating rating, Map<dynamic, dynamic> extras) {
-      print('RATING: $rating, $extras');
+      if (!extras.containsKey('index') || !extras.containsKey('update')) return;
+      musicProvider.rate(user, extras['index'], rating, extras['update']).then((value) {
+        // When this future completes, the rating is complete. Update the queue to tell the UI this.
+        AudioServiceBackground.setQueue(musicProvider.queue);
+      });
+      // At this point, the rating is pending. Update the queue to tell the UI this.
+      AudioServiceBackground.setQueue(musicProvider.queue);
     },
   );
 
@@ -198,10 +248,14 @@ void audioTask() async {
     }
   });
 
-  positionDiscontinuityStream = Qudio.positionDiscontinuityStream.listen((PositionDiscontinuityReason reason) {
+  positionDiscontinuityStream = Qudio.positionDiscontinuityStream.listen((PositionDiscontinuityReason reason) async {
     if (reason == PositionDiscontinuityReason.DISCONTINUITY_REASON_PERIOD_TRANSITION) {
-      musicProvider.skip();
+      musicProvider.skipTo(musicProvider.count - await Qudio.queueSize);
       newSong(false);
     }
+  });
+
+  sourceErrorStream = Qudio.sourceErrorStream.listen((error) {
+    if (error) stop();
   });
 }

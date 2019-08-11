@@ -4,19 +4,21 @@ description: The open-source Pandora Music client for Android.
 version: 0.1.0
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.2.2 <3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
   scoped_model: ^1.0.1
-  http: ^0.12.0+1
-  connectivity: ^0.4.2
-  flutter_secure_storage: ^3.2.0
-  audio_service: ^0.1.0
+  http: ^0.12.0+2
+  connectivity: ^0.4.3+7
+  flutter_secure_storage: ^3.2.1+1
+  audio_service: ^0.3.0
   qudio:
     path: './qudio'
-  palette_generator: ^0.1.1
+  palette_generator: ^0.2.0
+  flare_flutter: ^1.5.5
+  flutter_pagewise: ^1.2.3
 
 dev_dependencies:
   flutter_test:
@@ -25,4 +27,4 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/music_note.png
+    - assets/

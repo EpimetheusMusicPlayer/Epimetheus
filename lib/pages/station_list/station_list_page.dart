@@ -1,8 +1,8 @@
 import 'package:epimetheus/audio/station_music_provider.dart';
 import 'package:epimetheus/dialogs/no_connection_dialog.dart';
 import 'package:epimetheus/libepimetheus/stations.dart';
+import 'package:epimetheus/main.dart';
 import 'package:epimetheus/models/model.dart';
-import 'package:epimetheus/pages/now_playing/now_playing_page.dart';
 import 'package:epimetheus/widgets/media_control_widget.dart';
 import 'package:epimetheus/widgets/navigation_drawer_widget.dart';
 import 'package:epimetheus/widgets/station_list_tile_widget.dart';
@@ -15,6 +15,8 @@ class StationListPage extends StatefulWidget {
 }
 
 class _StationListPageState extends State<StationListPage> {
+  Offset _stationMenuPosition;
+
   Future<void> loadStations() {
     final model = EpimetheusModel.of(context);
     return getStations(model.user, true).then(
@@ -54,60 +56,99 @@ class _StationListPageState extends State<StationListPage> {
     if (EpimetheusModel.of(context).stations == null) loadStations();
   }
 
+  void _storeStationMenuPosition(TapDownDetails details) {
+    _stationMenuPosition = details.globalPosition;
+  }
+
+  void _showStationMenu(Station station) {
+    showMenu<String>(
+      context: context,
+      position:
+          RelativeRect.fromRect(_stationMenuPosition & const Size(40, 40), Offset.zero & (Overlay.of(context).context.findRenderObject() as RenderBox).size),
+      items: [
+        if (!station.isShuffle)
+          PopupMenuItem<String>(
+            value: 'feedback',
+            child: const Text('Feedback'),
+          ),
+        if (station.canRename)
+          PopupMenuItem<String>(
+            value: 'rename',
+            child: const Text('Rename station'),
+          ),
+        if (station.canDelete)
+          PopupMenuItem<String>(
+            value: 'delete',
+            child: const Text('Delete station'),
+          ),
+      ],
+    ).then((value) {
+      switch (value) {
+        case 'feedback':
+          openFeedbackPage(context, station);
+          break;
+        case 'rename':
+          print('Rename!');
+          break;
+        case 'delete':
+          print('Delete!');
+          break;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Stations'),
-      ),
-      drawer: const NavigationDrawerWidget('/station_list'),
-      body: Column(
-        children: <Widget>[
-          Expanded(
-            child: ScopedModelDescendant<EpimetheusModel>(
-              builder: (context, child, model) {
-                if (model.stations == null) return child;
-                return RefreshIndicator(
-                  onRefresh: loadStations,
-                  child: ListView.separated(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    separatorBuilder: (context, index) => Divider(height: 0, indent: 88),
-                    itemBuilder: (context, index) {
-                      final int lastItemIndex = model.stations.length - 1;
-                      return Container(
-                        margin: EdgeInsets.only(
-                          top: index == 0 ? 8 : 0,
-                          bottom: index == lastItemIndex ? 8 : 0,
-                        ),
-                        child: InkWell(
-                          onTap: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (BuildContext context) {
-                                  EpimetheusModel model = EpimetheusModel.of(context);
-                                  return NowPlayingPage(
-                                    model.user,
-                                    StationMusicProvider(model.stations, index),
-                                  );
-                                },
-                              ),
-                            );
-                          },
-                          child: StationListTile(model.stations[index]),
-                        ),
-                      );
-                    },
-                    itemCount: model.stations.length,
-                  ),
-                );
-              },
-              child: Center(
-                child: CircularProgressIndicator(),
+    return EpimetheusThemedPage(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('My Stations'),
+        ),
+        drawer: const NavigationDrawerWidget('/station_list'),
+        body: Column(
+          children: <Widget>[
+            Expanded(
+              child: ScopedModelDescendant<EpimetheusModel>(
+                builder: (context, child, model) {
+                  if (model.stations == null) return child;
+                  return RefreshIndicator(
+                    onRefresh: loadStations,
+                    child: ListView.separated(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      separatorBuilder: (context, index) => Divider(height: 0, indent: 88),
+                      itemBuilder: (context, index) {
+                        final station = model.stations[index];
+                        final int lastItemIndex = model.stations.length - 1;
+                        return Container(
+                          margin: EdgeInsets.only(
+                            top: index == 0 ? 8 : 0,
+                            bottom: index == lastItemIndex ? 8 : 0,
+                          ),
+                          child: InkWell(
+                            onTap: () {
+                              model.currentMusicProvider = StationMusicProvider(model.stations, index);
+                              Navigator.of(context).pushReplacementNamed('/now_playing');
+                            },
+                            onTapDown: _storeStationMenuPosition,
+                            onLongPress: () {
+                              _showStationMenu(station);
+                            },
+                            child: StationListTile(station),
+                          ),
+                        );
+                      },
+                      itemCount: model.stations.length,
+                    ),
+                  );
+                },
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
               ),
             ),
-          ),
-          MediaControlWidget(),
-        ],
+            MediaControlWidget(),
+          ],
+        ),
       ),
     );
   }

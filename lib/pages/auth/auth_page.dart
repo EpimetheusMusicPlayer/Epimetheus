@@ -99,8 +99,9 @@ class _AuthPageState extends State<AuthPage> {
 
     storage = FlutterSecureStorage();
     storage.readAll().then((values) {
-      if (!values.containsKey('email') || !values.containsKey('password')) return;
+      if (!values.containsKey('email')) return;
       _email = values['email'];
+      if (!values.containsKey('password')) return;
       _password = values['password'];
       _emailController.text = _email;
       _passwordController.text = _password;
@@ -140,6 +141,7 @@ class _AuthPageState extends State<AuthPage> {
                           .hasMatch(value)) {
                         return 'Please enter a valid email address.';
                       }
+                      return null;
                     },
                     onSaved: (value) {
                       _email = value;
@@ -163,6 +165,7 @@ class _AuthPageState extends State<AuthPage> {
                     ),
                     validator: (value) {
                       if (value.isEmpty) return 'Please enter a password.';
+                      return null;
                     },
                     onSaved: (value) {
                       _password = value;
@@ -215,7 +218,7 @@ class _AuthPageState extends State<AuthPage> {
                       StreamBuilder<Object>(
                         stream: Connectivity().onConnectivityChanged,
                         builder: (context, snapshot) {
-                          if (snapshot.data != ConnectivityResult.none) {
+                          if (true || snapshot.data != ConnectivityResult.none) {
                             return RaisedButton(
                               onPressed: () {
                                 if (_formKey.currentState.validate()) {

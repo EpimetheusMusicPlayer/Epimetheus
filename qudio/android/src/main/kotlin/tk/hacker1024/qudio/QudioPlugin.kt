@@ -2,10 +2,7 @@ package tk.hacker1024.qudio
 
 import android.content.Context
 import android.net.Uri
-import com.google.android.exoplayer2.C
-import com.google.android.exoplayer2.ExoPlayerFactory
-import com.google.android.exoplayer2.IllegalSeekPositionException
-import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource
 import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
@@ -58,6 +55,10 @@ class QudioPlugin(context: Context, val channel: MethodChannel) : MethodCallHand
             override fun onPositionDiscontinuity(reason: Int) {
                 concatenatingMediaSource.removeMediaSourceRange(0, player.currentPeriodIndex)
                 channel.invokeMethod("onPositionDiscontinuity", reason)
+            }
+
+            override fun onPlayerError(error: ExoPlaybackException) {
+                channel.invokeMethod("onSourceError", null)
             }
         })
     }
@@ -131,6 +132,7 @@ class QudioPlugin(context: Context, val channel: MethodChannel) : MethodCallHand
                         call.argument<Int>("fromIndex")!!,
                         call.argument<Int>("toIndex")!!
                     )
+                    channel.invokeMethod("onPositionDiscontinuity", Player.DISCONTINUITY_REASON_PERIOD_TRANSITION)
                     result.success(true)
                 } catch (e: IllegalArgumentException) {
                     result.success(false)
@@ -179,7 +181,8 @@ class QudioPlugin(context: Context, val channel: MethodChannel) : MethodCallHand
             }
             "skipTo" -> {
                 try {
-                    player.seekToDefaultPosition(call.argument<Int>("index")!!)
+                    concatenatingMediaSource.removeMediaSourceRange(0, call.argument<Int>("index")!!)
+                    channel.invokeMethod("onPositionDiscontinuity", Player.DISCONTINUITY_REASON_PERIOD_TRANSITION)
                     result.success(true)
                 } catch (e: IllegalSeekPositionException) {
                     result.success(false)
