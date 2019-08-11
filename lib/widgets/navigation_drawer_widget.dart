@@ -210,6 +210,7 @@ class NavigationDrawerWidget extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: IconButton(
                   icon: Icon(Icons.code),
+                  tooltip: 'Source code',
                   onPressed: () => launch('https://github.com/EpimetheusMusicPlayer'),
                 ),
               ),
