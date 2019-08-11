@@ -1,7 +1,7 @@
 name: epimetheus
 description: The Epimethus app - an open source Pandora client for Android, with other platforms coming soon™.
 
-version: 0.1.0
+version: 0.1.0+1
 
 environment:
   sdk: ">=2.2.2 <3.0.0"
