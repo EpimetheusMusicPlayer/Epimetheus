@@ -1,16 +1,17 @@
-# epimetheus
+# Epimetheus Music Player
+The Epimethus app - an open source Pandora client for Android, with other platforms coming soon™. 
 
-The open-source Pandora Music client for Android.
+### Features:
+- Play existing stations from your Pandora account (browsing support planed for future releases)
+- Rename and delete stations
+- Set and manage station feedback
 
-## Getting Started
+### Pandora features to be implemented in the future:
+- Station creation
+- On-demand song playback
+- Downloads
+- Podcasts (maybe)
+- Pandora Premium/Plus checks. Most unfortunately, Pandora only block paid features in their free plan on the client side. This might remain unimplemented.
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.io/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.io/docs/cookbook)
-
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.io/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
+### Extra features to be implemented in the future:
+- Proxy support to seamlessly access Pandora in unsupported countries
