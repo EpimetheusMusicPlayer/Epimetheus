@@ -14,7 +14,8 @@ void main() {
   runApp(Epimetheus());
 }
 
-final StreamController<PaletteGenerator> _paletteStreamController = StreamController.broadcast();
+final StreamController<PaletteGenerator> _paletteStreamController =
+    StreamController.broadcast();
 Stream<PaletteGenerator> get paletteStream => _paletteStreamController.stream;
 
 PaletteGenerator _palette;
@@ -34,7 +35,8 @@ class _EpimetheusState extends State<Epimetheus> with WidgetsBindingObserver {
 
   void startListening() {
     _currentMediaItemSubscription?.cancel();
-    _currentMediaItemSubscription = AudioService.currentMediaItemStream.listen((mediaItem) async {
+    _currentMediaItemSubscription =
+        AudioService.currentMediaItemStream.listen((mediaItem) async {
       if (mediaItem?.artUri != _currentArtUri) {
         _currentArtUri = mediaItem?.artUri;
         if (mediaItem == null) model.currentMusicProvider = null;
@@ -43,7 +45,8 @@ class _EpimetheusState extends State<Epimetheus> with WidgetsBindingObserver {
           _paletteStreamController.add(null);
         } else {
           try {
-            _palette = await PaletteGenerator.fromImageProvider(NetworkImage(mediaItem.artUri));
+            _palette = await PaletteGenerator.fromImageProvider(
+                NetworkImage(mediaItem.artUri));
             _paletteStreamController.add(palette);
           } catch (error) {
             _palette = null;
@@ -133,7 +136,8 @@ class EpimetheusThemedPage extends StatefulWidget {
   _EpimetheusThemedPageState createState() => _EpimetheusThemedPageState();
 }
 
-class _EpimetheusThemedPageState extends State<EpimetheusThemedPage> with WidgetsBindingObserver {
+class _EpimetheusThemedPageState extends State<EpimetheusThemedPage>
+    with WidgetsBindingObserver {
   static Color _primaryColor = defaultPrimaryColor;
   static Color _accentColor = defaultAccentColor;
 
@@ -190,11 +194,20 @@ class _EpimetheusThemedPageState extends State<EpimetheusThemedPage> with Widget
             900: primaryColor,
           },
         );
-        final accentColor = (palette.lightVibrantColor?.color?.value != _primaryColor.value ? palette.lightVibrantColor?.color : null) ??
-            (palette.lightMutedColor?.color?.value != _primaryColor.value ? palette.lightMutedColor?.color : null) ??
-            (palette.vibrantColor?.color?.value != _primaryColor.value ? palette.vibrantColor?.color : null) ??
-            (palette.mutedColor?.color?.value != _primaryColor.value ? palette.mutedColor?.color : null) ??
-            defaultAccentColor;
+        final accentColor =
+            (palette.lightVibrantColor?.color?.value != _primaryColor.value
+                    ? palette.lightVibrantColor?.color
+                    : null) ??
+                (palette.lightMutedColor?.color?.value != _primaryColor.value
+                    ? palette.lightMutedColor?.color
+                    : null) ??
+                (palette.vibrantColor?.color?.value != _primaryColor.value
+                    ? palette.vibrantColor?.color
+                    : null) ??
+                (palette.mutedColor?.color?.value != _primaryColor.value
+                    ? palette.mutedColor?.color
+                    : null) ??
+                defaultAccentColor;
         setState(() {
           _primaryColor = primaryColorSwatch;
           _accentColor = accentColor;

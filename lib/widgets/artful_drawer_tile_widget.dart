@@ -9,7 +9,7 @@ class ArtfulDrawerTileWidget extends StatelessWidget {
   final WidgetBuilder backgroundBuilder;
   final bool showBackground;
 
-  ArtfulDrawerTileWidget({
+  const ArtfulDrawerTileWidget({
     @required this.icon,
     @required this.title,
     @required this.routeName,

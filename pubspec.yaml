@@ -19,6 +19,7 @@ dependencies:
   palette_generator: ^0.2.0
   flare_flutter: ^1.5.5
   flutter_pagewise: ^1.2.3
+  url_launcher: ^5.1.2
 
 dev_dependencies:
   flutter_test:

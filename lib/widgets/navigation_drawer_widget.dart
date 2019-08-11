@@ -6,6 +6,7 @@ import 'package:epimetheus/pages/feedback/feedback_page.dart';
 import 'package:epimetheus/widgets/artful_drawer_tile_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 void openFeedbackPage(BuildContext context, Station station) {
   Navigator.of(context).push(
@@ -49,7 +50,7 @@ class NavigationDrawerWidget extends StatelessWidget {
                     ),
                     SafeArea(
                       child: PopupMenuButton<String>(
-                        icon: Icon(
+                        icon: const Icon(
                           Icons.more_vert,
                           color: Colors.white,
                         ),
@@ -167,15 +168,39 @@ class NavigationDrawerWidget extends StatelessWidget {
               ],
             ),
           ),
-          ListTile(
-            leading: Icon(Icons.info_outline),
-            title: Text('About'),
-            selected: currentPath == '/about',
-            onTap: () {
-              final navigator = Navigator.of(context);
-              navigator.pop();
-              navigator.pushReplacementNamed('/about');
-            },
+          AboutListTile(
+            icon: const Icon(Icons.info_outline),
+            applicationVersion: '0.1.0 (Alpha)',
+            applicationIcon: Image.asset(
+              'assets/app_icon.png',
+              width: 48,
+            ),
+            aboutBoxChildren: <Widget>[
+              const Text(
+                'The Epimethus app - an open source Pandora client for Android, with other platforms coming soon™.',
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(
+                height: 16,
+              ),
+              GestureDetector(
+                onTap: () {
+                  launch(
+                    'https://github.com/EpimetheusMusicPlayer/Epimetheus/issues/new',
+                    enableJavaScript: true,
+                  );
+                },
+                child: Text(
+                  'Submit an issue or feature request',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    decoration: TextDecoration.underline,
+                    fontFamily: 'monospace',
+                    color: Theme.of(context).accentColor,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
