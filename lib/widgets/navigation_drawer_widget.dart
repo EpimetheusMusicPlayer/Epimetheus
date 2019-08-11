@@ -168,36 +168,49 @@ class NavigationDrawerWidget extends StatelessWidget {
               ],
             ),
           ),
-          AboutListTile(
-            icon: const Icon(Icons.info_outline),
-            applicationVersion: '0.1.0 (Alpha)',
-            applicationIcon: Image.asset(
-              'assets/app_icon.png',
-              width: 48,
-            ),
-            aboutBoxChildren: <Widget>[
-              const Text(
-                'The Epimethus app - an open source Pandora client for Android, with other platforms coming soon™.',
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(
-                height: 16,
-              ),
-              GestureDetector(
-                onTap: () {
-                  launch(
-                    'https://github.com/EpimetheusMusicPlayer/Epimetheus/issues/new',
-                    enableJavaScript: true,
-                  );
-                },
-                child: Text(
-                  'Submit an issue or feature request',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    decoration: TextDecoration.underline,
-                    fontFamily: 'monospace',
-                    color: Theme.of(context).accentColor,
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: AboutListTile(
+                  icon: const Icon(Icons.info_outline),
+                  applicationVersion: '0.1.0 (Alpha)',
+                  applicationIcon: Image.asset(
+                    'assets/app_icon.png',
+                    width: 48,
                   ),
+                  aboutBoxChildren: <Widget>[
+                    const Text(
+                      'The Epimethus app - an open source Pandora client for Android, with other platforms coming soon™.\n\nLicensed under the GPLv3 license.',
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(
+                      height: 16,
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        launch(
+                          'https://github.com/EpimetheusMusicPlayer/Epimetheus/issues/new',
+                          enableJavaScript: true,
+                        );
+                      },
+                      child: Text(
+                        'Submit an issue or feature request',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          decoration: TextDecoration.underline,
+                          fontFamily: 'monospace',
+                          color: Theme.of(context).accentColor,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: IconButton(
+                  icon: Icon(Icons.code),
+                  onPressed: () => launch('https://github.com/EpimetheusMusicPlayer'),
                 ),
               ),
             ],
