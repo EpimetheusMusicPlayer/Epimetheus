@@ -9,16 +9,16 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  scoped_model: any
-  http: any
-  connectivity: any
-  flutter_secure_storage: any
-  audio_service: any
+  scoped_model: ^1.0.1
+  http: ^0.12.0+2
+  connectivity: ^0.4.3+7
+  flutter_secure_storage: ^3.2.1+1
+  audio_service: ^0.3.0
   qudio:
     path: './qudio'
-  palette_generator: any
-  flare_flutter: any
-  flutter_pagewise: any
+  palette_generator: ^0.2.0
+  flare_flutter: ^1.5.5
+  flutter_pagewise: ^1.2.3
 
 dev_dependencies:
   flutter_test:
