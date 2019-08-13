@@ -4,7 +4,6 @@ import 'package:epimetheus/audio/music_provider.dart';
 import 'package:epimetheus/libepimetheus/authentication.dart';
 import 'package:epimetheus/libepimetheus/songs.dart';
 import 'package:epimetheus/libepimetheus/stations.dart';
-import 'package:epimetheus/widgets/navigation_drawer_widget.dart';
 import 'package:flutter/material.dart';
 
 class StationMusicProvider extends MusicProvider {
@@ -119,7 +118,7 @@ class StationMusicProvider extends MusicProvider {
             iconData: Icons.thumbs_up_down,
             label: 'Station feedback',
             onTap: () {
-              openFeedbackPage(state.context, _stations[_stationIndex]);
+//              openFeedbackPage(state.context, _stations[_stationIndex]);
             },
           )
       ];
