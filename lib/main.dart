@@ -1,7 +1,10 @@
+import 'package:epimetheus/models/user.dart';
 import 'package:epimetheus/pages/authentication/authentication_page.dart';
+import 'package:epimetheus/pages/collection/collection_page.dart';
 import 'package:epimetheus/pages/signin/signin_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:scoped_model/scoped_model.dart';
 
 void main() async {
   FlutterSecureStorage storage = FlutterSecureStorage();
@@ -11,7 +14,7 @@ void main() async {
   ));
 }
 
-class Epimetheus extends StatelessWidget {
+class Epimetheus extends StatefulWidget {
   final String email;
   final String password;
 
@@ -21,22 +24,66 @@ class Epimetheus extends StatelessWidget {
   });
 
   @override
+  _EpimetheusState createState() => _EpimetheusState();
+}
+
+class _EpimetheusState extends State<Epimetheus> {
+  UserModel _userModel = UserModel();
+
+  Route<dynamic> generateRoute(RouteSettings settings) {
+    switch (settings.name) {
+      case '/auth':
+        final AuthenticationPageArguments args = settings.arguments;
+        return MaterialPageRoute(
+          builder: (context) {
+            return AuthenticationPage(
+              email: args.email,
+              password: args.password,
+            );
+          },
+        );
+    }
+    return null;
+  }
+
+  @override
   Widget build(BuildContext context) {
     Widget startingPage;
 
-    if (password == null) {
-      startingPage = SignInPage(email: email);
+    if (widget.password == null) {
+      startingPage = SignInPage(email: widget.email, password: widget.password);
     } else {
       startingPage = AuthenticationPage(
-        email: email,
-        password: password,
+        email: widget.email,
+        password: widget.password,
       );
     }
 
-    return MaterialApp(
-      routes: {
-        '/': (context) => startingPage,
-      },
+    return ScopedModel<UserModel>(
+      model: _userModel,
+      child: MaterialApp(
+        theme: ThemeData(
+          primaryColor: const Color(0xFF332B57),
+          accentColor: const Color(0xFFb700c8),
+          pageTransitionsTheme: const PageTransitionsTheme(
+            builders: const {
+              TargetPlatform.android: const OpenUpwardsPageTransitionsBuilder(),
+              TargetPlatform.iOS: const OpenUpwardsPageTransitionsBuilder(),
+              TargetPlatform.fuchsia: const OpenUpwardsPageTransitionsBuilder(),
+            },
+          ),
+          buttonTheme: const ButtonThemeData(
+            buttonColor: const Color(0xFF332B57),
+            textTheme: ButtonTextTheme.primary,
+          ),
+        ),
+        routes: {
+          '/': (context) => startingPage,
+          '/sign-in': (context) => SignInPage(),
+          '/collection': (context) => CollectionPage(),
+        },
+        onGenerateRoute: generateRoute,
+      ),
     );
   }
 }

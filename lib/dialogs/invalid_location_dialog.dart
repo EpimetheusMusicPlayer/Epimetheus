@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 
-WidgetBuilder invalidLocationDialog = (context) {
+AlertDialog invalidLocationDialog(context) {
   return AlertDialog(
     title: Text('You\'re outside the USA.'),
-    content: Text(
-        'Enable Portaller (a free proxy service), use another VPN/Proxy, or book a flight to use the app.'),
+    content: Text('Use a VPN or proxy, or book a flight to use the app.'),
     actions: <Widget>[
       FlatButton(
         onPressed: () {
-          Navigator.of(context).pop();
+          Navigator.pushReplacementNamed(context, '/sign-in');
         },
         child: Text('Okay'),
       )
     ],
   );
-};
+}

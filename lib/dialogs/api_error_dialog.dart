@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-AlertDialog invalidCredentialsDialog(context) {
+AlertDialog apiErrorDialog(context) {
   return AlertDialog(
-    title: Text('Incorrect email address or password.'),
-    content: Text('Please try again, or reset your password at pandora.com.'),
+    title: Text('An API error has occured.'),
+    content: Text('Please sign in again. If this is a recurring issue, please contact the developer.'),
     actions: <Widget>[
       FlatButton(
         onPressed: () {
