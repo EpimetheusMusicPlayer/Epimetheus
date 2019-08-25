@@ -8,6 +8,7 @@ import 'package:epimetheus/libepimetheus/authentication.dart';
 import 'package:epimetheus/libepimetheus/exceptions.dart';
 import 'package:epimetheus/models/user.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 /// This page authenticates with Pandora's servers and shows a loading animation. It doesn't take input from the user.
 
@@ -62,8 +63,9 @@ class _AuthenticationPageState extends State<AuthenticationPage> with SingleTick
     }
   }
 
-  void _navigateToCollectionPage() {
+  void _postAuthentication() {
     Navigator.pushReplacementNamed(context, '/collection');
+    FlutterSecureStorage()..write(key: 'email', value: widget.email)..write(key: 'password', value: widget.password);
   }
 
   void _initializeAnimationController() {
@@ -82,7 +84,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> with SingleTick
             break;
           case AnimationStatus.dismissed:
             if (_authenticated) {
-              _navigateToCollectionPage();
+              _postAuthentication();
             } else
               _animationController.forward();
             break;
