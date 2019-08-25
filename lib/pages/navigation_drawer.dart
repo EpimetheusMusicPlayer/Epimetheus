@@ -50,9 +50,9 @@ class NavigationDrawer extends StatelessWidget {
               selectedColor: const Color(0xFF820096), // Dark accent color
               child: ListView(
                 padding: EdgeInsets.zero,
-                children: _navigationDrawItems.map<ListTile>(
-                  (item) {
-                    return ListTile(
+                children: <ListTile>[
+                  for (NavigationDrawerItem item in _navigationDrawItems)
+                    ListTile(
                       leading: Icon(item.iconData),
                       title: Text(item.name),
                       selected: item.routeName == currentRouteName,
@@ -63,9 +63,8 @@ class NavigationDrawer extends StatelessWidget {
                             ..pushReplacementNamed(item.routeName);
                         }
                       },
-                    );
-                  },
-                ).toList(growable: false),
+                    )
+                ],
               ),
             ),
           ),
