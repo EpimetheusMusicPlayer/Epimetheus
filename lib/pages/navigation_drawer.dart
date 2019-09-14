@@ -1,4 +1,5 @@
 import 'package:epimetheus/models/user.dart';
+import 'package:epimetheus/pages/signin/signin_page.dart';
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 
@@ -67,6 +68,13 @@ class NavigationDrawer extends StatelessWidget {
                 ],
               ),
             ),
+          ),
+          const Divider(height: 0),
+          FlatButton(
+            child: const Text('Sign out'),
+            onPressed: () {
+              signOut(context);
+            },
           ),
         ],
       ),

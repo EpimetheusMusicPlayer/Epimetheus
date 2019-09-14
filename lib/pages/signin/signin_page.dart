@@ -1,11 +1,17 @@
 import 'package:epimetheus/pages/authentication/authentication_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// The user inputs their credentials to this page, which then passes them on to [AuthenticationPage].
 /// If an email is passed in from the app launching code,it automatically fill that in.
 
 const _emailRegex = r"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?";
+
+void signOut(BuildContext context) {
+  FlutterSecureStorage()..delete(key: 'email')..delete(key: 'password');
+  Navigator.pushReplacementNamed(context, '/sign-in');
+}
 
 class SignInPage extends StatefulWidget {
   final String email;
