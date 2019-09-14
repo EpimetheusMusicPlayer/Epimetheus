@@ -42,6 +42,17 @@ class _EpimetheusState extends State<Epimetheus> {
             );
           },
         );
+
+      case '/sign-in':
+        final AuthenticationPageArguments args = settings.arguments;
+        return MaterialPageRoute(
+          builder: (context) {
+            return SignInPage(
+              email: args?.email,
+              password: args?.password,
+            );
+          },
+        );
     }
     return null;
   }
@@ -79,7 +90,6 @@ class _EpimetheusState extends State<Epimetheus> {
         ),
         routes: {
           '/': (context) => startingPage,
-          '/sign-in': (context) => SignInPage(),
           '/collection': (context) => CollectionPage(),
         },
         onGenerateRoute: generateRoute,
