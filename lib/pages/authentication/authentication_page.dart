@@ -1,9 +1,6 @@
 import 'dart:io';
 
-import 'package:epimetheus/dialogs/api_error_dialog.dart';
-import 'package:epimetheus/dialogs/invalid_credentials_dialog.dart';
-import 'package:epimetheus/dialogs/invalid_location_dialog.dart';
-import 'package:epimetheus/dialogs/no_connection_dialog.dart';
+import 'package:epimetheus/dialogs/dialogs.dart';
 import 'package:epimetheus/libepimetheus/authentication.dart';
 import 'package:epimetheus/libepimetheus/exceptions.dart';
 import 'package:epimetheus/models/user.dart';
@@ -16,7 +13,7 @@ class AuthenticationPageArguments {
   final String email;
   final String password;
 
-  AuthenticationPageArguments({
+  const AuthenticationPageArguments({
     @required this.email,
     @required this.password,
   });
@@ -40,26 +37,68 @@ class _AuthenticationPageState extends State<AuthenticationPage> with SingleTick
   bool _authenticated = false;
 
   void _authenticate() async {
+    void navigateBackToSignInPage() {
+      Navigator.of(context)
+        ..pop()
+        ..pushReplacementNamed(
+          '/sign-in',
+          arguments: AuthenticationPageArguments(
+            email: widget.email,
+            password: widget.password,
+          ),
+        );
+    }
+
     try {
-      UserModel.of(context).user = (await User.create(widget.email, widget.password));
+      // Authenticate with Pandora
+      final User user = (await User.create(widget.email, widget.password));
+      UserModel.of(context).user = user;
+
+      // Set the _authenticated bool to true so the app progresses after the next animation loop
       _authenticated = true;
     } on HandshakeException {
       _animationController.stop();
-      showDialog(context: context, builder: invalidLocationDialog);
+      showEpimetheusDialog(
+        dialog: GeoBlockErrorDialog(
+          context: context,
+          onClickButton: navigateBackToSignInPage,
+        ),
+      );
     } on LocationException {
       _animationController.stop();
-      showDialog(context: context, builder: invalidLocationDialog);
+      showEpimetheusDialog(
+        dialog: GeoBlockErrorDialog(
+          context: context,
+          onClickButton: navigateBackToSignInPage,
+        ),
+      );
     } on SocketException {
       _animationController.stop();
-      showDialog(context: context, builder: noConnectionDialog);
+      showEpimetheusDialog(
+        dialog: NetworkErrorDialog(
+          context: context,
+          buttonLabel: 'Back to sign in',
+          onClickButton: navigateBackToSignInPage,
+        ),
+      );
     } on InvalidRequestException catch (e) {
       _animationController.stop();
       if (e.errorCode == 0) {
-        showDialog(context: context, builder: invalidCredentialsDialog);
+        showEpimetheusDialog(
+          dialog: AuthenticationErrorDialog(
+            context: context,
+            onClickButton: navigateBackToSignInPage,
+          ),
+        );
       }
     } on PandoraException {
       _animationController.stop();
-      showDialog(context: context, builder: apiErrorDialog);
+      showEpimetheusDialog(
+        dialog: APIErrorDialog(
+          context: context,
+          onClickButton: navigateBackToSignInPage,
+        ),
+      );
     }
   }
 
