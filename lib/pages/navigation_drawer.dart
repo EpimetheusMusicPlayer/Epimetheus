@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:epimetheus/models/user.dart';
 import 'package:epimetheus/pages/signin/signin_page.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +38,7 @@ class NavigationDrawer extends StatelessWidget {
                 accountEmail: Text(model.user.email),
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: NetworkImage(model.user.profileImageUrl),
+                    image: CachedNetworkImageProvider(model.user.profileImageUrl),
                     fit: BoxFit.cover,
                     alignment: Alignment.center,
                     colorFilter: ColorFilter.mode(Colors.black54, BlendMode.multiply),

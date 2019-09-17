@@ -5,6 +5,7 @@ import 'package:epimetheus/libepimetheus/authentication.dart';
 import 'package:epimetheus/libepimetheus/exceptions.dart';
 import 'package:epimetheus/models/user.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 /// This page authenticates with Pandora's servers and shows a loading animation. It doesn't take input from the user.
@@ -56,6 +57,9 @@ class _AuthenticationPageState extends State<AuthenticationPage> with SingleTick
 
       // Set the _authenticated bool to true so the app progresses after the next animation loop
       _authenticated = true;
+
+      // Warm up the cache by downloading the profile picture in the background
+      DefaultCacheManager().downloadFile(user.profileImageUrl);
     } on HandshakeException {
       _animationController.stop();
       showEpimetheusDialog(
