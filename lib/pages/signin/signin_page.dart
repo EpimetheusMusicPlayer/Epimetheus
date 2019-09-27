@@ -116,6 +116,7 @@ class _SignInPageState extends State<SignInPage> {
                     onAutofilled: (value) {
                       _emailController.text = value;
                     },
+                    textController: _emailController,
                     child: TextFormField(
                       controller: _emailController,
                       initialValue: widget.email,
@@ -135,6 +136,7 @@ class _SignInPageState extends State<SignInPage> {
                     onAutofilled: (value) {
                       _passwordController.text = value;
                     },
+                    textController: _passwordController,
                     child: TextFormField(
                       controller: _passwordController,
                       initialValue: widget.password,
