@@ -6,9 +6,8 @@ import 'package:flutter/widgets.dart';
 
 // A simple wrapper to capture any Pandora API errors.
 
-Future<dynamic> makeApiRequest({
-  @required BuildContext context,
-  @required Future<dynamic> Function() apiRequest,
+Future<dynamic> makeApiRequest<T>({
+  @required Future<T> Function() apiRequest,
   @required void Function(Exception) onNetworkError,
   @required void Function(Exception) onAPIError,
 }) async {
