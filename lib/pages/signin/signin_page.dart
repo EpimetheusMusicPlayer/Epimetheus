@@ -1,5 +1,6 @@
 import 'package:epimetheus/pages/authentication/authentication_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_autofill/flutter_autofill.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -25,6 +26,9 @@ class SignInPage extends StatefulWidget {
 
 class _SignInPageState extends State<SignInPage> {
   final _formKey = GlobalKey<FormState>();
+  TextEditingController _emailController;
+  TextEditingController _passwordController;
+
   String _email;
   String _password;
 
@@ -32,6 +36,7 @@ class _SignInPageState extends State<SignInPage> {
     final _formKeyState = _formKey.currentState;
     if (_formKeyState.validate()) {
       _formKeyState.save();
+      FlutterAutofill.commit();
       Navigator.pushReplacementNamed(
         context,
         '/auth',
@@ -48,6 +53,20 @@ class _SignInPageState extends State<SignInPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _emailController = TextEditingController();
+    _passwordController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     String emailValidator(String email) {
       if (email.isEmpty) return 'Please enter an email address.';
@@ -60,71 +79,92 @@ class _SignInPageState extends State<SignInPage> {
       return null;
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sign in'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 48),
-        child: Form(
-          key: _formKey,
-          child: Align(
-            alignment: const Alignment(0, -0.25),
-            child: ListView(
-              shrinkWrap: true,
-              children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    Hero(
-                      tag: 'app_icon',
-                      child: Image.asset(
-                        'assets/app_icon.png',
-                        width: 96,
+    return WillPopScope(
+      onWillPop: () async {
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Sign in'),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 48),
+          child: Form(
+            key: _formKey,
+            child: Align(
+              alignment: const Alignment(0, -0.25),
+              child: ListView(
+                shrinkWrap: true,
+                children: <Widget>[
+                  Row(
+                    children: <Widget>[
+                      Hero(
+                        tag: 'app_icon',
+                        child: Image.asset(
+                          'assets/app_icon.png',
+                          width: 96,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 16),
-                    const Text('Epimetheus', textScaleFactor: 2),
-                  ],
-                ),
-                const SizedBox(height: 48),
-                TextFormField(
-                  initialValue: widget.email,
-                  validator: emailValidator,
-                  onSaved: (email) => _email = email,
-                  decoration: const InputDecoration(
-                    border: const OutlineInputBorder(),
-                    labelText: 'Email address',
+                      const SizedBox(width: 16),
+                      const Text('Epimetheus', textScaleFactor: 2),
+                    ],
                   ),
-                  keyboardType: TextInputType.emailAddress,
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  initialValue: widget.password,
-                  validator: passwordValidator,
-                  onSaved: (password) => _password = password,
-                  decoration: const InputDecoration(
-                    border: const OutlineInputBorder(),
-                    labelText: 'Password',
+                  const SizedBox(height: 48),
+                  Autofill(
+                    autofillHints: const [FlutterAutofill.AUTOFILL_HINT_EMAIL_ADDRESS],
+                    autofillType: FlutterAutofill.AUTOFILL_TYPE_TEXT,
+                    onAutofilled: (value) {
+                      _emailController.text = value;
+                    },
+                    child: TextFormField(
+                      controller: _emailController,
+                      initialValue: widget.email,
+                      validator: emailValidator,
+                      onSaved: (email) => _email = email,
+                      decoration: const InputDecoration(
+                        border: const OutlineInputBorder(),
+                        labelText: 'Email address',
+                      ),
+                      keyboardType: TextInputType.emailAddress,
+                    ),
                   ),
-                  obscureText: true,
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: <Widget>[
-                    FlatButton(
-                      textColor: Theme.of(context).accentColor,
-                      onPressed: _signUp,
-                      child: const Text('Sign up'),
+                  const SizedBox(height: 16),
+                  Autofill(
+                    autofillHints: const [FlutterAutofill.AUTOFILL_HINT_PASSWORD],
+                    autofillType: FlutterAutofill.AUTOFILL_TYPE_TEXT,
+                    onAutofilled: (value) {
+                      _passwordController.text = value;
+                    },
+                    child: TextFormField(
+                      controller: _passwordController,
+                      initialValue: widget.password,
+                      validator: passwordValidator,
+                      onSaved: (password) => _password = password,
+                      decoration: const InputDecoration(
+                        border: const OutlineInputBorder(),
+                        labelText: 'Password',
+                      ),
+                      obscureText: true,
                     ),
-                    const SizedBox(width: 8),
-                    RaisedButton(
-                      onPressed: _signIn,
-                      child: const Text('Sign in'),
-                    ),
-                  ],
-                ),
-              ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      FlatButton(
+                        textColor: Theme.of(context).accentColor,
+                        onPressed: _signUp,
+                        child: const Text('Sign up'),
+                      ),
+                      const SizedBox(width: 8),
+                      RaisedButton(
+                        onPressed: _signIn,
+                        child: const Text('Sign in'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
