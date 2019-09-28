@@ -1,18 +1,43 @@
-import 'package:epimetheus/models/user.dart';
+import 'package:epimetheus/pages/collection/albums_tab.dart';
+import 'package:epimetheus/pages/collection/all_tab.dart';
+import 'package:epimetheus/pages/collection/artists_tab.dart';
+import 'package:epimetheus/pages/collection/playlists_tab.dart';
+import 'package:epimetheus/pages/collection/stations_tab.dart';
 import 'package:epimetheus/pages/navigation_drawer.dart';
 import 'package:flutter/material.dart';
 
 class CollectionPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: const NavigationDrawer(
-        currentRouteName: '/collection',
+    return DefaultTabController(
+      length: 5,
+      child: Scaffold(
+        drawer: const NavigationDrawer(
+          currentRouteName: '/collection',
+        ),
+        appBar: AppBar(
+          title: const Text('My Collection'),
+          bottom: const TabBar(
+            isScrollable: true,
+            tabs: const <Widget>[
+              const Tab(text: 'All'),
+              const Tab(text: 'Stations'),
+              const Tab(text: 'Playlists'),
+              const Tab(text: 'Albums'),
+              const Tab(text: 'Artists'),
+            ],
+          ),
+        ),
+        body: TabBarView(
+          children: <Widget>[
+            AllTab(),
+            StationsTab(),
+            PlaylistsTab(),
+            AlbumsTab(),
+            ArtistsTab(),
+          ],
+        ),
       ),
-      appBar: AppBar(
-        title: const Text('My Collection'),
-      ),
-      body: Text(UserModel.of(context).user.authToken),
     );
   }
 }

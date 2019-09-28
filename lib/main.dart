@@ -1,3 +1,4 @@
+import 'package:epimetheus/models/collection.dart';
 import 'package:epimetheus/models/user.dart';
 import 'package:epimetheus/pages/authentication/authentication_page.dart';
 import 'package:epimetheus/pages/collection/collection_page.dart';
@@ -8,10 +9,12 @@ import 'package:scoped_model/scoped_model.dart';
 
 void main() async {
   FlutterSecureStorage storage = FlutterSecureStorage();
-  runApp(Epimetheus(
-    email: await storage.read(key: 'email'),
-    password: await storage.read(key: 'password'),
-  ));
+  runApp(
+    Epimetheus(
+      email: await storage.read(key: 'email'),
+      password: await storage.read(key: 'password'),
+    ),
+  );
 }
 
 class Epimetheus extends StatefulWidget {
@@ -29,6 +32,7 @@ class Epimetheus extends StatefulWidget {
 
 class _EpimetheusState extends State<Epimetheus> {
   UserModel _userModel = UserModel();
+  CollectionModel _collectionModel = CollectionModel();
 
   Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -72,27 +76,30 @@ class _EpimetheusState extends State<Epimetheus> {
 
     return ScopedModel<UserModel>(
       model: _userModel,
-      child: MaterialApp(
-        theme: ThemeData(
-          primaryColor: const Color(0xFF332B57),
-          accentColor: const Color(0xFFb700c8),
-          pageTransitionsTheme: const PageTransitionsTheme(
-            builders: const {
-              TargetPlatform.android: const OpenUpwardsPageTransitionsBuilder(),
-              TargetPlatform.iOS: const OpenUpwardsPageTransitionsBuilder(),
-              TargetPlatform.fuchsia: const OpenUpwardsPageTransitionsBuilder(),
-            },
+      child: ScopedModel<CollectionModel>(
+        model: _collectionModel,
+        child: MaterialApp(
+          theme: ThemeData(
+            primaryColor: const Color(0xFF332B57),
+            accentColor: const Color(0xFFb700c8),
+            pageTransitionsTheme: const PageTransitionsTheme(
+              builders: const {
+                TargetPlatform.android: const OpenUpwardsPageTransitionsBuilder(),
+                TargetPlatform.iOS: const OpenUpwardsPageTransitionsBuilder(),
+                TargetPlatform.fuchsia: const OpenUpwardsPageTransitionsBuilder(),
+              },
+            ),
+            buttonTheme: const ButtonThemeData(
+              buttonColor: const Color(0xFF332B57),
+              textTheme: ButtonTextTheme.primary,
+            ),
           ),
-          buttonTheme: const ButtonThemeData(
-            buttonColor: const Color(0xFF332B57),
-            textTheme: ButtonTextTheme.primary,
-          ),
+          routes: {
+            '/': (context) => startingPage,
+            '/collection': (context) => CollectionPage(),
+          },
+          onGenerateRoute: generateRoute,
         ),
-        routes: {
-          '/': (context) => startingPage,
-          '/collection': (context) => CollectionPage(),
-        },
-        onGenerateRoute: generateRoute,
       ),
     );
   }

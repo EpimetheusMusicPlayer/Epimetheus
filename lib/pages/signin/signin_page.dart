@@ -1,3 +1,5 @@
+import 'package:epimetheus/models/collection.dart';
+import 'package:epimetheus/models/user.dart';
 import 'package:epimetheus/pages/authentication/authentication_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_autofill/flutter_autofill.dart';
@@ -9,9 +11,16 @@ import 'package:url_launcher/url_launcher.dart';
 
 const _emailRegex = r"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?";
 
-void signOut(BuildContext context) {
+void signOut(BuildContext context) async {
   FlutterSecureStorage()..delete(key: 'email')..delete(key: 'password');
-  Navigator.pushReplacementNamed(context, '/sign-in');
+
+  final userModel = UserModel.of(context);
+  final collectionModel = CollectionModel.of(context);
+
+  await Navigator.pushReplacementNamed(context, '/sign-in');
+
+  userModel.clear();
+  collectionModel.clear();
 }
 
 class SignInPage extends StatefulWidget {
