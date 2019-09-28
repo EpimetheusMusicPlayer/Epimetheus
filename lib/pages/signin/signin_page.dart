@@ -55,8 +55,8 @@ class _SignInPageState extends State<SignInPage> {
   @override
   void initState() {
     super.initState();
-    _emailController = TextEditingController();
-    _passwordController = TextEditingController();
+    _emailController = TextEditingController(text: widget.email);
+    _passwordController = TextEditingController(text: widget.password);
   }
 
   @override
@@ -119,7 +119,6 @@ class _SignInPageState extends State<SignInPage> {
                     textController: _emailController,
                     child: TextFormField(
                       controller: _emailController,
-                      initialValue: widget.email,
                       validator: emailValidator,
                       onSaved: (email) => _email = email,
                       decoration: const InputDecoration(
@@ -139,7 +138,6 @@ class _SignInPageState extends State<SignInPage> {
                     textController: _passwordController,
                     child: TextFormField(
                       controller: _passwordController,
-                      initialValue: widget.password,
                       validator: passwordValidator,
                       onSaved: (password) => _password = password,
                       decoration: const InputDecoration(
