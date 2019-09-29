@@ -9,37 +9,39 @@ import 'package:scoped_model/scoped_model.dart';
 
 class CollectionModel extends Model {
   List<api.Station> _stations;
-  bool _hasError = false;
 
   void clear() {
     _stations = null;
-    _hasError = false;
+    _hasErrorStations = false;
     notifyListeners();
   }
 
-  bool get hasError => _hasError;
+  bool get hasError => _hasErrorStations;
   bool get downloaded => downloadedStations;
   bool get downloading => _downloadingStations;
 
   Future<void> refresh(User user) async {
     await refreshStations(user);
-    if (_hasError) return;
+    if (_hasErrorStations) return;
   }
 
   // STATIONS
+  bool _hasErrorStations = false;
+  bool get hasErrorStations => _hasErrorStations;
   bool get downloadedStations => _stations != null;
   bool _downloadingStations = false;
+  bool get downloadingStations => _downloadingStations;
 
   Future<void> refreshStations(User user) async {
     if (!_downloadingStations) {
       _downloadingStations = true;
 
-      if (_stations != null || _hasError) {
+      if (_stations != null || _hasErrorStations) {
         if (_stations != null) {
           _stations = null;
         }
-        if (_hasError) {
-          _hasError = false;
+        if (_hasErrorStations) {
+          _hasErrorStations = false;
         }
 
         notifyListeners();
@@ -47,7 +49,7 @@ class CollectionModel extends Model {
 
       // Download the stations list
       void onError() {
-        _hasError = true;
+        _hasErrorStations = true;
         _downloadingStations = false;
         notifyListeners();
       }
