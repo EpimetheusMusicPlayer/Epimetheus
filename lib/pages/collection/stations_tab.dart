@@ -73,7 +73,7 @@ class StationsTab extends StatelessWidget {
             children: <Widget>[
               CachedNetworkImage(
                 height: 56,
-                imageUrl: station.getArtUrl(0),
+                imageUrl: station.getArtUrl(500),
                 placeholder: (context, imageUrl) => Image.asset('assets/music_note.png'),
                 placeholderFadeInDuration: const Duration(milliseconds: 500),
               ),
