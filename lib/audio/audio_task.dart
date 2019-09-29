@@ -6,7 +6,6 @@ import 'package:audio_service/audio_service.dart';
 import 'package:epimetheus/audio/music_provider.dart';
 import 'package:epimetheus/libepimetheus/authentication.dart';
 import 'package:epimetheus/libepimetheus/networking.dart';
-import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 import 'package:qudio/qudio.dart';
 
@@ -22,12 +21,19 @@ class _AudioTaskPayload {
   });
 }
 
-/// Only to be invoked from the UI isolate.
+// Only to be invoked from the UI isolate.
 Future<void> launchMusicProvider(User user, MusicProvider musicProvider) async {
   assert(user != null, 'User is null!');
   assert(musicProvider != null, 'MusicProvider is null!');
   await AudioService.connect();
-  await _startAudioTask();
+  await AudioService.start(
+    backgroundTaskEntrypoint: () {
+      AudioServiceBackground.run(() => EpimetheusAudioTask());
+    },
+    androidNotificationChannelName: 'Media',
+    androidNotificationChannelDescription: 'Media information and controls',
+    androidNotificationOngoing: true,
+  );
   IsolateNameServer.lookupPortByName('audio_task').send(
     _AudioTaskPayload(
       user: user,
@@ -37,23 +43,13 @@ Future<void> launchMusicProvider(User user, MusicProvider musicProvider) async {
   );
 }
 
-Future<bool> _startAudioTask() {
-  return AudioService.start(
-    backgroundTask: audioTask,
-    androidNotificationChannelName: 'Media',
-    androidNotificationChannelDescription: 'Media information and controls.',
-    androidNotificationOngoing: true,
-  );
-}
-
-void audioTask() async {
+class EpimetheusAudioTask extends BackgroundAudioTask {
   Completer<void> serviceCompleter = Completer<void>();
 
   User user;
   MusicProvider musicProvider;
 
   final ReceivePort receivePort = ReceivePort();
-  IsolateNameServer.registerPortWithName(receivePort.sendPort, 'audio_task');
 
   StreamSubscription<QudioPlaybackStatus> playbackStatusStream;
   StreamSubscription<PositionDiscontinuityReason> positionDiscontinuityStream;
@@ -66,6 +62,92 @@ void audioTask() async {
     const MediaControl(label: 'Fast-forward', androidIcon: 'drawable/ic_fast_forward', action: MediaAction.fastForward),
     const MediaControl(label: 'Skip', androidIcon: 'drawable/ic_skip', action: MediaAction.skipToNext),
   ];
+
+  EpimetheusAudioTask() {
+    print('Contructing');
+    IsolateNameServer.registerPortWithName(receivePort.sendPort, 'audio_task');
+
+    receivePort.listen((payload) async {
+      if (payload is _AudioTaskPayload) {
+        user = payload.user;
+        csrfToken = payload.csrfToken;
+
+        if (musicProvider != payload.musicProvider) {
+          AudioServiceBackground.setMediaItem(
+            const MediaItem(
+              id: 'loading',
+              title: 'Loading...',
+              artist: 'Loading...',
+              album: 'Loading...',
+              displayTitle: 'Loading...',
+              displaySubtitle: 'Loading...',
+              displayDescription: '',
+              playable: false,
+            ),
+          );
+          togglePlayPauseControl(false);
+          updateBasicPlaybackState(BasicPlaybackState.buffering);
+
+          Qudio.stop();
+          musicProvider = payload.musicProvider;
+
+          onUrlsAdded(await musicProvider.load(user));
+          newSong(false);
+        }
+      }
+    });
+
+    playbackStatusStream = Qudio.playbackStatusStream.listen((QudioPlaybackStatus status) async {
+      switch (status.playbackState) {
+        case QudioPlaybackState.STATE_BUFFERING:
+          togglePlayPauseControl(false);
+          updateBasicPlaybackState(BasicPlaybackState.buffering);
+          break;
+
+        case QudioPlaybackState.STATE_READY:
+          final updateDuration = AudioServiceBackground.state.basicState == BasicPlaybackState.buffering && status.playing == true;
+          togglePlayPauseControl(!status.playing);
+          updateBasicPlaybackState(status.playing ? BasicPlaybackState.playing : BasicPlaybackState.paused);
+
+          if (updateDuration) {
+            MediaItem mediaItem = musicProvider.currentMediaItem;
+            mediaItem = MediaItem(
+              id: mediaItem.id,
+              title: mediaItem.title,
+              artist: mediaItem.artist,
+              album: mediaItem.album,
+              displayTitle: mediaItem.displayTitle,
+              displaySubtitle: mediaItem.displaySubtitle,
+              displayDescription: mediaItem.displayDescription,
+              artUri: mediaItem.artUri,
+              genre: mediaItem.genre,
+              playable: mediaItem.playable,
+              rating: mediaItem.rating,
+              duration: await Qudio.currentDuration,
+            );
+            AudioServiceBackground.setMediaItem(mediaItem);
+          }
+          break;
+
+        case QudioPlaybackState.STATE_IDLE:
+          break;
+
+        case QudioPlaybackState.STATE_ENDED:
+          break;
+      }
+    });
+
+    positionDiscontinuityStream = Qudio.positionDiscontinuityStream.listen((PositionDiscontinuityReason reason) async {
+      if (reason == PositionDiscontinuityReason.DISCONTINUITY_REASON_PERIOD_TRANSITION) {
+        musicProvider.skipTo(musicProvider.count - await Qudio.queueSize);
+        newSong(false);
+      }
+    });
+
+    sourceErrorStream = Qudio.sourceErrorStream.listen((error) {
+      if (error) onStop();
+    });
+  }
 
   void togglePlayPauseControl(bool paused) {
     mediaControls[2] = paused
@@ -92,18 +174,6 @@ void audioTask() async {
     );
   }
 
-  void stop() async {
-    IsolateNameServer.removePortNameMapping('audio_task');
-    await Future.wait([
-      playbackStatusStream.cancel(),
-      positionDiscontinuityStream.cancel(),
-      sourceErrorStream.cancel(),
-    ]);
-    await updateBasicPlaybackState(BasicPlaybackState.stopped);
-    await Qudio.stop();
-    serviceCompleter.complete();
-  }
-
   void onUrlsAdded(List<String> urls) {
     Qudio.addAllToQueue(urls);
     if (musicProvider.queue.length - urls.length <= 0) {
@@ -118,7 +188,7 @@ void audioTask() async {
       updateBasicPlaybackState(BasicPlaybackState.buffering);
       final newUrls = await musicProvider.load(user);
       if (newUrls == null) {
-        stop();
+        onStop();
         return;
       }
       onUrlsAdded(newUrls);
@@ -141,121 +211,43 @@ void audioTask() async {
     updateBasicPlaybackState(AudioServiceBackground.state.basicState);
   }
 
-  receivePort.listen((payload) async {
-    if (payload is _AudioTaskPayload) {
-      user = payload.user;
-      csrfToken = payload.csrfToken;
+  @override
+  Future<void> onStart() {
+    // TODO: implement onStart
+    return null;
+  }
 
-      if (musicProvider != payload.musicProvider) {
-        AudioServiceBackground.setMediaItem(
-          const MediaItem(
-            id: 'loading',
-            title: 'Loading...',
-            artist: 'Loading...',
-            album: 'Loading...',
-            displayTitle: 'Loading...',
-            displaySubtitle: 'Loading...',
-            displayDescription: '',
-            playable: false,
-          ),
-        );
-        togglePlayPauseControl(false);
-        updateBasicPlaybackState(BasicPlaybackState.buffering);
+  @override
+  void onPause() => Qudio.pause();
 
-        Qudio.stop();
-        musicProvider = payload.musicProvider;
+  @override
+  void onPlay() => Qudio.play();
 
-        onUrlsAdded(await musicProvider.load(user));
-        newSong(false);
-      }
-    }
-  });
+  @override
+  void onFastForward() => Qudio.fastForward(15000);
 
-  AudioServiceBackground.run(
-    onStart: () {
-      Qudio.connect();
-      return serviceCompleter.future;
-    },
-    onPause: () {
-      Qudio.pause();
-    },
-    onPlay: () {
-      Qudio.play();
-    },
-    onFastForward: () async {
-      Qudio.fastForward(15000);
-    },
-    onRewind: () async {
-      Qudio.rewind(15000);
-    },
-    onSkipToNext: () {
-      newSong(true);
-    },
-    onSkipToQueueItem: (String id) {
-      Qudio.skipTo(musicProvider.queue.indexWhere((mediaItem) => mediaItem.id == id));
-    },
-    onStop: () async {
-      stop();
-    },
-    onSetRating: (Rating rating, Map<dynamic, dynamic> extras) {
-      if (!extras.containsKey('index') || !extras.containsKey('update')) return;
-      musicProvider.rate(user, extras['index'], rating, extras['update']).then((value) {
-        // When this future completes, the rating is complete. Update the queue to tell the UI this.
-        AudioServiceBackground.setQueue(musicProvider.queue);
-      });
-      // At this point, the rating is pending. Update the queue to tell the UI this.
-      AudioServiceBackground.setQueue(musicProvider.queue);
-    },
-  );
+  @override
+  void onRewind() => Qudio.rewind(15000);
 
-  playbackStatusStream = Qudio.playbackStatusStream.listen((QudioPlaybackStatus status) async {
-    switch (status.playbackState) {
-      case QudioPlaybackState.STATE_BUFFERING:
-        togglePlayPauseControl(false);
-        updateBasicPlaybackState(BasicPlaybackState.buffering);
-        break;
+  @override
+  void onSkipToNext() => newSong(true);
 
-      case QudioPlaybackState.STATE_READY:
-        final updateDuration = AudioServiceBackground.state.basicState == BasicPlaybackState.buffering && status.playing == true;
-        togglePlayPauseControl(!status.playing);
-        updateBasicPlaybackState(status.playing ? BasicPlaybackState.playing : BasicPlaybackState.paused);
+  @override
+  void onSkipToQueueItem(String id) => Qudio.skipTo(musicProvider.queue.indexWhere((mediaItem) => mediaItem.id == id));
 
-        if (updateDuration) {
-          MediaItem mediaItem = musicProvider.currentMediaItem;
-          mediaItem = MediaItem(
-            id: mediaItem.id,
-            title: mediaItem.title,
-            artist: mediaItem.artist,
-            album: mediaItem.album,
-            displayTitle: mediaItem.displayTitle,
-            displaySubtitle: mediaItem.displaySubtitle,
-            displayDescription: mediaItem.displayDescription,
-            artUri: mediaItem.artUri,
-            genre: mediaItem.genre,
-            playable: mediaItem.playable,
-            rating: mediaItem.rating,
-            duration: await Qudio.currentDuration,
-          );
-          AudioServiceBackground.setMediaItem(mediaItem);
-        }
-        break;
+  @override
+  void onSetRating(Rating rating, Map<dynamic, dynamic> extras) => Qudio.fastForward(15000);
 
-      case QudioPlaybackState.STATE_IDLE:
-        break;
-
-      case QudioPlaybackState.STATE_ENDED:
-        break;
-    }
-  });
-
-  positionDiscontinuityStream = Qudio.positionDiscontinuityStream.listen((PositionDiscontinuityReason reason) async {
-    if (reason == PositionDiscontinuityReason.DISCONTINUITY_REASON_PERIOD_TRANSITION) {
-      musicProvider.skipTo(musicProvider.count - await Qudio.queueSize);
-      newSong(false);
-    }
-  });
-
-  sourceErrorStream = Qudio.sourceErrorStream.listen((error) {
-    if (error) stop();
-  });
+  @override
+  void onStop() async {
+    IsolateNameServer.removePortNameMapping('audio_task');
+    await Future.wait([
+      playbackStatusStream.cancel(),
+      positionDiscontinuityStream.cancel(),
+      sourceErrorStream.cancel(),
+    ]);
+    await updateBasicPlaybackState(BasicPlaybackState.stopped);
+    await Qudio.stop();
+    serviceCompleter.complete();
+  }
 }

@@ -1,3 +1,5 @@
+import 'package:epimetheus/audio/audio_task.dart';
+import 'package:epimetheus/audio/station_music_provider.dart';
 import 'package:epimetheus/libepimetheus/stations.dart';
 import 'package:epimetheus/models/collection.dart';
 import 'package:epimetheus/models/user.dart';
@@ -54,12 +56,12 @@ class AllTab extends StatelessWidget {
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
       children: <Widget>[
-        ...buildStationsDisplay(model.asyncStations(UserModel.of(context).user)),
+        ...buildStationsDisplay(context, model.asyncStations(UserModel.of(context).user)),
       ],
     );
   }
 
-  List<Widget> buildStationsDisplay(List<Station> stations) {
+  List<Widget> buildStationsDisplay(BuildContext context, List<Station> stations) {
     void findStations() {
       print('Find stations');
     }
@@ -124,7 +126,15 @@ class AllTab extends StatelessWidget {
               artUrls: stationArtUrls,
               labels: stationLabels,
               onTap: (index) {
-                print('Station tapped on $index');
+                launchMusicProvider(
+                  UserModel.of(context).user,
+                  StationMusicProvider(
+                    stations,
+                    stations.indexOf(
+                      stationsWithoutShuffle[index],
+                    ),
+                  ),
+                );
               },
             ),
     ];
