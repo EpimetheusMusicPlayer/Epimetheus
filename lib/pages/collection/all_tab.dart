@@ -51,6 +51,10 @@ class AllTab extends StatelessWidget {
   }
 
   Widget buildMainContent(List<Station> stations, RefreshCallback onRefresh) {
+    void findStations() {
+      print('Find stations');
+    }
+
     // Split the station list into two lists of art urls and labels.
     final stationArtUrls = List<String>(stations.length);
     final stationLabels = List<String>(stations.length);
@@ -65,22 +69,32 @@ class AllTab extends StatelessWidget {
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
       children: <Widget>[
-        const Padding(
+        Padding(
           padding: const EdgeInsets.all(16),
-          child: const Text(
-            'My Stations',
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 22,
-            ),
+          child: Row(
+            children: <Widget>[
+              Expanded(
+                child: const Text(
+                  'My Stations',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 22,
+                  ),
+                ),
+              ),
+              IconButton(
+                padding: EdgeInsets.zero,
+                icon: Icon(Icons.add),
+                tooltip: 'Find stations',
+                onPressed: findStations,
+              ),
+            ],
           ),
         ),
         stations.isEmpty
             ? FlatButton(
                 child: const Text('Find stations'),
-                onPressed: () {
-                  print('Find stations');
-                },
+                onPressed: findStations,
               )
             : ArtTileCarousel(
                 artUrls: stationArtUrls,
