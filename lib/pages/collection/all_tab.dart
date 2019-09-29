@@ -26,7 +26,7 @@ class AllTab extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   const Text(
-                    'There was an error fetching your stuff.',
+                    'There was an error fetching your collection.',
                     textAlign: TextAlign.center,
                   ),
                   FlatButton(
