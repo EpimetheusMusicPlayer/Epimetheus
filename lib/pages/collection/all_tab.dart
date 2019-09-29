@@ -75,13 +75,20 @@ class AllTab extends StatelessWidget {
             ),
           ),
         ),
-        ArtTileCarousel(
-          artUrls: stationArtUrls,
-          labels: stationLabels,
-          onTap: (index) {
-            print('Station tapped on $index');
-          },
-        ),
+        stations.isEmpty
+            ? FlatButton(
+                child: const Text('Find stations'),
+                onPressed: () {
+                  print('Find stations');
+                },
+              )
+            : ArtTileCarousel(
+                artUrls: stationArtUrls,
+                labels: stationLabels,
+                onTap: (index) {
+                  print('Station tapped on $index');
+                },
+              ),
       ],
     );
   }
