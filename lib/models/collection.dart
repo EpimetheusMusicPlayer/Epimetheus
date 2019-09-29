@@ -11,18 +11,26 @@ class CollectionModel extends Model {
   List<api.Station> _stations;
   bool _hasError = false;
 
-  bool _downloading = false;
-
   void clear() {
     _stations = null;
+    _hasError = false;
     notifyListeners();
   }
 
   bool get hasError => _hasError;
+  bool get downloading => _downloadingStations;
+
+  Future<void> refresh(User user) async {
+    await refreshStations(user);
+    if (_hasError) return;
+  }
+
+  // STATIONS
+  bool _downloadingStations = false;
 
   Future<void> refreshStations(User user) async {
-    if (!_downloading) {
-      _downloading = true;
+    if (!_downloadingStations) {
+      _downloadingStations = true;
 
       if (_stations != null || _hasError) {
         if (_stations != null) {
@@ -38,7 +46,7 @@ class CollectionModel extends Model {
       // Download the stations list
       void onError() {
         _hasError = true;
-        _downloading = false;
+        _downloadingStations = false;
         notifyListeners();
       }
 
@@ -58,7 +66,7 @@ class CollectionModel extends Model {
         cacheManager.downloadFile(station.getArtUrl(500));
       }
 
-      _downloading = false;
+      _downloadingStations = false;
       notifyListeners();
     }
   }
@@ -74,6 +82,7 @@ class CollectionModel extends Model {
     if (_stations == null) refreshStations(user);
     return _stations;
   }
+  // END STATIONS
 
   static CollectionModel of(BuildContext context) => ScopedModel.of<CollectionModel>(context);
 }
