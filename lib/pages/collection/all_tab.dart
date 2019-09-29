@@ -95,12 +95,15 @@ class AllTab extends StatelessWidget {
                 ),
               ),
             ),
-            IconButton(
-              padding: EdgeInsets.zero,
-              icon: Icon(Icons.shuffle),
-              tooltip: 'Find stations',
-              onPressed: findStations,
-            ),
+            if (shuffleStation != null)
+              IconButton(
+                padding: EdgeInsets.zero,
+                icon: Icon(Icons.shuffle),
+                tooltip: 'Shuffle stations',
+                onPressed: () {
+                  print('Shuffling');
+                },
+              ),
             IconButton(
               padding: EdgeInsets.zero,
               icon: Icon(Icons.add),
