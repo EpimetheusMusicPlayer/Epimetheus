@@ -2,38 +2,55 @@ import 'package:epimetheus/libepimetheus/stations.dart';
 import 'package:epimetheus/models/collection.dart';
 import 'package:epimetheus/models/user.dart';
 import 'package:epimetheus/widgets/art_displays.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 class AllTab extends StatelessWidget {
+  final _refreshKey = GlobalKey<RefreshIndicatorState>();
+
   @override
   Widget build(BuildContext context) {
-    return ScopedModelDescendant<CollectionModel>(
-      builder: (context, child, model) {
-        // Gets the current downloaded station list, and if it doesn't exist, starts the download.
-        final List<Station> stations = model.asyncStations(UserModel.of(context).user);
+    final user = UserModel.of(context).user;
 
-        if (model.hasError) {
-          return Center(
-            child: const Text(
-              'There was an error fetching your stuff. Please try again.',
-            ),
-          );
-        }
+    return RefreshIndicator(
+      key: _refreshKey,
+      onRefresh: () => CollectionModel.of(context).refreshStations(user),
+      child: ScopedModelDescendant<CollectionModel>(
+        builder: (context, child, model) {
+          // Gets the current downloaded station list, and if it doesn't exist, starts the download.
+          final List<Station> stations = model.hasError ? null : model.asyncStations(user);
 
-        if (stations == null) {
-          return Center(
-            child: CircularProgressIndicator(),
-          );
-        }
+          if (model.hasError) {
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  const Text(
+                    'There was an error fetching your stuff.',
+                    textAlign: TextAlign.center,
+                  ),
+                  FlatButton(
+                    child: const Text('Try again'),
+                    onPressed: _refreshKey.currentState.show,
+                  ),
+                ],
+              ),
+            );
+          }
 
-        return buildMainContent(stations);
-      },
+          if (stations == null) {
+            return const Center(
+              child: const CircularProgressIndicator(),
+            );
+          }
+
+          return buildMainContent(stations, () => model.refreshStations(user));
+        },
+      ),
     );
   }
 
-  Widget buildMainContent(List<Station> stations) {
+  Widget buildMainContent(List<Station> stations, RefreshCallback onRefresh) {
     // Split the station list into two lists of art urls and labels.
     final stationArtUrls = List<String>(stations.length);
     final stationLabels = List<String>(stations.length);
@@ -46,12 +63,13 @@ class AllTab extends StatelessWidget {
 
     // Main content.
     return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
       children: <Widget>[
-        Padding(
+        const Padding(
           padding: const EdgeInsets.all(16),
           child: const Text(
             'My Stations',
-            style: TextStyle(
+            style: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 22,
             ),

@@ -11,6 +11,8 @@ class CollectionModel extends Model {
   List<api.Station> _stations;
   bool _hasError = false;
 
+  bool _downloading = false;
+
   void clear() {
     _stations = null;
     notifyListeners();
@@ -19,37 +21,46 @@ class CollectionModel extends Model {
   bool get hasError => _hasError;
 
   Future<void> refreshStations(User user) async {
-    if (_stations != null || _hasError) {
-      if (_stations != null) {
-        _stations = null;
+    if (!_downloading) {
+      _downloading = true;
+
+      if (_stations != null || _hasError) {
+        if (_stations != null) {
+          _stations = null;
+        }
+        if (_hasError) {
+          _hasError = false;
+        }
+
+        notifyListeners();
       }
-      if (_hasError) {
-        _hasError = false;
+
+      // Download the stations list
+      void onError() {
+        _hasError = true;
+        _downloading = false;
+        notifyListeners();
       }
 
+      try {
+        _stations = await api.getStations(user, true);
+      } on SocketException {
+        onError();
+        return;
+      } on PandoraException {
+        onError();
+        return;
+      }
+
+      // Cache the station art
+      final cacheManager = DefaultCacheManager();
+      for (api.Station station in _stations) {
+        cacheManager.downloadFile(station.getArtUrl(500));
+      }
+
+      _downloading = false;
       notifyListeners();
     }
-
-    // Download the stations list
-    try {
-      _stations = await api.getStations(user, true);
-    } on SocketException {
-      _hasError = true;
-      notifyListeners();
-      return;
-    } on PandoraException {
-      _hasError = true;
-      notifyListeners();
-      return;
-    }
-
-    // Cache the station art
-    final cacheManager = DefaultCacheManager();
-    for (api.Station station in _stations) {
-      cacheManager.downloadFile(station.getArtUrl(500));
-    }
-
-    notifyListeners();
   }
 
   Future<List<api.Station>> getStations(User user) async {
