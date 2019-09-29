@@ -18,6 +18,7 @@ class CollectionModel extends Model {
   }
 
   bool get hasError => _hasError;
+  bool get downloaded => downloadedStations;
   bool get downloading => _downloadingStations;
 
   Future<void> refresh(User user) async {
@@ -26,6 +27,7 @@ class CollectionModel extends Model {
   }
 
   // STATIONS
+  bool get downloadedStations => _stations != null;
   bool _downloadingStations = false;
 
   Future<void> refreshStations(User user) async {

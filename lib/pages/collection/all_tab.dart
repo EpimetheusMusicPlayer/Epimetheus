@@ -35,7 +35,9 @@ class AllTab extends StatelessWidget {
             );
           }
 
-          if (model.downloading) {
+          if (!model.downloaded) model.refresh(UserModel.of(context).user);
+
+          if (!model.downloaded || model.downloading) {
             return const Center(
               child: const CircularProgressIndicator(),
             );
