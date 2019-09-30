@@ -16,17 +16,10 @@ class CollectionModel extends Model {
     notifyListeners();
   }
 
-  Future<void> refresh(User user) async {
-    await refreshStations(user);
-    if (_hasErrorStations) return;
-  }
-
   // STATIONS
   bool _hasErrorStations = false;
   bool get hasErrorStations => _hasErrorStations;
-  bool get downloadedStations => _stations != null;
   bool _downloadingStations = false;
-  bool get downloadingStations => _downloadingStations;
 
   Future<void> refreshStations(User user) async {
     if (!_downloadingStations) {
@@ -69,13 +62,6 @@ class CollectionModel extends Model {
       _downloadingStations = false;
       notifyListeners();
     }
-  }
-
-  Future<List<api.Station>> getStations(User user) async {
-    if (_stations == null) {
-      await refreshStations(user);
-    }
-    return _stations;
   }
 
   List<api.Station> asyncStations(User user) {

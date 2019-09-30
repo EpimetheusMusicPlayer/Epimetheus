@@ -1,14 +1,24 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:epimetheus/libepimetheus/authentication.dart';
 import 'package:epimetheus/libepimetheus/stations.dart';
 import 'package:epimetheus/models/collection.dart';
-import 'package:epimetheus/models/user.dart';
+import 'package:epimetheus/pages/collection/collection_tab.dart';
 import 'package:flutter/material.dart';
-import 'package:scoped_model/scoped_model.dart';
 
-class StationsTab extends StatelessWidget {
-  final _refreshKey = GlobalKey<RefreshIndicatorState>();
+class StationsTab extends CollectionTab<List<Station>> {
+  StationsTab() : super(errorMessage: 'There was an error fetching your stations.');
 
-  void sortStations(List<Station> stations) {
+  @override
+  Future<void> refresh(User user, CollectionModel model) => model.refreshStations(user);
+
+  @override
+  List<Station> get(User user, CollectionModel model) => model.asyncStations(user);
+
+  @override
+  bool hasError(CollectionModel model) => model.hasErrorStations;
+
+  @override
+  Widget buildMainContent(BuildContext context, List<Station> stations) {
     stations.sort((s1, s2) {
       if (s1.isShuffle) return -2;
       if (s2.isShuffle) return 2;
@@ -17,50 +27,6 @@ class StationsTab extends StatelessWidget {
 
       return s1.title.compareTo(s2.title);
     });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return RefreshIndicator(
-      key: _refreshKey,
-      onRefresh: () => CollectionModel.of(context).refreshStations(UserModel.of(context).user),
-      child: ScopedModelDescendant<CollectionModel>(
-        builder: (context, child, model) {
-          if (model.hasErrorStations) {
-            return Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  const Text(
-                    'There was an error fetching your stations.',
-                    textAlign: TextAlign.center,
-                  ),
-                  FlatButton(
-                    child: const Text('Try again'),
-                    onPressed: _refreshKey.currentState.show,
-                  ),
-                ],
-              ),
-            );
-          }
-
-          if (!model.downloadedStations) model.refreshStations(UserModel.of(context).user);
-
-          if (!model.downloadedStations || model.downloadingStations) {
-            return const Center(
-              child: const CircularProgressIndicator(),
-            );
-          }
-
-          return buildMainContent(context, model);
-        },
-      ),
-    );
-  }
-
-  Widget buildMainContent(BuildContext context, CollectionModel model) {
-    final List<Station> stations = model.asyncStations(UserModel.of(context).user);
-    sortStations(stations);
 
     return ListView.separated(
       itemCount: stations.length,
