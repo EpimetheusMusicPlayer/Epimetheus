@@ -16,10 +16,6 @@ class CollectionModel extends Model {
     notifyListeners();
   }
 
-  bool get hasError => _hasErrorStations;
-  bool get downloaded => downloadedStations;
-  bool get downloading => _downloadingStations;
-
   Future<void> refresh(User user) async {
     await refreshStations(user);
     if (_hasErrorStations) return;

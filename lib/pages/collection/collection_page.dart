@@ -1,5 +1,4 @@
 import 'package:epimetheus/pages/collection/albums_tab.dart';
-import 'package:epimetheus/pages/collection/all_tab.dart';
 import 'package:epimetheus/pages/collection/artists_tab.dart';
 import 'package:epimetheus/pages/collection/playlists_tab.dart';
 import 'package:epimetheus/pages/collection/stations_tab.dart';
@@ -10,7 +9,7 @@ class CollectionPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 5,
+      length: 4,
       child: Scaffold(
         drawer: const NavigationDrawer(
           currentRouteName: '/collection',
@@ -20,7 +19,6 @@ class CollectionPage extends StatelessWidget {
           bottom: const TabBar(
             isScrollable: true,
             tabs: const <Widget>[
-              const Tab(text: 'All'),
               const Tab(text: 'Stations'),
               const Tab(text: 'Playlists'),
               const Tab(text: 'Albums'),
@@ -30,7 +28,6 @@ class CollectionPage extends StatelessWidget {
         ),
         body: TabBarView(
           children: <Widget>[
-            AllTab(),
             StationsTab(),
             PlaylistsTab(),
             AlbumsTab(),
