@@ -102,7 +102,7 @@ Future<List<Station>> getStations(User user, bool includeShuffle) async {
   List<dynamic> stationsJSON = (await makeApiRequest(
     version: 'v1',
     endpoint: 'station/getStations',
-    requestData: {'pageSize': 4096},
+    requestData: {'pageSize': 250},
     user: user,
     useProxy: user.useProxy,
   ))['stations'];
