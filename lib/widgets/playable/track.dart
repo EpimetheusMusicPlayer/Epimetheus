@@ -113,7 +113,7 @@ class TrackListTile extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 32),
               icon: const Icon(OMIcons.playArrow),
               tooltip: 'Play',
-              onPressed: () => launchTrack(track),
+              onPressed: () => launchTrack(context, track),
             ),
           ],
         ),

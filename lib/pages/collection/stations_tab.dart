@@ -15,7 +15,7 @@ class StationsTab extends CollectionTab<Station> {
   Widget buildMainContent(BuildContext context, List<Station> stations) {
     return ListView.separated(
       itemCount: stations.length,
-      itemBuilder: (context, index) => StationListTile(stations[index]),
+      itemBuilder: (context, index) => StationListTile(stations[index], index),
       separatorBuilder: (context, index) => StationListTile.separator,
     );
   }

@@ -27,9 +27,8 @@ Future<void> launchMusicProvider(User user, MusicProvider musicProvider) async {
   assert(musicProvider != null, 'MusicProvider is null!');
   await AudioService.connect();
   await AudioService.start(
-    backgroundTaskEntrypoint: () {
-      AudioServiceBackground.run(() => EpimetheusAudioTask());
-    },
+    backgroundTaskEntrypoint: audioTaskEntryPoint,
+    enableQueue: true,
     androidNotificationChannelName: 'Media',
     androidNotificationChannelDescription: 'Media information and controls',
     androidNotificationOngoing: true,
@@ -41,6 +40,10 @@ Future<void> launchMusicProvider(User user, MusicProvider musicProvider) async {
       csrfToken: csrfToken,
     ),
   );
+}
+
+void audioTaskEntryPoint() {
+  AudioServiceBackground.run(() => EpimetheusAudioTask());
 }
 
 class EpimetheusAudioTask extends BackgroundAudioTask {

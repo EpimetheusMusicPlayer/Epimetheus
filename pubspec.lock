@@ -93,9 +93,9 @@ packages:
   flutter_autofill:
     dependency: "direct main"
     description:
-      name: flutter_autofill
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: flutter_autofill
+      relative: true
+    source: path
     version: "0.4.1"
   flutter_cache_manager:
     dependency: "direct main"

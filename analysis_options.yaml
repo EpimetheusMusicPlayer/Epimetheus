@@ -1,4 +1,3 @@
 analyzer:
   exclude:
-    - audio_service/**
-    - animated-stream-list/**
+    - flutter_autofill/**

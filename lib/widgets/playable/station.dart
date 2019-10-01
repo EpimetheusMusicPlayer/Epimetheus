@@ -5,13 +5,14 @@ import 'package:flutter/material.dart';
 
 class StationListTile extends StatelessWidget {
   final Station station;
+  final int index;
 
-  StationListTile(this.station);
+  StationListTile(this.station, this.index);
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => launchStation(station),
+      onTap: () => launchStation(context, index),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(

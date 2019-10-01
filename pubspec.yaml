@@ -23,7 +23,8 @@ dependencies:
   transparent_image: ^1.0.0
   flutter_cache_manager: ^1.1.1
   cached_network_image: ^1.1.1
-  flutter_autofill: ^0.4.1
+  flutter_autofill:
+    path: './flutter_autofill'
   carousel_slider: ^1.3.0
   outline_material_icons: ^0.1.0
 
