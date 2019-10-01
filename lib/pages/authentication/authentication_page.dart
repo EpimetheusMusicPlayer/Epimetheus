@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:epimetheus/dialogs/dialogs.dart';
 import 'package:epimetheus/libepimetheus/authentication.dart';
 import 'package:epimetheus/libepimetheus/exceptions.dart';
+import 'package:epimetheus/models/collection/collection.dart';
 import 'package:epimetheus/models/user/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
@@ -37,6 +38,14 @@ class _AuthenticationPageState extends State<AuthenticationPage> with SingleTick
   AnimationController _animationController;
   bool _authenticated = false;
 
+  void cache(User user) {
+    // Warm up the cache by downloading the profile picture in the background
+    DefaultCacheManager().downloadFile(user.profileImageUrl);
+
+    // Download the collection
+    CollectionModel.of(context).fetchAll(user);
+  }
+
   void _authenticate() async {
     void navigateBackToSignInPage() {
       Navigator.of(context)
@@ -58,8 +67,8 @@ class _AuthenticationPageState extends State<AuthenticationPage> with SingleTick
       // Set the _authenticated bool to true so the app progresses after the next animation loop
       _authenticated = true;
 
-      // Warm up the cache by downloading the profile picture in the background
-      DefaultCacheManager().downloadFile(user.profileImageUrl);
+      // Pre-cache some data
+      cache(user);
     } on HandshakeException {
       _animationController.stop();
       showEpimetheusDialog(

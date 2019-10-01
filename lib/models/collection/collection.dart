@@ -1,3 +1,4 @@
+import 'package:epimetheus/libepimetheus/authentication.dart';
 import 'package:epimetheus/models/collection/station_collection_provider.dart';
 import 'package:epimetheus/models/collection/track_collection_provider.dart';
 import 'package:flutter/widgets.dart';
@@ -12,6 +13,11 @@ class CollectionModel extends Model {
 
   TrackCollectionProvider _trackCollectionProvider;
   TrackCollectionProvider get trackCollectionProvider => _trackCollectionProvider;
+
+  void fetchAll(User user) {
+    _stationCollectionProvider.getAsync(user);
+    _trackCollectionProvider.getAsync(user);
+  }
 
   void clear() {
     _stationCollectionProvider.clear();
