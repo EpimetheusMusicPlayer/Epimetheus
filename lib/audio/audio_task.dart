@@ -213,8 +213,8 @@ class EpimetheusAudioTask extends BackgroundAudioTask {
 
   @override
   Future<void> onStart() {
-    // TODO: implement onStart
-    return null;
+    Qudio.connect();
+    return serviceCompleter.future;
   }
 
   @override
