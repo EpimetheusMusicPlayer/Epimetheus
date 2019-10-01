@@ -13,15 +13,6 @@ class StationsTab extends CollectionTab<Station> {
 
   @override
   Widget buildMainContent(BuildContext context, List<Station> stations) {
-    stations.sort((s1, s2) {
-      if (s1.isShuffle) return -2;
-      if (s2.isShuffle) return 2;
-      if (s1.isThumbprint) return -1;
-      if (s2.isThumbprint) return 1;
-
-      return s1.title.compareTo(s2.title);
-    });
-
     return ListView.separated(
       itemCount: stations.length,
       itemBuilder: (context, index) {
