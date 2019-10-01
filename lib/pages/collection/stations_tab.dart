@@ -1,21 +1,15 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:epimetheus/libepimetheus/authentication.dart';
 import 'package:epimetheus/libepimetheus/stations.dart';
-import 'package:epimetheus/models/collection.dart';
+import 'package:epimetheus/models/collection/collection.dart';
+import 'package:epimetheus/models/collection/collection_provider.dart';
 import 'package:epimetheus/pages/collection/collection_tab.dart';
 import 'package:flutter/material.dart';
 
-class StationsTab extends CollectionTab<List<Station>> {
-  StationsTab() : super(errorMessage: 'There was an error fetching your stations.');
-
+class StationsTab extends CollectionTab<Station> {
   @override
-  Future<void> refresh(User user, CollectionModel model) => model.refreshStations(user);
-
-  @override
-  List<Station> get(User user, CollectionModel model) => model.asyncStations(user);
-
-  @override
-  bool hasError(CollectionModel model) => model.hasErrorStations;
+  CollectionProvider<Station> getCollectionProvider(BuildContext context) {
+    return CollectionModel.of(context).stationCollectionProvider;
+  }
 
   @override
   Widget buildMainContent(BuildContext context, List<Station> stations) {

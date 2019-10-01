@@ -1,41 +1,33 @@
-import 'package:epimetheus/libepimetheus/authentication.dart';
-import 'package:epimetheus/models/collection.dart';
-import 'package:epimetheus/models/user.dart';
+import 'package:epimetheus/models/collection/collection.dart';
+import 'package:epimetheus/models/collection/collection_provider.dart';
+import 'package:epimetheus/models/user/user.dart';
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 abstract class CollectionTab<T> extends StatelessWidget {
   final _refreshKey = GlobalKey<RefreshIndicatorState>();
 
-  final String errorMessage;
+  CollectionProvider<T> getCollectionProvider(BuildContext context);
 
-  CollectionTab({
-    @required this.errorMessage,
-  });
-
-  Future<void> refresh(User user, CollectionModel model);
-  T get(User user, CollectionModel model);
-
-  bool hasError(CollectionModel model);
-
-  Widget buildMainContent(BuildContext context, T data);
+  Widget buildMainContent(BuildContext context, List<T> data);
 
   @override
   Widget build(BuildContext context) {
     final user = UserModel.of(context).user;
+    final collectionProvider = getCollectionProvider(context);
 
     return RefreshIndicator(
       key: _refreshKey,
-      onRefresh: () => refresh(user, CollectionModel.of(context)),
+      onRefresh: () => collectionProvider.refresh(user),
       child: ScopedModelDescendant<CollectionModel>(
         builder: (context, child, model) {
-          if (hasError(model)) {
+          if (collectionProvider.hasError) {
             return Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   Text(
-                    errorMessage,
+                    collectionProvider.errorMessage,
                     textAlign: TextAlign.center,
                   ),
                   FlatButton(
@@ -47,7 +39,7 @@ abstract class CollectionTab<T> extends StatelessWidget {
             );
           }
 
-          final data = get(user, model);
+          final data = collectionProvider.getAsync(user);
 
           if (data == null) {
             return const Center(
