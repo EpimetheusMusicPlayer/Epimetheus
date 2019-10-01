@@ -1,4 +1,4 @@
-import 'package:epimetheus/libepimetheus/PandoraEntity.dart';
+import 'package:epimetheus/libepimetheus/pandora_entity.dart';
 
 class ArtItem extends PandoraEntity {
   final Map<int, String> artUrls;

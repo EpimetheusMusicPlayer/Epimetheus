@@ -2,7 +2,6 @@ import 'package:epimetheus/libepimetheus/art_item.dart';
 import 'package:epimetheus/libepimetheus/artists.dart';
 import 'package:epimetheus/libepimetheus/authentication.dart';
 import 'package:epimetheus/libepimetheus/networking.dart';
-import 'package:epimetheus/libepimetheus/songs.dart';
 import 'package:meta/meta.dart';
 
 abstract class Recommendation extends ArtItem {
@@ -39,7 +38,7 @@ class ArtistRecommendation extends Recommendation {
 
 class GenreStationRecommendation extends Recommendation {
   final String description;
-  final List<Track> sampleTracks;
+  final List<TrackRecommendation> sampleTracks;
   final List<Artist> sampleArtists;
   final Map<int, String> headerArt;
 
@@ -59,11 +58,34 @@ class GenreStationRecommendation extends Recommendation {
           pandoraId: genreStationJSON['pandoraId'],
           title: genreStationJSON['name'],
           description: genreStationJSON['description'],
-          sampleTracks: genreStationJSON['sampleTracks'].map<Track>((trackJSON) => Track(trackJSON)).toList(growable: false),
+          sampleTracks: genreStationJSON['sampleTracks'].map<TrackRecommendation>((trackJSON) => TrackRecommendation(trackJSON)).toList(growable: false),
           sampleArtists: genreStationJSON['sampleArtists'].map<Artist>((artistJSON) => Artist(artistJSON)).toList(growable: false),
           listenerCount: genreStationJSON['listenerCount'],
           artUrls: createArtMapFromDecodedJSON(genreStationJSON['art']),
           headerArt: createArtMapFromDecodedJSON(genreStationJSON['headerArt']),
+        );
+}
+
+class TrackRecommendation extends ArtItem {
+  final String title;
+  final String albumTitle;
+  final String artistTitle;
+
+  const TrackRecommendation._internal({
+    @required String pandoraId,
+    @required this.title,
+    @required this.albumTitle,
+    @required this.artistTitle,
+    @required Map<int, String> artUrls,
+  }) : super(pandoraId, artUrls);
+
+  TrackRecommendation(Map<String, dynamic> trackJSON)
+      : this._internal(
+          pandoraId: trackJSON['pandoraId'],
+          title: trackJSON['songTitle'],
+          artistTitle: trackJSON['artistName'],
+          albumTitle: trackJSON['albumTitle'],
+          artUrls: createArtMapFromDecodedJSON(trackJSON['albumArt']),
         );
 }
 

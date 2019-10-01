@@ -67,7 +67,7 @@ class Station extends ArtItem {
     ))['tracks'];
 
     List<Song> playlistFragment = playlistFragmentJSON.map((songJSON) => Song(Map<String, dynamic>.from(songJSON))).toList();
-    playlistFragment.removeWhere((Song song) => song.trackType == TrackType.ARTIST_MESSAGE);
+    playlistFragment.removeWhere((Song song) => song.trackType == TrackType.artistMessage);
     return playlistFragment;
   }
 
