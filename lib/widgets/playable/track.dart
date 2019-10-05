@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:epimetheus/audio/launch_helpers.dart';
 import 'package:epimetheus/libepimetheus/songs.dart';
-import 'package:epimetheus/widgets/flags/explicit.dart';
+import 'package:epimetheus/widgets/tags/explicit.dart';
 import 'package:flutter/material.dart';
 import 'package:outline_material_icons/outline_material_icons.dart';
 
