@@ -221,16 +221,48 @@ class EpimetheusAudioTask extends BackgroundAudioTask {
   }
 
   @override
-  void onPause() => Qudio.pause();
+  void onClick(MediaButton button) {
+    if (Qudio.playbackStatus.playbackState == QudioPlaybackState.STATE_READY) {
+      switch (button) {
+        case MediaButton.media:
+          Qudio.playbackStatus.playing ? Qudio.pause() : Qudio.play();
+          break;
+        case MediaButton.next:
+          newSong(true);
+          break;
+        case MediaButton.previous:
+          break;
+      }
+    }
+  }
 
   @override
-  void onPlay() => Qudio.play();
+  void onPause() {
+    if (Qudio.playbackStatus.playbackState == QudioPlaybackState.STATE_READY) {
+      Qudio.pause();
+    }
+  }
 
   @override
-  void onFastForward() => Qudio.fastForward(15000);
+  void onPlay() {
+    if (Qudio.playbackStatus.playbackState == QudioPlaybackState.STATE_READY) {
+      Qudio.play();
+    }
+  }
 
   @override
-  void onRewind() => Qudio.rewind(15000);
+  void onFastForward() {
+    if (Qudio.playbackStatus.playbackState == QudioPlaybackState.STATE_READY) {
+      Qudio.fastForward(15000);
+    }
+  }
+
+  @override
+  void onRewind() {
+    if (Qudio.playbackStatus.playbackState == QudioPlaybackState.STATE_READY) {
+      Qudio.rewind(15000);
+    }
+  }
 
   @override
   void onSkipToNext() => newSong(true);
