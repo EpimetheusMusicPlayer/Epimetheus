@@ -29,6 +29,7 @@ Future<void> launchMusicProvider(User user, MusicProvider musicProvider) async {
   await AudioService.start(
     backgroundTaskEntrypoint: audioTaskEntryPoint,
     enableQueue: true,
+    androidNotificationIcon: 'mipmap/ic_launcher_foreground',
     androidNotificationChannelName: 'Media',
     androidNotificationChannelDescription: 'Media information and controls',
     androidNotificationOngoing: true,
