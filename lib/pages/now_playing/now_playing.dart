@@ -28,6 +28,10 @@ class MediaControlBar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
           const IconButton(
+            icon: const Icon(Icons.stop),
+            onPressed: AudioService.stop,
+          ),
+          const IconButton(
             icon: const Icon(Icons.fast_rewind),
             onPressed: AudioService.rewind,
           ),
