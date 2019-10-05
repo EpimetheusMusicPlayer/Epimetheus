@@ -33,6 +33,7 @@ Future<void> launchMusicProvider(User user, MusicProvider musicProvider) async {
     androidNotificationChannelDescription: 'Media information and controls',
     androidNotificationOngoing: true,
   );
+  AudioService.disconnect();
   IsolateNameServer.lookupPortByName('audio_task').send(
     _AudioTaskPayload(
       user: user,
@@ -42,9 +43,7 @@ Future<void> launchMusicProvider(User user, MusicProvider musicProvider) async {
   );
 }
 
-void audioTaskEntryPoint() {
-  AudioServiceBackground.run(() => EpimetheusAudioTask());
-}
+void audioTaskEntryPoint() => AudioServiceBackground.run(() => EpimetheusAudioTask());
 
 class EpimetheusAudioTask extends BackgroundAudioTask {
   Completer<void> serviceCompleter = Completer<void>();
@@ -67,7 +66,6 @@ class EpimetheusAudioTask extends BackgroundAudioTask {
   ];
 
   EpimetheusAudioTask() {
-    print('Contructing');
     IsolateNameServer.registerPortWithName(receivePort.sendPort, 'audio_task');
 
     receivePort.listen((payload) async {

@@ -2,6 +2,7 @@ import 'package:epimetheus/models/collection/collection.dart';
 import 'package:epimetheus/models/user/user.dart';
 import 'package:epimetheus/pages/authentication/authentication_page.dart';
 import 'package:epimetheus/pages/collection/collection_page.dart';
+import 'package:epimetheus/pages/now_playing/now_playing.dart';
 import 'package:epimetheus/pages/signin/signin_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -97,6 +98,7 @@ class _EpimetheusState extends State<Epimetheus> {
           routes: {
             '/': (context) => startingPage,
             '/collection': (context) => CollectionPage(),
+            '/now-playing': (context) => NowPlayingPage(),
           },
           onGenerateRoute: generateRoute,
         ),
