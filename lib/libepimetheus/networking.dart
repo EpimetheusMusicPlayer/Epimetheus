@@ -2,16 +2,18 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:http/io_client.dart' as http;
+import 'package:http/http.dart';
+import 'package:http/io_client.dart';
 
 import './authentication.dart';
 import './exceptions.dart';
 
 String csrfToken;
-final _proxyClient = http.IOClient(
+final _proxyClient = IOClient(
   HttpClient()..findProxy = (uri) => uri.host.contains('pandora.com') ? 'PROXY 173.249.43.105:3128' : 'DIRECT',
 );
+
+BaseClient client = IOClient();
 
 /// Make a Pandora API request.
 Future<Map<String, dynamic>> makeApiRequest({
@@ -21,13 +23,9 @@ Future<Map<String, dynamic>> makeApiRequest({
   bool useProxy = false,
   AuthenticatedEntity user,
 }) async {
-  final postFunction = useProxy ? _proxyClient.post : http.post;
+  final postFunction = useProxy ? _proxyClient.post : client.post;
   final Map<String, dynamic> response = jsonDecode((await postFunction(
-    Uri(
-      scheme: 'https',
-      host: 'www.pandora.com',
-      pathSegments: ['api', version] + endpoint.split('/'),
-    ),
+    'https://www.pandora.com/api/$version/$endpoint',
     encoding: Encoding.getByName('utf-8'),
     body: jsonEncode(requestData),
     headers: {
@@ -47,7 +45,7 @@ Future<Map<String, dynamic>> makeApiRequest({
 Future<String> getCsrfToken(bool useProxy) async {
   String _csrfToken;
 
-  final headFunction = useProxy ? _proxyClient.head : http.head;
+  final headFunction = useProxy ? _proxyClient.head : client.head;
 
   for (String string in (await headFunction('https://pandora.com/')).headers['set-cookie'].split(RegExp(r';|,'))) {
     if (string.startsWith('csrftoken')) {

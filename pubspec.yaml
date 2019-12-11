@@ -19,6 +19,8 @@ dependencies:
   palette_generator: ^0.2.0
   flare_flutter: ^1.5.5
   flutter_pagewise: ^1.2.3
+  flutter_flipperkit: ^0.0.20
+  flipperkit_http_interceptor: ^0.0.1
   url_launcher: ^5.1.2
   transparent_image: ^1.0.0
   flutter_cache_manager: ^1.1.1
