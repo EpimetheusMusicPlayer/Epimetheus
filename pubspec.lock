@@ -28,7 +28,7 @@ packages:
       name: audio_service
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.4.2"
+    version: "0.5.4"
   boolean_selector:
     dependency: transitive
     description:
@@ -132,6 +132,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.0.20"
+  flutter_isolate:
+    dependency: transitive
+    description:
+      name: flutter_isolate
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.0+10"
   flutter_pagewise:
     dependency: "direct main"
     description:
@@ -200,13 +207,6 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
-  paging:
-    dependency: "direct main"
-    description:
-      path: paging
-      relative: true
-    source: path
-    version: "0.1.0"
   palette_generator:
     dependency: "direct main"
     description:
