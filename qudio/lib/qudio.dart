@@ -6,17 +6,17 @@ const MethodChannel _channel = const MethodChannel('tk.hacker1024.qudio');
 
 enum QudioPlaybackState {
   /// The player does not have any media to play.
-  STATE_IDLE,
+  idle,
 
   /// The player is not able to immediately play from its current position.
   /// This state typically occurs when more data needs to be loaded.
-  STATE_BUFFERING,
+  buffering,
 
   /// The player is able to immediately play from its current position.
-  STATE_READY,
+  ready,
 
   /// The player has finished playing the media.
-  STATE_ENDED,
+  ended,
 }
 
 class QudioPlaybackStatus {
@@ -28,19 +28,19 @@ class QudioPlaybackStatus {
 
 enum PositionDiscontinuityReason {
   /// A queue item finished.
-  DISCONTINUITY_REASON_PERIOD_TRANSITION,
+  periodTransition,
 
   /// The player skipped to a new queue item.
-  DISCONTINUITY_REASON_SEEK,
+  seek,
 
   /// The player skipped to a new queue item.
-  DISCONTINUITY_REASON_SEEK_ADJUSTMENT,
+  seekAdjustment,
 
   /// An ad was inserted. Not supported by this plugin.
-  DISCONTINUITY_REASON_AD_INSERTION,
+  adInsertion,
 
   /// Discontinuity introduced internally by the queue source.
-  DISCONTINUITY_REASON_INTERNAL,
+  internal,
 }
 
 class Qudio {

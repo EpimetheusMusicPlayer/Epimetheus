@@ -9,6 +9,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
   FlutterSecureStorage storage = FlutterSecureStorage();
   runApp(
     Epimetheus(

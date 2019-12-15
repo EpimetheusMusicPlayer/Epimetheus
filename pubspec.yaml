@@ -15,6 +15,7 @@ dependencies:
   connectivity: ^0.4.5+3
   flutter_secure_storage: ^3.3.1+1
   audio_service: ^0.5.4
+  just_audio: ^0.0.2
   qudio:
     path: './qudio'
   palette_generator: ^0.2.0
@@ -22,8 +23,6 @@ dependencies:
   flutter_pagewise: ^1.2.3
   paginator:
     path: './paginator'
-  flutter_flipperkit: ^0.0.20
-  flipperkit_http_interceptor: ^0.0.1
   url_launcher: ^5.1.2
   transparent_image: ^1.0.0
   flutter_cache_manager: ^1.1.1

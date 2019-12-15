@@ -73,3 +73,5 @@
 ios/Flutter/flutter_export_environment\.sh
 
 local.properties
+
+.flutter-plugins-dependencies
