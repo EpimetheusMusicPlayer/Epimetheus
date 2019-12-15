@@ -1,4 +1,4 @@
-import 'package:epimetheus/libepimetheus/pandora_entity.dart';
+import 'package:epimetheus/libepimetheus/structures/pandora_entity.dart';
 
 class ArtItem extends PandoraEntity {
   final Map<int, String> artUrls;
@@ -18,6 +18,7 @@ class ArtItem extends PandoraEntity {
       return artUrls[sortedKeys.last];
     } else {
       return 'https://www.pandora.com/web-version/1.25.1/images/album_500.png';
+//      return 'https://www.pandora.com/web-client-assets/images/album_640.95e90f3a2ec9c70e2b0f6b7082be38f0.png';
     }
   }
 }

@@ -27,7 +27,7 @@ class CollectionModel extends Model {
 
   CollectionModel() {
     _stationCollectionProvider = StationCollectionProvider(notifyListeners, _cacheManager);
-    _trackCollectionProvider = TrackCollectionProvider(notifyListeners, _cacheManager);
+    _trackCollectionProvider = TrackCollectionProvider(_cacheManager);
   }
 
   static CollectionModel of(BuildContext context) => ScopedModel.of<CollectionModel>(context);

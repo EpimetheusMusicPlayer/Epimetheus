@@ -2,7 +2,7 @@ import 'package:epimetheus/libepimetheus/songs.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
-import './art_item.dart';
+import 'structures/art_item.dart';
 import './authentication.dart';
 import './networking.dart';
 

@@ -1,5 +1,5 @@
 import 'package:audio_service/audio_service.dart';
-import 'package:epimetheus/libepimetheus/art_item.dart';
+import 'package:epimetheus/libepimetheus/structures/art_item.dart';
 import 'package:epimetheus/libepimetheus/networking.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
@@ -60,6 +60,11 @@ class Track extends ArtItem {
             500: 'https://content-images.p-cdn.com/${annotationJSON['icon']['thorId']}',
           },
         );
+
+  @override
+  String toString() {
+    return '$title by $artistTitle ($albumTitle)';
+  }
 }
 
 Future<List<Track>> getTracks({
@@ -69,19 +74,22 @@ Future<List<Track>> getTracks({
   int pageSize = 24,
 }) async {
   final trackListJSON = await makeApiRequest(
-    version: 'v5',
-    endpoint: 'collections/getSortedTracks',
+    version: 'v6',
+    endpoint: 'collections/getSortedByTypes',
     requestData: {
       'request': {
         'sortOrder': sortOrder == TrackSortOrder.alpha ? 'ALPHA' : 'MOST_RECENT_ADDED',
         'offset': offset,
         'limit': pageSize,
         'annotationLimit': pageSize,
+        'typePrefixes': const ['TR'],
       },
     },
     useProxy: user.useProxy,
     user: user,
   );
+
+  if (!trackListJSON.containsKey('items')) return const [];
 
   final tracksJSON = trackListJSON['items'];
   final annotationsJSON = trackListJSON['annotations'];

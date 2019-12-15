@@ -1,8 +1,8 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:epimetheus/libepimetheus/authentication.dart';
 import 'package:epimetheus/libepimetheus/exceptions.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 abstract class CollectionProvider<T> {
@@ -40,6 +40,7 @@ abstract class CollectionProvider<T> {
 
       try {
         _collection = await getData(user);
+        cacheData(_collection, _cacheManager);
       } on SocketException {
         onError();
         return;
@@ -47,8 +48,6 @@ abstract class CollectionProvider<T> {
         onError();
         return;
       }
-
-      cacheData(_collection, _cacheManager);
 
       _downloading = false;
       _notifyListeners();

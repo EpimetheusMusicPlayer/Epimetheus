@@ -1,27 +1,25 @@
-import 'dart:ui';
-
 import 'package:epimetheus/libepimetheus/authentication.dart';
 import 'package:epimetheus/libepimetheus/songs.dart';
-import 'package:epimetheus/models/collection/collection_provider.dart';
+import 'package:epimetheus/models/collection/paged_collection_provider.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
-class TrackCollectionProvider extends CollectionProvider<Track> {
+class TrackCollectionProvider extends PagedCollectionProvider<Track> {
   TrackCollectionProvider(
-    VoidCallback notifyListeners,
     BaseCacheManager cacheManager,
-  ) : super(notifyListeners, cacheManager, 'There was an error fetching your songs.');
+  ) : super(24, cacheManager, 'There was an error fetching your songs.');
 
   @override
-  Future<List<Track>> getData(User user) {
+  Future<List<Track>> getPage(User user, int offset, int pageSize) {
     return getTracks(
       user: user,
       sortOrder: TrackSortOrder.alpha,
-      offset: 0,
+      offset: offset,
+      pageSize: pageSize,
     );
   }
 
   @override
-  void cacheData(List<Track> tracks, BaseCacheManager cacheManager) {
+  void cachePage(List<Track> tracks, BaseCacheManager cacheManager) {
     for (Track track in tracks) {
       cacheManager.downloadFile(track.getArtUrl(500));
     }

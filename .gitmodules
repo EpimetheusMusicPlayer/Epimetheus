@@ -1,0 +1,3 @@
+[submodule "paging"]
+	path = paging
+	url = https://github.com/hacker1024/paging_library

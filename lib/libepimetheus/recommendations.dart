@@ -1,4 +1,4 @@
-import 'package:epimetheus/libepimetheus/art_item.dart';
+import 'package:epimetheus/libepimetheus/structures/art_item.dart';
 import 'package:epimetheus/libepimetheus/artists.dart';
 import 'package:epimetheus/libepimetheus/authentication.dart';
 import 'package:epimetheus/libepimetheus/networking.dart';
