@@ -16,29 +16,48 @@ class CollectionPage extends StatelessWidget {
         drawer: const NavigationDrawer(
           currentRouteName: '/collection',
         ),
-        appBar: AppBar(
-          title: const Text('My Collection'),
-          bottom: const TabBar(
-            isScrollable: true,
-            tabs: const <Widget>[
-              const Tab(text: 'Stations', icon: const Icon(OMIcons.radio)),
-              const Tab(text: 'Playlists', icon: const Icon(OMIcons.playlistPlay)),
-              const Tab(text: 'Artists', icon: const Icon(OMIcons.person)),
-              const Tab(text: 'Albums', icon: const Icon(OMIcons.album)),
-              const Tab(text: 'Songs', icon: const Icon(OMIcons.audiotrack)),
-            ],
+        body: ScrollConfiguration(
+          behavior: const NoGlowScrollBehaviour(),
+          child: NestedScrollView(
+            headerSliverBuilder: (context, innerBoxIsScrolled) {
+              return <Widget>[
+                const SliverAppBar(
+                  title: const Text('My Collection'),
+                  pinned: true,
+                  floating: true,
+                  forceElevated: true,
+                  bottom: const TabBar(
+                    isScrollable: true,
+                    tabs: const <Widget>[
+                      const Tab(text: 'Stations', icon: const Icon(OMIcons.radio)),
+                      const Tab(text: 'Playlists', icon: const Icon(OMIcons.playlistPlay)),
+                      const Tab(text: 'Artists', icon: const Icon(OMIcons.person)),
+                      const Tab(text: 'Albums', icon: const Icon(OMIcons.album)),
+                      const Tab(text: 'Songs', icon: const Icon(OMIcons.audiotrack)),
+                    ],
+                  ),
+                ),
+              ];
+            },
+            body: TabBarView(
+              children: <Widget>[
+                StationsTab(),
+                PlaylistsTab(),
+                ArtistsTab(),
+                AlbumsTab(),
+                TracksTab(),
+              ],
+            ),
           ),
-        ),
-        body: TabBarView(
-          children: <Widget>[
-            StationsTab(),
-            PlaylistsTab(),
-            ArtistsTab(),
-            AlbumsTab(),
-            TracksTab(),
-          ],
         ),
       ),
     );
   }
+}
+
+class NoGlowScrollBehaviour extends ScrollBehavior {
+  const NoGlowScrollBehaviour();
+
+  @override
+  Widget buildViewportChrome(BuildContext context, Widget child, AxisDirection axisDirection) => child;
 }
