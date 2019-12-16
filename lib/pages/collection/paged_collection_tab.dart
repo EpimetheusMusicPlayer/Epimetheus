@@ -1,8 +1,6 @@
-import 'package:epimetheus/models/collection/collection.dart';
 import 'package:epimetheus/models/collection/paged_collection_provider.dart';
 import 'package:epimetheus/models/user/user.dart';
 import 'package:flutter/material.dart';
-import 'package:scoped_model/scoped_model.dart';
 import 'package:paginator/paginator.dart';
 
 abstract class PagedCollectionTab<T> extends StatefulWidget {

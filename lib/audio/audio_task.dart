@@ -74,17 +74,17 @@ class EpimetheusAudioTask extends BackgroundAudioTask {
       switch (newPlaybackState) {
         case BasicPlaybackState.paused:
           togglePlayPauseControl(true);
-          updateBasicPlaybackState(newPlaybackState);
+          updatePlaybackState(newPlaybackState);
           break;
 
         case BasicPlaybackState.playing:
           togglePlayPauseControl(false);
-          updateBasicPlaybackState(newPlaybackState);
+          updatePlaybackState(newPlaybackState);
           break;
 
         case BasicPlaybackState.buffering:
           togglePlayPauseControl(false);
-          updateBasicPlaybackState(newPlaybackState);
+          updatePlaybackState(newPlaybackState);
           break;
 
         case BasicPlaybackState.none:
@@ -108,19 +108,37 @@ class EpimetheusAudioTask extends BackgroundAudioTask {
       }
     }
 
-    void onSongAdvancement(int newQueueSize) {
-      musicProvider.skipTo(musicProvider.count - newQueueSize);
-      updateCurrentPlaybackInfo();
+    // Called when the player advances to a new song
+    void onSongAdvancement(int newQueueSize) async {
+      final count = musicProvider.count;
+
+      // Load more songs, and wait till they're loaded as there are no more loaded songs to play
+      if (newQueueSize == 0) await load(true);
+
+      // Load more songs asynchronously when there are just two loaded songs left so there's not
+      // a long wait to play the next batch of songs.
+      if (newQueueSize == 2) load(false);
+
+      musicProvider.skipTo(count - newQueueSize);
+      updateCurrentMediaInfo(true);
     }
 
+    // Called when the duration of the playing song may have changed
+    void onDurationChange(int duration) {
+      updateCurrentMediaInfo(false);
+    }
+
+    // Called when the player encounters an error (most likely due to network connectivity)
     void onError() {
       onStop();
     }
 
+    // Instantiate the appropriate player depending on the platform
     if (Platform.isAndroid)
       player = AndroidPlayer(
         onPlaybackStateChange: onPlaybackStateChange,
         onSongAdvancement: onSongAdvancement,
+        onDurationChange: onDurationChange,
         onError: onError,
         onSeek: () {},
       );
@@ -128,18 +146,25 @@ class EpimetheusAudioTask extends BackgroundAudioTask {
       player = iOSPlayer(
         onPlaybackStateChange: onPlaybackStateChange,
         onSongAdvancement: onSongAdvancement,
+        onDurationChange: onDurationChange,
         onError: onError,
         onSeek: () {},
       );
     else
       throw Exception('Unsupported platform!');
 
+    // Wait for the music provider to be sent to the service isolate
     receivePort.listen((payload) async {
       if (payload is _AudioTaskPayload) {
+        // Set the user to authenticate load requests
         user = payload.user;
+
+        // Copy the csrfToken so it's faster to make the first network request
         csrfToken = payload.csrfToken;
 
+        // Check that the given music provider isn't already playing
         if (musicProvider != payload.musicProvider) {
+          // Show a loading notification
           AudioServiceBackground.setMediaItem(
             const MediaItem(
               id: 'loading',
@@ -153,20 +178,27 @@ class EpimetheusAudioTask extends BackgroundAudioTask {
             ),
           );
 
+          // Stop the player to play the new media
           player.stop();
 
+          // Change the playback states and notification play/pause button
           togglePlayPauseControl(false);
-          updateBasicPlaybackState(BasicPlaybackState.buffering);
+          updatePlaybackState(BasicPlaybackState.buffering);
 
+          // Set the new music provider
           musicProvider = payload.musicProvider;
 
-          await load();
-          updateCurrentPlaybackInfo();
+          // Load the first songs, and start media playback
+          await load(true);
+
+          // Update the media metadata
+          updateCurrentMediaInfo(true);
         }
       }
     });
   }
 
+  // A function to toggle the play/pause button in the media notification controls.
   void togglePlayPauseControl(bool paused) {
     mediaControls[2] = paused
         ? const MediaControl(
@@ -181,12 +213,13 @@ class EpimetheusAudioTask extends BackgroundAudioTask {
           );
   }
 
-  Future<void> updateBasicPlaybackState(BasicPlaybackState basicPlaybackState) async {
+  // A function to update the playback state, used by the system.
+  Future<void> updatePlaybackState(BasicPlaybackState basicPlaybackState) async {
     return AudioServiceBackground.setState(
       controls: mediaControls,
       androidCompactActions: const <int>[2, 3, 4],
       basicState: basicPlaybackState,
-      position: (await player.getPosition()) ?? 0,
+      position: await player.getPosition(),
       updateTime: DateTime.now().millisecondsSinceEpoch,
       speed: 1,
     );
@@ -194,10 +227,14 @@ class EpimetheusAudioTask extends BackgroundAudioTask {
 
   @override
   Future<void> onStart() {
+    // Initialise the audio player
     player.init();
+
+    // Return a future to be completed when ending the service
     return serviceCompleter.future;
   }
 
+  // Handle button presses from bluetooth or wired devices.
   @override
   void onClick(MediaButton button) {
     switch (button) {
@@ -243,21 +280,56 @@ class EpimetheusAudioTask extends BackgroundAudioTask {
 
   @override
   void onStop() async {
+    // Shut down the nameserver port used to receive music providers
     IsolateNameServer.removePortNameMapping('audio_task');
+
+    // Stop and dispose the player
     player.stop();
     player.dispose();
-    await updateBasicPlaybackState(BasicPlaybackState.stopped);
+
+    // Update the playback state to indicate that the service is stopped
+    await updatePlaybackState(BasicPlaybackState.stopped);
+
+    // Complete the [serviceCompleter] future to end the service
     serviceCompleter.complete();
   }
 
-  Future<void> load() async {
+  // A function to load media URLs from the music provider.
+  Future<void> load(bool firstLoad) async {
     final List<String> urls = await musicProvider.load(user);
-    player.addAllToQueue(urls, musicProvider.queue.length <= urls.length);
+    player.addAllToQueue(urls, firstLoad);
   }
 
-  void updateCurrentPlaybackInfo() {
-    AudioServiceBackground.setMediaItem(musicProvider.currentMediaItem);
-    AudioServiceBackground.setQueue(musicProvider.queue);
-    updateBasicPlaybackState(AudioServiceBackground.state.basicState);
+  // A function to update the media metadata, used by the system.
+  void updateCurrentMediaInfo(bool updatePlaybackState) async {
+    // Get the media duration
+    final duration = await player.getDuration();
+
+    MediaItem mediaItem;
+    List<MediaItem> queue;
+
+    // If the media duration is known, use it.
+    if (duration == 0) {
+      mediaItem = musicProvider.currentMediaItem;
+      queue = musicProvider.queue;
+    } else {
+      // Update the current media item duration and set it.
+      mediaItem = musicProvider.currentMediaItem.withDuration(duration);
+      AudioServiceBackground.setMediaItem(mediaItem);
+
+      // Update the queue with the new media item and set it.
+      queue = musicProvider.queue;
+      queue[0] = mediaItem;
+      AudioServiceBackground.setQueue(queue);
+    }
+
+    // Set metadata for the playing media
+    AudioServiceBackground.setMediaItem(mediaItem);
+
+    // Set the queue, used by Android Auto and some custom ROMs
+    AudioServiceBackground.setQueue(queue);
+
+    // Update the playback state for the new position.
+    if (updatePlaybackState) this.updatePlaybackState(AudioServiceBackground.state.basicState);
   }
 }

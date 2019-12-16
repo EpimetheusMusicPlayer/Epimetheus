@@ -6,7 +6,7 @@ class MediaControlBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     assert(
-      context.ancestorWidgetOfExactType(AudioServiceDisplay) != null,
+      context.findAncestorWidgetOfExactType<AudioServiceDisplay>() != null,
       'MediaControlBar must be a descendant of AudioServiceDisplay!',
     );
 

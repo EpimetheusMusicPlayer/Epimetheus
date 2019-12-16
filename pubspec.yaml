@@ -4,7 +4,7 @@ description: The Epimethus app - an open source Pandora client for Android, with
 version: 0.1.0+1
 
 environment:
-  sdk: ">=2.2.2 <3.0.0"
+  sdk: ">=2.6.0 <3.0.0"
 
 dependencies:
   flutter:
@@ -15,9 +15,11 @@ dependencies:
   connectivity: ^0.4.5+3
   flutter_secure_storage: ^3.3.1+1
   audio_service: ^0.5.4
-  just_audio: ^0.0.2
+#  just_audio: ^0.0.2
   qudio:
     path: './qudio'
+  audio:
+    path: './flutter_audio'
   palette_generator: ^0.2.0
   flare_flutter: ^1.5.5
   flutter_pagewise: ^1.2.3

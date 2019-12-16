@@ -1,0 +1,89 @@
+PODS:
+  - audio (0.0.1):
+    - Flutter
+  - audio_service (0.0.1):
+    - Flutter
+  - connectivity (0.0.1):
+    - Flutter
+    - Reachability
+  - Flutter (1.0.0)
+  - flutter_autofill (0.0.1):
+    - Flutter
+  - flutter_isolate (0.0.1):
+    - Flutter
+  - flutter_secure_storage (3.3.1):
+    - Flutter
+  - FMDB (2.7.5):
+    - FMDB/standard (= 2.7.5)
+  - FMDB/standard (2.7.5)
+  - path_provider (0.0.1):
+    - Flutter
+  - qudio (0.0.1):
+    - Flutter
+  - Reachability (3.2)
+  - sqflite (0.0.1):
+    - Flutter
+    - FMDB (~> 2.7.2)
+  - url_launcher (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - audio (from `.symlinks/plugins/audio/ios`)
+  - audio_service (from `.symlinks/plugins/audio_service/ios`)
+  - connectivity (from `.symlinks/plugins/connectivity/ios`)
+  - Flutter (from `.symlinks/flutter/ios`)
+  - flutter_autofill (from `.symlinks/plugins/flutter_autofill/ios`)
+  - flutter_isolate (from `.symlinks/plugins/flutter_isolate/ios`)
+  - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
+  - path_provider (from `.symlinks/plugins/path_provider/ios`)
+  - qudio (from `.symlinks/plugins/qudio/ios`)
+  - sqflite (from `.symlinks/plugins/sqflite/ios`)
+  - url_launcher (from `.symlinks/plugins/url_launcher/ios`)
+
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - FMDB
+    - Reachability
+
+EXTERNAL SOURCES:
+  audio:
+    :path: ".symlinks/plugins/audio/ios"
+  audio_service:
+    :path: ".symlinks/plugins/audio_service/ios"
+  connectivity:
+    :path: ".symlinks/plugins/connectivity/ios"
+  Flutter:
+    :path: ".symlinks/flutter/ios"
+  flutter_autofill:
+    :path: ".symlinks/plugins/flutter_autofill/ios"
+  flutter_isolate:
+    :path: ".symlinks/plugins/flutter_isolate/ios"
+  flutter_secure_storage:
+    :path: ".symlinks/plugins/flutter_secure_storage/ios"
+  path_provider:
+    :path: ".symlinks/plugins/path_provider/ios"
+  qudio:
+    :path: ".symlinks/plugins/qudio/ios"
+  sqflite:
+    :path: ".symlinks/plugins/sqflite/ios"
+  url_launcher:
+    :path: ".symlinks/plugins/url_launcher/ios"
+
+SPEC CHECKSUMS:
+  audio: 6248a8deab3e7b361aed465b1568bac4515b174a
+  audio_service: f509d65da41b9521a61f1c404dd58651f265a567
+  connectivity: 6e94255659cc86dcbef1d452ad3e0491bb1b3e75
+  Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+  flutter_autofill: df14ca5637577d959f15006cc1e10757854f4e36
+  flutter_isolate: 0edf5081826d071adf21759d1eb10ff5c24503b5
+  flutter_secure_storage: 7953c38a04c3fdbb00571bcd87d8e3b5ceb9daec
+  FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
+  path_provider: fb74bd0465e96b594bb3b5088ee4a4e7bb1f2a9d
+  qudio: a6eaebcc8413a569f612ba26f11ee2a603f68009
+  Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
+  sqflite: ff1d9da63c06588cc8d1faf7256d741f16989d5a
+  url_launcher: a1c0cc845906122c4784c542523d8cacbded5626
+
+PODFILE CHECKSUM: ed542e2e4b029850b30b34623ee96a04ca42588e
+
+COCOAPODS: 1.7.5

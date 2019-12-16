@@ -66,3 +66,22 @@ abstract class MusicProvider {
       return false;
   }
 }
+
+extension MediaItemUtils on MediaItem {
+  MediaItem withDuration(int duration) {
+    return MediaItem(
+      id: id,
+      title: title,
+      artist: artist,
+      album: album,
+      displayTitle: displayTitle,
+      displaySubtitle: displaySubtitle,
+      displayDescription: displayDescription,
+      artUri: artUri,
+      genre: genre,
+      playable: playable,
+      rating: rating,
+      duration: duration,
+    );
+  }
+}
