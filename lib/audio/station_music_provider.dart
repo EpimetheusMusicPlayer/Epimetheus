@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:audio_service/audio_service.dart';
 import 'package:epimetheus/art_constants.dart';
 import 'package:epimetheus/audio/music_provider.dart';
@@ -5,12 +7,14 @@ import 'package:epimetheus/libepimetheus/authentication.dart';
 import 'package:epimetheus/libepimetheus/songs.dart';
 import 'package:epimetheus/libepimetheus/stations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 class StationMusicProvider extends MusicProvider {
   final List<Station> _stations;
   final int _stationIndex;
 
   final List<Song> _songs = List<Song>();
+  BaseCacheManager _cacheManager;
 
   StationMusicProvider(this._stations, this._stationIndex);
 
@@ -100,9 +104,18 @@ class StationMusicProvider extends MusicProvider {
     try {
       List<Song> newSongs = await _stations[_stationIndex].getPlaylistFragment(user);
       _songs.addAll(newSongs);
+
+      // Cache the album art
+      for (Song song in newSongs) {
+        (_cacheManager ??= DefaultCacheManager()).downloadFile(song.getArtUrl(serviceArtSize)).catchError(
+              (error) {},
+              test: (error) => error is HttpException || error is SocketException,
+            );
+      }
+
       return newSongs.map<String>((Song song) => song.audioUrl).toList(growable: false);
     } catch (error) {
-      return null;
+      return null; // TODO handle errors
     }
   }
 
