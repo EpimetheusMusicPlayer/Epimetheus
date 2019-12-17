@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:epimetheus/libepimetheus/authentication.dart';
@@ -30,7 +31,14 @@ class StationCollectionProvider extends CollectionProvider<Station> {
   @override
   void cacheData(List<Station> stations, BaseCacheManager cacheManager) {
     for (Station station in stations) {
-      cacheManager.downloadFile(station.getArtUrl(500));
+      cacheManager
+          .downloadFile(
+            station.getArtUrl(500),
+          )
+          .catchError(
+            (error) {},
+            test: (error) => error is HttpException || error is SocketException,
+          );
     }
   }
 }

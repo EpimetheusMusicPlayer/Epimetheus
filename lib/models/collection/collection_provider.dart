@@ -40,14 +40,18 @@ abstract class CollectionProvider<T> {
 
       try {
         _collection = await getData(user);
-        cacheData(_collection, _cacheManager);
       } on SocketException {
+        onError();
+        return;
+      } on HttpException {
         onError();
         return;
       } on PandoraException {
         onError();
         return;
       }
+
+      cacheData(_collection, _cacheManager);
 
       _downloading = false;
       _notifyListeners();
