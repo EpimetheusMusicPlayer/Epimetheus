@@ -24,6 +24,9 @@ class StationMusicProvider extends MusicProvider {
   }
 
   @override
+  BaseCacheManager get cacheManager => _cacheManager;
+
+  @override
   String get id => _stations[_stationIndex].stationId;
 
   @override
@@ -37,38 +40,46 @@ class StationMusicProvider extends MusicProvider {
 
   @override
   List<MediaItem> get queue {
-    return [
-      for (int i = 0; i < _songs.length; i++)
+    final List<MediaItem> queue = [];
+    for (int i = 0; i < _songs.length; i++) {
+      final artUrl = _songs[i].getArtUrl(serviceArtSize);
+
+      queue.add(
         MediaItem(
           id: _songs[i].pandoraId,
           title: _songs[i].title,
           artist: _songs[i].artistTitle,
           album: _songs[i].albumTitle,
-          artUri: _songs[i].getArtUrl(serviceArtSize),
+          artUri: artUrl,
           displayTitle: _songs[i].title,
           displaySubtitle: '${_songs[i].artistTitle} - ${_songs[i].albumTitle}',
           displayDescription: title,
           playable: true,
           rating: _songs[i].rating,
-          genre: _songs[i].pendingRating.isRated() ? _songs[i].pendingRating.isThumbUp().toString() : 'null',
+          genre: artUrl + '|' + (_songs[i].pendingRating.isRated() ? _songs[i].pendingRating.isThumbUp().toString() : 'null'),
         ),
-    ];
+      );
+    }
+
+    return queue;
   }
 
   @override
   MediaItem get currentMediaItem {
+    final artUrl = _songs[0].getArtUrl(serviceArtSize);
+
     return MediaItem(
       id: _songs[0].pandoraId,
       title: _songs[0].title,
       artist: _songs[0].artistTitle,
       album: _songs[0].albumTitle,
-      artUri: _songs[0].getArtUrl(serviceArtSize),
+      artUri: artUrl,
       displayTitle: _songs[0].title,
       displaySubtitle: '${_songs[0].artistTitle} - ${_songs[0].albumTitle}',
       displayDescription: '$title',
       playable: true,
       rating: _songs[0].rating,
-      genre: _songs[0].pendingRating.isRated() ? _songs[0].pendingRating.isThumbUp().toString() : 'null',
+      genre: artUrl + '|' + (_songs[0].pendingRating.isRated() ? _songs[0].pendingRating.isThumbUp().toString() : 'null'),
     );
   }
 

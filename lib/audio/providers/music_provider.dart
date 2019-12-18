@@ -1,6 +1,7 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:epimetheus/libepimetheus/authentication.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 class MusicProviderAction {
   final IconData iconData;
@@ -17,6 +18,9 @@ class MusicProviderAction {
 abstract class MusicProvider {
   /// Called when the MusicProvider is received in the isolate.
   void init();
+
+  /// Returns the cache manager, if the provider has one.
+  BaseCacheManager get cacheManager;
 
   /// A unique id for the MusicProvider.
   String get id;
@@ -71,20 +75,5 @@ abstract class MusicProvider {
 }
 
 extension MediaItemUtils on MediaItem {
-  MediaItem withDuration(int duration) {
-    return MediaItem(
-      id: id,
-      title: title,
-      artist: artist,
-      album: album,
-      displayTitle: displayTitle,
-      displaySubtitle: displaySubtitle,
-      displayDescription: displayDescription,
-      artUri: artUri,
-      genre: genre,
-      playable: playable,
-      rating: rating,
-      duration: duration,
-    );
-  }
+  String getOnlineUrl() => genre.split('|')[0];
 }

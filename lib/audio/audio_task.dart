@@ -316,21 +316,44 @@ class EpimetheusAudioTask extends BackgroundAudioTask {
     // Get the media duration
     final duration = await player.getDuration();
 
-    MediaItem mediaItem;
-    List<MediaItem> queue;
+//    MediaItem mediaItem;
+//    List<MediaItem> queue;
+//
+//    // If the media duration is known, use it.
+//    if (duration == 0) {
+//      mediaItem = musicProvider.currentMediaItem;
+//      queue = musicProvider.queue;
+//    } else {
+//      // Update the current media item duration and set it.
+//      mediaItem = musicProvider.currentMediaItem.withDuration(duration);
+//
+//      // Update the queue with the new media item and set it.
+//      queue = musicProvider.queue;
+//      queue[0] = mediaItem;
+//    }
 
-    // If the media duration is known, use it.
-    if (duration == 0) {
-      mediaItem = musicProvider.currentMediaItem;
-      queue = musicProvider.queue;
-    } else {
-      // Update the current media item duration and set it.
-      mediaItem = musicProvider.currentMediaItem.withDuration(duration);
+    MediaItem mediaItem = musicProvider.currentMediaItem;
+    List<MediaItem> queue = musicProvider.queue;
 
-      // Update the queue with the new media item and set it.
-      queue = musicProvider.queue;
-      queue[0] = mediaItem;
+    Future<String> getArtUri() async {
+      // Get the cached file info
+      final cachedFileInfo = (await musicProvider.cacheManager?.getFileFromCache(mediaItem.artUri));
+
+      // If it doesn't exist, use the online URL
+      if (cachedFileInfo == null) return mediaItem.artUri;
+
+      print('USING LOCAL ART URI: file://${cachedFileInfo.file.path}');
+
+      // Return the local art URI
+      return 'file://${cachedFileInfo.file.path}';
     }
+
+    mediaItem = musicProvider.currentMediaItem.copyWith(
+      duration: duration == 0 ? null : duration,
+      artUri: await getArtUri(),
+    );
+
+    queue[0] = mediaItem;
 
     // Set metadata for the playing media
     AudioServiceBackground.setMediaItem(mediaItem);

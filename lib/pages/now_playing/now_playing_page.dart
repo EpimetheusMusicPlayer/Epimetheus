@@ -3,8 +3,6 @@ import 'package:epimetheus/models/color/color_model.dart';
 import 'package:epimetheus/pages/navigation_drawer.dart';
 import 'package:epimetheus/pages/now_playing/now_playing_content.dart';
 import 'package:flutter/material.dart';
-import 'package:palette_generator/palette_generator.dart';
-import 'package:scoped_model/scoped_model.dart';
 
 class NowPlayingPage extends StatefulWidget {
   @override
@@ -37,8 +35,6 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = Theme.of(context).primaryColor;
-
     return FutureBuilder<bool>(
       future: AudioService.running,
       builder: (context, runningSnapshot) {
