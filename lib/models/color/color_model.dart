@@ -24,9 +24,7 @@ class ColorModel extends Model {
       // This isn't a huge issue, as they'll be cleared when the queue next updates.
       if (queue == null || queue.isEmpty) {
         paletteGenerators.clear();
-        setBackgroundColor(null).then((_) {
-          _setReadableForegroundColor();
-        });
+        setBackgroundColor(null);
         return;
       }
 
@@ -51,9 +49,7 @@ class ColorModel extends Model {
         }
       }
 
-      setBackgroundColor(queue[0].artUri).then((_) {
-        _setReadableForegroundColor();
-      });
+      setBackgroundColor(queue[0].artUri);
 
       // If there are pending palette generators, they'll be added to the map after the null placeholder is removed.
       // This isn't a huge issue, as they'll be cleared when the queue next updates.
@@ -99,6 +95,8 @@ class ColorModel extends Model {
       else
         _backgroundColor = null;
     }
+
+    _setReadableForegroundColor();
 
     notifyListeners();
   }

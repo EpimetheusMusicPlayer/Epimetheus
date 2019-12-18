@@ -1,4 +1,3 @@
-import 'package:audio_service/audio_service.dart';
 import 'package:epimetheus/models/color/color_model.dart';
 import 'package:epimetheus/pages/now_playing/song_display.dart';
 import 'package:epimetheus/widgets/audio/media_control_bar.dart';
@@ -17,8 +16,7 @@ class NowPlayingContent extends StatelessWidget {
           child: Column(
             children: <Widget>[
               Expanded(
-                child: SongDisplay(
-                ),
+                child: SongDisplay(),
               ),
               MediaControlBar(),
             ],

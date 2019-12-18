@@ -2,6 +2,7 @@ import 'package:audio_service/audio_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:epimetheus/models/color/color_model.dart';
 import 'package:flutter/material.dart';
+import 'package:scoped_model/scoped_model.dart';
 
 class SongDisplay extends StatefulWidget {
   @override
@@ -37,25 +38,29 @@ class _SongDisplayState extends State<SongDisplay> {
 
   @override
   Widget build(BuildContext context) {
-    final model = ColorModel.of(context, rebuildOnChange: true);
     final tiles = <Widget>[];
 
-    for (int i = 0; i < AudioService.queue.length; ++i) {
-      tiles.add(
-        _SongTile(
-          mediaItem: AudioService.queue[i],
-          selected: _selected == i,
-          foregroundColor: model.readableForegroundColor,
-        ),
-      );
-    }
+    return StreamBuilder<List<MediaItem>>(
+      stream: AudioService.queueStream,
+      initialData: AudioService.queue,
+      builder: (context, snapshot) {
+        for (int i = 0; i < snapshot.data.length; ++i) {
+          tiles.add(
+            _SongTile(
+              mediaItem: snapshot.data[i],
+              selected: _selected == i,
+            ),
+          );
+        }
 
-    return ScrollConfiguration(
-      behavior: const NoGlowScrollBehaviour(),
-      child: PageView(
-        controller: _controller,
-        children: tiles,
-      ),
+        return ScrollConfiguration(
+          behavior: const NoGlowScrollBehaviour(),
+          child: PageView(
+            controller: _controller,
+            children: tiles,
+          ),
+        );
+      },
     );
   }
 }
@@ -63,12 +68,10 @@ class _SongDisplayState extends State<SongDisplay> {
 class _SongTile extends StatelessWidget {
   final MediaItem mediaItem;
   final bool selected;
-  final Color foregroundColor;
 
   _SongTile({
     @required this.mediaItem,
     @required this.selected,
-    @required this.foregroundColor,
   });
 
   @override
@@ -91,16 +94,33 @@ class _SongTile extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 32),
-        Text(
-          mediaItem.title,
-          style: TextStyle(
-            color: foregroundColor,
-          ),
-        ),
+        _SongInfoText(mediaItem),
         const SizedBox(
           height: 200,
         )
       ],
+    );
+  }
+}
+
+class _SongInfoText extends StatelessWidget {
+  final MediaItem mediaItem;
+
+  _SongInfoText(this.mediaItem);
+
+  @override
+  Widget build(BuildContext context) {
+    return ScopedModelDescendant<ColorModel>(
+      builder: (context, child, model) {
+        return Column(children: <Widget>[
+          Text(
+            mediaItem.title,
+            style: TextStyle(
+              color: model.readableForegroundColor,
+            ),
+          ),
+        ]);
+      },
     );
   }
 }

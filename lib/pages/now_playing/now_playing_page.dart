@@ -45,41 +45,27 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
         // Don't show anything while checking id the audio service is running
         if (!runningSnapshot.hasData) return Container();
 
-        // Rebuilds when the current media item changes
-        return StreamBuilder<List<MediaItem>>(
-          stream: AudioService.queueStream,
-          builder: (context, queue) {
-            final running = runningSnapshot.data &&
-                AudioService.playbackState != null &&
-                (queue.data?.length ?? 0) > 0 &&
-                (queue.data?.elementAt(0)?.id ?? 'loading') != 'loading';
+        final running = runningSnapshot.data && AudioService.playbackState != null;
 
-            final model = ColorModel.of(context, rebuildOnChange: true);
+        final model = ColorModel.of(context, rebuildOnChange: true);
 
-            return Scaffold(
-              extendBodyBehindAppBar: true,
-              drawer: const NavigationDrawer(
-                currentRouteName: '/now-playing',
+        return Scaffold(
+          extendBodyBehindAppBar: true,
+          drawer: const NavigationDrawer(
+            currentRouteName: '/now-playing',
+          ),
+          appBar: AppBar(
+            iconTheme: IconThemeData(color: model.readableForegroundColor ?? Colors.white),
+            title: Text(
+              'Now Playing',
+              style: TextStyle(
+                color: model.readableForegroundColor,
               ),
-              appBar: AppBar(
-                iconTheme: IconThemeData(
-                  color: model.readableForegroundColor ?? Colors.white
-                ),
-                title: Text(
-                  'Now Playing',
-                  style: TextStyle(
-                    color: model.readableForegroundColor,
-                  ),
-                ),
-                backgroundColor: running ? Colors.transparent : null,
-                elevation: running ? 0 : null,
-              ),
-              body: running
-                  ? NowPlayingContent(
-                    )
-                  : _buildNothingPlayingIndicator(),
-            );
-          },
+            ),
+            backgroundColor: running ? Colors.transparent : null,
+            elevation: running ? 0 : null,
+          ),
+          body: running ? NowPlayingContent() : _buildNothingPlayingIndicator(),
         );
       },
     );
