@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:epimetheus/art_constants.dart';
-import 'package:epimetheus/audio/music_provider.dart';
+import 'package:epimetheus/audio/providers/music_provider.dart';
 import 'package:epimetheus/libepimetheus/authentication.dart';
 import 'package:epimetheus/libepimetheus/songs.dart';
 import 'package:epimetheus/libepimetheus/stations.dart';
@@ -17,6 +17,11 @@ class StationMusicProvider extends MusicProvider {
   BaseCacheManager _cacheManager;
 
   StationMusicProvider(this._stations, this._stationIndex);
+
+  @override
+  void init() {
+    _cacheManager = DefaultCacheManager();
+  }
 
   @override
   String get id => _stations[_stationIndex].stationId;
@@ -106,7 +111,6 @@ class StationMusicProvider extends MusicProvider {
       _songs.addAll(newSongs);
 
       // Cache the album art
-      if (_cacheManager == null) _cacheManager = DefaultCacheManager();
       for (Song song in newSongs) {
         _cacheManager.downloadFile(song.getArtUrl(serviceArtSize)).catchError(
               (error) {},

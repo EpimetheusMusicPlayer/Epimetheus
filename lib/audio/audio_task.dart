@@ -4,7 +4,7 @@ import 'dart:isolate';
 import 'dart:ui';
 
 import 'package:audio_service/audio_service.dart';
-import 'package:epimetheus/audio/music_provider.dart';
+import 'package:epimetheus/audio/providers/music_provider.dart';
 import 'package:epimetheus/audio/players/android_player.dart';
 import 'package:epimetheus/audio/players/iOS_player.dart';
 import 'package:epimetheus/audio/players/player.dart';
@@ -182,6 +182,9 @@ class EpimetheusAudioTask extends BackgroundAudioTask {
               playable: false,
             ),
           );
+
+          // Initialise the music provider.
+          payload.musicProvider.init();
 
           // Stop the player to play the new media
           player.stop();
