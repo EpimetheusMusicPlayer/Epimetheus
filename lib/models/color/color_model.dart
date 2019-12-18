@@ -13,8 +13,10 @@ class ColorModel extends Model {
   final Map<String, Future<PaletteGenerator>> _paletteGeneratorFutures = {};
 
   Color _backgroundColor;
-
   Color get backgroundColor => _backgroundColor;
+
+  Color _readableForegroundColor;
+  Color get readableForegroundColor => _readableForegroundColor;
 
   void init() {
     _queueListener = AudioService.queueStream.listen((queue) {
@@ -22,7 +24,9 @@ class ColorModel extends Model {
       // This isn't a huge issue, as they'll be cleared when the queue next updates.
       if (queue == null || queue.isEmpty) {
         paletteGenerators.clear();
-        setBackgroundColor(null);
+        setBackgroundColor(null).then((_) {
+          _setReadableForegroundColor();
+        });
         return;
       }
 
@@ -47,7 +51,9 @@ class ColorModel extends Model {
         }
       }
 
-      setBackgroundColor(queue[0].artUri);
+      setBackgroundColor(queue[0].artUri).then((_) {
+        _setReadableForegroundColor();
+      });
 
       // If there are pending palette generators, they'll be added to the map after the null placeholder is removed.
       // This isn't a huge issue, as they'll be cleared when the queue next updates.
@@ -75,7 +81,7 @@ class ColorModel extends Model {
     paletteGenerators[artUri] = await PaletteGenerator.fromImageProvider(CachedNetworkImageProvider(artUri));
   }
 
-  void setBackgroundColor(String artUri) async {
+  Future<void> setBackgroundColor(String artUri) async {
     if (artUri == null) {
       _backgroundColor = null;
     } else {
@@ -97,6 +103,11 @@ class ColorModel extends Model {
     notifyListeners();
   }
 
+  void _setReadableForegroundColor() {
+    if (_backgroundColor == null) return null;
+    _readableForegroundColor = _backgroundColor.computeLuminance() > 0.5 ? Colors.black : Colors.white;
+  }
+
   static ColorModel of(
     BuildContext context, {
     bool rebuildOnChange = false,
@@ -105,9 +116,4 @@ class ColorModel extends Model {
         context,
         rebuildOnChange: rebuildOnChange,
       );
-}
-
-Color getReadableForegroundColor(Color backgroundColor) {
-  if (backgroundColor == null) return null;
-  return backgroundColor.computeLuminance() > 0.5 ? Colors.black : Colors.white;
 }

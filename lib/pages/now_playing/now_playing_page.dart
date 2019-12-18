@@ -55,7 +55,6 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
                 (queue.data?.elementAt(0)?.id ?? 'loading') != 'loading';
 
             final model = ColorModel.of(context, rebuildOnChange: true);
-            final readableForegroundColor = getReadableForegroundColor(model.backgroundColor);
 
             return Scaffold(
               extendBodyBehindAppBar: true,
@@ -64,12 +63,12 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
               ),
               appBar: AppBar(
                 iconTheme: IconThemeData(
-                  color: readableForegroundColor ?? Colors.white
+                  color: model.readableForegroundColor ?? Colors.white
                 ),
                 title: Text(
                   'Now Playing',
                   style: TextStyle(
-                    color: readableForegroundColor,
+                    color: model.readableForegroundColor,
                   ),
                 ),
                 backgroundColor: running ? Colors.transparent : null,
@@ -77,8 +76,6 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
               ),
               body: running
                   ? NowPlayingContent(
-                      backgroundColor: model.backgroundColor,
-                      queue: queue.data,
                     )
                   : _buildNothingPlayingIndicator(),
             );

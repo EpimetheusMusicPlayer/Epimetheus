@@ -4,14 +4,6 @@ import 'package:epimetheus/models/color/color_model.dart';
 import 'package:flutter/material.dart';
 
 class SongDisplay extends StatefulWidget {
-  final List<MediaItem> queue;
-  final Color backgroundColor;
-
-  SongDisplay({
-    @required this.queue,
-    @required this.backgroundColor,
-  });
-
   @override
   _SongDisplayState createState() => _SongDisplayState();
 }
@@ -45,14 +37,15 @@ class _SongDisplayState extends State<SongDisplay> {
 
   @override
   Widget build(BuildContext context) {
+    final model = ColorModel.of(context, rebuildOnChange: true);
     final tiles = <Widget>[];
 
-    for (int i = 0; i < widget.queue.length; ++i) {
+    for (int i = 0; i < AudioService.queue.length; ++i) {
       tiles.add(
         _SongTile(
-          mediaItem: widget.queue[i],
+          mediaItem: AudioService.queue[i],
           selected: _selected == i,
-          foregroundColor: getReadableForegroundColor(widget.backgroundColor),
+          foregroundColor: model.readableForegroundColor,
         ),
       );
     }
