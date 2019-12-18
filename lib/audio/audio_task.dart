@@ -316,22 +316,6 @@ class EpimetheusAudioTask extends BackgroundAudioTask {
     // Get the media duration
     final duration = await player.getDuration();
 
-//    MediaItem mediaItem;
-//    List<MediaItem> queue;
-//
-//    // If the media duration is known, use it.
-//    if (duration == 0) {
-//      mediaItem = musicProvider.currentMediaItem;
-//      queue = musicProvider.queue;
-//    } else {
-//      // Update the current media item duration and set it.
-//      mediaItem = musicProvider.currentMediaItem.withDuration(duration);
-//
-//      // Update the queue with the new media item and set it.
-//      queue = musicProvider.queue;
-//      queue[0] = mediaItem;
-//    }
-
     MediaItem mediaItem = musicProvider.currentMediaItem;
     List<MediaItem> queue = musicProvider.queue;
 
