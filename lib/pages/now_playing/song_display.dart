@@ -58,7 +58,7 @@ class _SongDisplayState extends State<SongDisplay> {
     }
 
     return ScrollConfiguration(
-      behavior: const NoGlowScrollBehaviour(), //TODO this doesn't work for some reason
+      behavior: const NoGlowScrollBehaviour(),
       child: PageView(
         controller: _controller,
         children: tiles,
@@ -90,7 +90,7 @@ class _SongTile extends StatelessWidget {
             height: selected ? MediaQuery.of(context).size.width * 0.8 : MediaQuery.of(context).size.width * 0.75,
             child: Material(
               color: Colors.transparent,
-              elevation: selected ? 8 : 0,
+              elevation: selected ? 8 : 2,
               child: CachedNetworkImage(
                 imageUrl: mediaItem.artUri,
               ),
