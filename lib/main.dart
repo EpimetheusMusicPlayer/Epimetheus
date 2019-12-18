@@ -1,5 +1,5 @@
 import 'package:epimetheus/models/collection/collection.dart';
-import 'package:epimetheus/models/color/ColorModel.dart';
+import 'package:epimetheus/models/color/color_model.dart';
 import 'package:epimetheus/models/user/user.dart';
 import 'package:epimetheus/pages/authentication/authentication_page.dart';
 import 'package:epimetheus/pages/collection/collection_page.dart';

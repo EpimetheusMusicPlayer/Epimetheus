@@ -20,7 +20,7 @@ class ColorModel extends Model {
     _queueListener = AudioService.queueStream.listen((queue) {
       // If there are pending palette generators, they'll be added to the map after it's cleared.
       // This isn't a huge issue, as they'll be cleared when the queue next updates.
-      if (queue.isEmpty) {
+      if (queue == null || queue.isEmpty) {
         paletteGenerators.clear();
         setBackgroundColor(null);
         return;

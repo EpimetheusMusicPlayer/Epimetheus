@@ -1,5 +1,5 @@
 import 'package:audio_service/audio_service.dart';
-import 'package:epimetheus/models/color/ColorModel.dart';
+import 'package:epimetheus/models/color/color_model.dart';
 import 'package:epimetheus/pages/navigation_drawer.dart';
 import 'package:epimetheus/pages/now_playing/now_playing_content.dart';
 import 'package:flutter/material.dart';
