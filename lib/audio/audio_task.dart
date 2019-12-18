@@ -89,7 +89,6 @@ class EpimetheusAudioTask extends BackgroundAudioTask {
           break;
 
         case BasicPlaybackState.buffering:
-          togglePlayPauseControl(false);
           updatePlaybackState(newPlaybackState);
           break;
 
