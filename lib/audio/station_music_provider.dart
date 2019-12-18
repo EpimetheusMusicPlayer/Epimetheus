@@ -106,8 +106,9 @@ class StationMusicProvider extends MusicProvider {
       _songs.addAll(newSongs);
 
       // Cache the album art
+      if (_cacheManager == null) _cacheManager = DefaultCacheManager();
       for (Song song in newSongs) {
-        (_cacheManager ??= DefaultCacheManager()).downloadFile(song.getArtUrl(serviceArtSize)).catchError(
+        _cacheManager.downloadFile(song.getArtUrl(serviceArtSize)).catchError(
               (error) {},
               test: (error) => error is HttpException || error is SocketException,
             );
