@@ -24,6 +24,7 @@ class NowPlayingContent extends StatelessWidget {
               Expanded(
                 child: SongDisplay(
                   queue: queue,
+                  backgroundColor: backgroundColor,
                 ),
               ),
               MediaControlBar(),

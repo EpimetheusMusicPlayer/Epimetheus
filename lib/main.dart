@@ -1,4 +1,5 @@
 import 'package:epimetheus/models/collection/collection.dart';
+import 'package:epimetheus/models/color/ColorModel.dart';
 import 'package:epimetheus/models/user/user.dart';
 import 'package:epimetheus/pages/authentication/authentication_page.dart';
 import 'package:epimetheus/pages/collection/collection_page.dart';
@@ -37,6 +38,19 @@ class Epimetheus extends StatefulWidget {
 class _EpimetheusState extends State<Epimetheus> {
   UserModel _userModel = UserModel();
   CollectionModel _collectionModel = CollectionModel();
+  ColorModel _colorModel = ColorModel();
+
+  @override
+  initState() {
+    super.initState();
+    _colorModel.init();
+  }
+
+  @override
+  dispose() {
+    _colorModel.dispose();
+    super.dispose();
+  }
 
   Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -78,32 +92,37 @@ class _EpimetheusState extends State<Epimetheus> {
       );
     }
 
-    return ScopedModel<UserModel>(
-      model: _userModel,
-      child: ScopedModel<CollectionModel>(
-        model: _collectionModel,
-        child: MaterialApp(
-          theme: ThemeData(
-            primaryColor: const Color(0xFF332B57),
-            accentColor: const Color(0xFFb700c8),
-            pageTransitionsTheme: const PageTransitionsTheme(
-              builders: const {
-                TargetPlatform.android: const OpenUpwardsPageTransitionsBuilder(),
-                TargetPlatform.iOS: const OpenUpwardsPageTransitionsBuilder(),
-                TargetPlatform.fuchsia: const OpenUpwardsPageTransitionsBuilder(),
+    return AudioServiceDisplay(
+      child: ScopedModel<UserModel>(
+        model: _userModel,
+        child: ScopedModel<CollectionModel>(
+          model: _collectionModel,
+          child: ScopedModel<ColorModel>(
+            model: _colorModel,
+            child: MaterialApp(
+              theme: ThemeData(
+                primaryColor: const Color(0xFF332B57),
+                accentColor: const Color(0xFFb700c8),
+                pageTransitionsTheme: const PageTransitionsTheme(
+                  builders: const {
+                    TargetPlatform.android: const OpenUpwardsPageTransitionsBuilder(),
+                    TargetPlatform.iOS: const OpenUpwardsPageTransitionsBuilder(),
+                    TargetPlatform.fuchsia: const OpenUpwardsPageTransitionsBuilder(),
+                  },
+                ),
+                buttonTheme: const ButtonThemeData(
+                  buttonColor: const Color(0xFF332B57),
+                  textTheme: ButtonTextTheme.primary,
+                ),
+              ),
+              routes: {
+                '/': (context) => startingPage,
+                '/collection': (context) => CollectionPage(),
+                '/now-playing': (context) => NowPlayingPage(),
               },
-            ),
-            buttonTheme: const ButtonThemeData(
-              buttonColor: const Color(0xFF332B57),
-              textTheme: ButtonTextTheme.primary,
+              onGenerateRoute: generateRoute,
             ),
           ),
-          routes: {
-            '/': (context) => startingPage,
-            '/collection': (context) => CollectionPage(),
-            '/now-playing': (context) => NowPlayingPage(),
-          },
-          onGenerateRoute: generateRoute,
         ),
       ),
     );

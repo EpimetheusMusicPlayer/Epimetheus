@@ -26,9 +26,13 @@ class _AudioTaskPayload {
 
 // Only to be invoked from the UI isolate.
 Future<void> launchMusicProvider(User user, MusicProvider musicProvider) async {
+  final wasConnected = AudioService.connected;
+
   assert(user != null, 'User is null!');
   assert(musicProvider != null, 'MusicProvider is null!');
-  await AudioService.connect();
+
+  if (!wasConnected) await AudioService.connect();
+
   await AudioService.start(
     backgroundTaskEntrypoint: audioTaskEntryPoint,
     enableQueue: true,
@@ -37,7 +41,9 @@ Future<void> launchMusicProvider(User user, MusicProvider musicProvider) async {
     androidNotificationChannelDescription: 'Media information and controls',
     androidNotificationOngoing: true,
   );
-  AudioService.disconnect();
+
+  if (!wasConnected) AudioService.disconnect();
+
   IsolateNameServer.lookupPortByName('audio_task').send(
     _AudioTaskPayload(
       user: user,
@@ -315,12 +321,10 @@ class EpimetheusAudioTask extends BackgroundAudioTask {
     } else {
       // Update the current media item duration and set it.
       mediaItem = musicProvider.currentMediaItem.withDuration(duration);
-      AudioServiceBackground.setMediaItem(mediaItem);
 
       // Update the queue with the new media item and set it.
       queue = musicProvider.queue;
       queue[0] = mediaItem;
-      AudioServiceBackground.setQueue(queue);
     }
 
     // Set metadata for the playing media
