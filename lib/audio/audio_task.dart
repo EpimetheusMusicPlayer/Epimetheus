@@ -223,6 +223,7 @@ class EpimetheusAudioTask extends BackgroundAudioTask {
   Future<void> updatePlaybackState(BasicPlaybackState basicPlaybackState) async {
     return AudioServiceBackground.setState(
       controls: mediaControls,
+      systemActions: const [MediaAction.seekTo],
       androidCompactActions: const <int>[2, 3, 4],
       basicState: basicPlaybackState,
       position: await player.getPosition(),
