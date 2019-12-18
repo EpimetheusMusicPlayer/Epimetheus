@@ -18,7 +18,7 @@ class SongDisplay extends StatefulWidget {
 
 class _SongDisplayState extends State<SongDisplay> {
   PageController _controller;
-  int _selected;
+  int _selected = 0;
 
   @override
   void initState() {
