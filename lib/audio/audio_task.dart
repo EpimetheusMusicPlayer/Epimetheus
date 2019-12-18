@@ -311,6 +311,8 @@ class EpimetheusAudioTask extends BackgroundAudioTask {
 
   // A function to update the media metadata, used by the system.
   void updateCurrentMediaInfo(bool updatePlaybackState) async {
+    if (musicProvider.count == 0) return;
+
     // Get the media duration
     final duration = await player.getDuration();
 
