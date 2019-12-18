@@ -5,6 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 class SongDisplay extends StatefulWidget {
+  final void Function(int newPage) onPageChanged;
+
+  SongDisplay(this.onPageChanged);
+
   @override
   _SongDisplayState createState() => _SongDisplayState();
 }
@@ -22,10 +26,12 @@ class _SongDisplayState extends State<SongDisplay> {
     )..addListener(
         () {
           final page = _controller.page.round();
-          if (_selected != page)
+          if (_selected != page) {
+            widget.onPageChanged(page);
             setState(() {
               _selected = page;
             });
+          }
         },
       );
   }
@@ -55,9 +61,14 @@ class _SongDisplayState extends State<SongDisplay> {
 
         return ScrollConfiguration(
           behavior: const NoGlowScrollBehaviour(),
-          child: PageView(
-            controller: _controller,
-            children: tiles,
+          child: SizedBox(
+            height: MediaQuery.of(context).size.width,
+            child: Center(
+              child: PageView(
+                controller: _controller,
+                children: tiles,
+              ),
+            ),
           ),
         );
       },
@@ -76,29 +87,22 @@ class _SongTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.all(0),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 100),
-            height: selected ? MediaQuery.of(context).size.width * 0.8 : MediaQuery.of(context).size.width * 0.75,
-            child: Material(
-              color: Colors.transparent,
-              elevation: selected ? 8 : 2,
-              child: CachedNetworkImage(
-                imageUrl: mediaItem.artUri,
-              ),
-            ),
+    final containerLength = selected ? MediaQuery.of(context).size.width * 0.8 : MediaQuery.of(context).size.width * 0.75;
+
+    return Center(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 100),
+        width: containerLength,
+        height: containerLength,
+        child: Material(
+          color: Colors.transparent,
+          elevation: selected ? 8 : 2,
+          child: CachedNetworkImage(
+            imageUrl: mediaItem.artUri,
+            fit: BoxFit.cover,
           ),
         ),
-        const SizedBox(height: 32),
-        _SongInfoText(mediaItem),
-        const SizedBox(
-          height: 200,
-        )
-      ],
+      ),
     );
   }
 }
@@ -112,14 +116,25 @@ class _SongInfoText extends StatelessWidget {
   Widget build(BuildContext context) {
     return ScopedModelDescendant<ColorModel>(
       builder: (context, child, model) {
-        return Column(children: <Widget>[
-          Text(
-            mediaItem.title,
-            style: TextStyle(
-              color: model.readableForegroundColor,
-            ),
+        return Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 32,
           ),
-        ]);
+          child: Column(
+            children: <Widget>[
+              Align(
+                alignment: Alignment.topLeft,
+                child: Text(
+                  mediaItem.title,
+                  style: TextStyle(
+                    color: model.readableForegroundColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
       },
     );
   }

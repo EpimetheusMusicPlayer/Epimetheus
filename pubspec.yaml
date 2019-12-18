@@ -23,7 +23,7 @@ dependencies:
   audio:
     path: './flutter_audio'
   palette_generator: ^0.2.0
-  flare_flutter: ^1.5.5
+  flare_flutter: ^1.8.3
   flutter_pagewise: ^1.2.3
   paginator:
     path: './paginator'
