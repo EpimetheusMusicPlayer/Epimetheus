@@ -5,16 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:epimetheus/audio/providers/music_provider.dart';
 
-class SongDisplay extends StatefulWidget {
+class AlbumArtDisplay extends StatefulWidget {
   final void Function(int newPage) onPageChanged;
 
-  SongDisplay(this.onPageChanged);
+  AlbumArtDisplay(this.onPageChanged);
 
   @override
-  _SongDisplayState createState() => _SongDisplayState();
+  _AlbumArtDisplayState createState() => _AlbumArtDisplayState();
 }
 
-class _SongDisplayState extends State<SongDisplay> {
+class _AlbumArtDisplayState extends State<AlbumArtDisplay> {
   PageController _controller;
   int _selected = 0;
 
@@ -104,39 +104,6 @@ class _SongTile extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _SongInfoText extends StatelessWidget {
-  final MediaItem mediaItem;
-
-  _SongInfoText(this.mediaItem);
-
-  @override
-  Widget build(BuildContext context) {
-    return ScopedModelDescendant<ColorModel>(
-      builder: (context, child, model) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 32,
-          ),
-          child: Column(
-            children: <Widget>[
-              Align(
-                alignment: Alignment.topLeft,
-                child: Text(
-                  mediaItem.title,
-                  style: TextStyle(
-                    color: model.readableForegroundColor,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
     );
   }
 }

@@ -243,6 +243,12 @@ class EpimetheusAudioTask extends BackgroundAudioTask {
     return serviceCompleter.future;
   }
 
+  @override
+  void onCustomAction(String name, arguments) {
+    // TODO: implement onCustomAction
+    super.onCustomAction(name, arguments);
+  }
+
   // Handle button presses from bluetooth or wired devices.
   @override
   void onClick(MediaButton button) {
@@ -325,8 +331,6 @@ class EpimetheusAudioTask extends BackgroundAudioTask {
 
       // If it doesn't exist, use the online URL
       if (cachedFileInfo == null) return mediaItem.artUri;
-
-      print('USING LOCAL ART URI: file://${cachedFileInfo.file.path}');
 
       // Return the local art URI
       return 'file://${cachedFileInfo.file.path}';
