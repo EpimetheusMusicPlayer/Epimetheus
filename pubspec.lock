@@ -35,7 +35,7 @@ packages:
       path: audio_service
       relative: true
     source: path
-    version: "0.5.4"
+    version: "0.6.2"
   boolean_selector:
     dependency: transitive
     description:
@@ -131,7 +131,7 @@ packages:
       name: flutter_isolate
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.0+10"
+    version: "1.0.0+11"
   flutter_pagewise:
     dependency: "direct main"
     description:
@@ -262,7 +262,7 @@ packages:
       name: rxdart
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.22.6"
+    version: "0.23.1"
   scoped_model:
     dependency: "direct main"
     description:
