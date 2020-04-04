@@ -35,35 +35,30 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<bool>(
-      future: AudioService.running,
-      builder: (context, runningSnapshot) {
-        // Don't show anything while checking id the audio service is running
-        if (!runningSnapshot.hasData) return Container();
+    // Don't show anything while checking id the audio service is running
+    if (!AudioService.running) return Container();
 
-        final running = runningSnapshot.data && AudioService.playbackState != null;
+    final running = AudioService.running && AudioService.playbackState != null;
 
-        final model = ColorModel.of(context, rebuildOnChange: true);
+    final model = ColorModel.of(context, rebuildOnChange: true);
 
-        return Scaffold(
-          extendBodyBehindAppBar: true,
-          drawer: const NavigationDrawer(
-            currentRouteName: '/now-playing',
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      drawer: const NavigationDrawer(
+        currentRouteName: '/now-playing',
+      ),
+      appBar: AppBar(
+        iconTheme: IconThemeData(color: model.readableForegroundColor ?? Colors.white),
+        title: Text(
+          'Now Playing',
+          style: TextStyle(
+            color: model.readableForegroundColor,
           ),
-          appBar: AppBar(
-            iconTheme: IconThemeData(color: model.readableForegroundColor ?? Colors.white),
-            title: Text(
-              'Now Playing',
-              style: TextStyle(
-                color: model.readableForegroundColor,
-              ),
-            ),
-            backgroundColor: running ? Colors.transparent : null,
-            elevation: running ? 0 : null,
-          ),
-          body: running ? NowPlayingContent() : _buildNothingPlayingIndicator(),
-        );
-      },
+        ),
+        backgroundColor: running ? Colors.transparent : null,
+        elevation: running ? 0 : null,
+      ),
+      body: running ? NowPlayingContent() : _buildNothingPlayingIndicator(),
     );
   }
 }
