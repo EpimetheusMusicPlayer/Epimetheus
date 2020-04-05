@@ -105,9 +105,9 @@ class _EpimetheusState extends State<Epimetheus> {
                 accentColor: const Color(0xFFb700c8),
                 pageTransitionsTheme: const PageTransitionsTheme(
                   builders: const {
-                    TargetPlatform.android: const OpenUpwardsPageTransitionsBuilder(),
-                    TargetPlatform.iOS: const OpenUpwardsPageTransitionsBuilder(),
-                    TargetPlatform.fuchsia: const OpenUpwardsPageTransitionsBuilder(),
+                    TargetPlatform.android: const ZoomPageTransitionsBuilder(),
+                    TargetPlatform.iOS: const ZoomPageTransitionsBuilder(),
+                    TargetPlatform.fuchsia: const ZoomPageTransitionsBuilder(),
                   },
                 ),
                 buttonTheme: const ButtonThemeData(
