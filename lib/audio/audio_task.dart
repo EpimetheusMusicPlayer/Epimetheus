@@ -319,22 +319,8 @@ class EpimetheusAudioTask extends BackgroundAudioTask {
     MediaItem mediaItem = musicProvider.currentMediaItem;
     List<MediaItem> queue = musicProvider.queue;
 
-    Future<String> getArtUri() async {
-      // Get the cached file info
-      final cachedFileInfo = (await musicProvider.cacheManager?.getFileFromCache(mediaItem.artUri));
-
-      // If it doesn't exist, use the online URL
-      if (cachedFileInfo == null) return mediaItem.artUri;
-
-      print('USING LOCAL ART URI: file://${cachedFileInfo.file.path}');
-
-      // Return the local art URI
-      return 'file://${cachedFileInfo.file.path}';
-    }
-
     mediaItem = musicProvider.currentMediaItem.copyWith(
       duration: duration == 0 ? null : duration,
-      artUri: await getArtUri(),
     );
 
     queue[0] = mediaItem;

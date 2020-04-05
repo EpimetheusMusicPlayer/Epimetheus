@@ -117,15 +117,16 @@ Future<List<Station>> getStations(User user, bool includeShuffle) async {
   }
 
   return stationsJSON.map((stationJSON) {
+    final isThumbprint = stationJSON['isThumbprint'];
     return Station._internal(
       pandoraId: stationJSON['pandoraId'],
       stationId: stationJSON['stationId'],
       title: stationJSON['name'],
       isShuffle: stationJSON['isShuffle'],
-      isThumbprint: stationJSON['isThumbprint'],
+      isThumbprint: isThumbprint,
       canDelete: stationJSON['allowDelete'],
       canRename: stationJSON['allowRename'],
-      artUrls: createArtMapFromDecodedJSON(stationJSON['art']),
+      artUrls: createArtMapFromDecodedJSON(stationJSON['art'], isThumbprint),
     );
   }).toList(growable: false);
 }

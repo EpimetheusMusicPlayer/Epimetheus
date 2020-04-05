@@ -23,8 +23,15 @@ class ArtItem extends PandoraEntity {
   }
 }
 
-Map<int, String> createArtMapFromDecodedJSON(List<dynamic> input) {
-  if (input == null) return {};
+Map<int, String> createArtMapFromDecodedJSON(List<dynamic> input, [bool isThumbprint]) {
+  if (input == null) {
+    if (isThumbprint) {
+      return const {
+        1080: 'https://web-cdn.pandora.com/web-client-assets/images/thumbprint.274d67b7a9c52fffc206534972b02e7a.png',
+      };
+    }
+    return {};
+  }
 
   Map<int, String> artMap = Map<int, String>();
   for (dynamic artUrlEntry in input) {

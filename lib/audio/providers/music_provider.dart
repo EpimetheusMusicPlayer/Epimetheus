@@ -19,9 +19,6 @@ abstract class MusicProvider {
   /// Called when the MusicProvider is received in the isolate.
   void init();
 
-  /// Returns the cache manager, if the provider has one.
-  BaseCacheManager get cacheManager;
-
   /// A unique id for the MusicProvider.
   String get id;
 
@@ -72,8 +69,4 @@ abstract class MusicProvider {
     else
       return false;
   }
-}
-
-extension MediaItemUtils on MediaItem {
-  String getOnlineUrl() => genre.split('|')[0];
 }

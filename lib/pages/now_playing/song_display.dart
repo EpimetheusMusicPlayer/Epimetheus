@@ -3,7 +3,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:epimetheus/models/color/color_model.dart';
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
-import 'package:epimetheus/audio/providers/music_provider.dart';
 
 class SongDisplay extends StatefulWidget {
   final void Function(int newPage) onPageChanged;
@@ -99,7 +98,7 @@ class _SongTile extends StatelessWidget {
           color: Colors.transparent,
           elevation: selected ? 8 : 2,
           child: CachedNetworkImage(
-            imageUrl: mediaItem.getOnlineUrl(),
+            imageUrl: mediaItem.artUri,
             fit: BoxFit.cover,
           ),
         ),
