@@ -35,9 +35,6 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Don't show anything while checking id the audio service is running
-    if (!AudioService.running) return Container();
-
     final running = AudioService.running && AudioService.playbackState != null;
 
     final model = ColorModel.of(context, rebuildOnChange: true);
