@@ -36,6 +36,8 @@ class ColorModel extends Model {
           paletteGenerators[mediaItem.artUri] = null;
 
           // Add the generator future to the map
+          // Note: this has the side effect of caching all the album art in the queue, as it starts them downloading to generate the colors.
+          // As such, it's not necessary to use the audio_service plugin's built in caching.
           final future = PaletteGenerator.fromImageProvider(CachedNetworkImageProvider(mediaItem.artUri));
           _paletteGeneratorFutures[mediaItem.artUri] = future;
 

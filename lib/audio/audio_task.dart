@@ -330,7 +330,8 @@ class EpimetheusAudioTask extends BackgroundAudioTask {
     AudioServiceBackground.setMediaItem(mediaItem);
 
     // Set the queue, used by Android Auto and some custom ROMs
-    AudioServiceBackground.setQueue(queue, preloadArtwork: true);
+    // Artwork preloading is done elsewhere, see "Architectural quirks.md".
+    AudioServiceBackground.setQueue(queue, preloadArtwork: false);
 
     // Update the playback state for the new position.
     if (updatePlaybackState) this.updatePlaybackState(AudioServiceBackground.state.basicState);
