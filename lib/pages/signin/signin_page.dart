@@ -1,3 +1,4 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:epimetheus/models/collection/collection_model.dart';
 import 'package:epimetheus/models/user/user.dart';
 import 'package:epimetheus/pages/authentication/authentication_page.dart';
@@ -12,6 +13,8 @@ import 'package:url_launcher/url_launcher.dart';
 const _emailRegex = r"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?";
 
 void signOut(BuildContext context) async {
+  AudioService.stop();
+
   FlutterSecureStorage()..delete(key: 'email')..delete(key: 'password');
 
   final userModel = UserModel.of(context);
