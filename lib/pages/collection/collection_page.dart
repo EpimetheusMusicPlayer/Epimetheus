@@ -14,6 +14,7 @@ class CollectionPage extends StatefulWidget {
 
 class _CollectionPageState extends State<CollectionPage> with SingleTickerProviderStateMixin {
   TabController _tabController;
+  CollectionPageFAB _fabData;
 
   @override
   void initState() {
@@ -23,9 +24,12 @@ class _CollectionPageState extends State<CollectionPage> with SingleTickerProvid
       length: 5,
       vsync: this,
     )..addListener(() {
-        print('Listened!');
-        setState(() {});
+        setState(() {
+          _fabData = CollectionPageFAB._fabs[_tabController.index];
+        });
       });
+
+    _fabData = CollectionPageFAB._fabs[_tabController.index];
   }
 
   @override
@@ -36,15 +40,14 @@ class _CollectionPageState extends State<CollectionPage> with SingleTickerProvid
 
   @override
   Widget build(BuildContext context) {
-    final fabData = CollectionPageFAB._fabs[_tabController.index];
-    final fab = fabData == null
+    final fab = _fabData == null
         ? null
         : FloatingActionButton(
-            isExtended: fabData.expanded,
-            tooltip: fabData.tooltip,
-            child: Icon(fabData.icon),
+            isExtended: _fabData.expanded,
+            tooltip: _fabData.tooltip,
+            child: Icon(_fabData.icon),
             onPressed: () {
-              fabData.onPressed(context);
+              _fabData.onPressed(context);
             },
           );
 
