@@ -7,38 +7,101 @@ import 'package:epimetheus/pages/navigation_drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:outline_material_icons/outline_material_icons.dart';
 
-class CollectionPage extends StatelessWidget {
+class CollectionPage extends StatefulWidget {
+  @override
+  _CollectionPageState createState() => _CollectionPageState();
+}
+
+class _CollectionPageState extends State<CollectionPage> with SingleTickerProviderStateMixin {
+  TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _tabController = TabController(
+      length: 5,
+      vsync: this,
+    )..addListener(() {
+        print('Listened!');
+        setState(() {});
+      });
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 5,
-      child: Scaffold(
-        drawer: const NavigationDrawer(
-          currentRouteName: '/collection',
-        ),
-        appBar: AppBar(
-          title: const Text('My Collection'),
-          bottom: const TabBar(
-            isScrollable: true,
-            tabs: const <Widget>[
-              const Tab(text: 'Stations', icon: const Icon(OMIcons.radio)),
-              const Tab(text: 'Playlists', icon: const Icon(OMIcons.playlistPlay)),
-              const Tab(text: 'Artists', icon: const Icon(OMIcons.person)),
-              const Tab(text: 'Albums', icon: const Icon(OMIcons.album)),
-              const Tab(text: 'Songs', icon: const Icon(OMIcons.audiotrack)),
-            ],
-          ),
-        ),
-        body: TabBarView(
-          children: <Widget>[
-            StationsTab(),
-            PlaylistsTab(),
-            ArtistsTab(),
-            AlbumsTab(),
-            TracksTab(),
+    final fabData = CollectionPageFAB._fabs[_tabController.index];
+    final fab = fabData == null
+        ? null
+        : FloatingActionButton(
+            isExtended: fabData.expanded,
+            tooltip: fabData.tooltip,
+            child: Icon(fabData.icon),
+            onPressed: () {
+              fabData.onPressed(context);
+            },
+          );
+
+    return Scaffold(
+      drawer: const NavigationDrawer(
+        currentRouteName: '/collection',
+      ),
+      appBar: AppBar(
+        title: const Text('My Collection'),
+        bottom: TabBar(
+          controller: _tabController,
+          isScrollable: true,
+          tabs: const <Widget>[
+            const Tab(text: 'Stations', icon: const Icon(OMIcons.radio)),
+            const Tab(text: 'Playlists', icon: const Icon(OMIcons.playlistPlay)),
+            const Tab(text: 'Artists', icon: const Icon(OMIcons.person)),
+            const Tab(text: 'Albums', icon: const Icon(OMIcons.album)),
+            const Tab(text: 'Songs', icon: const Icon(OMIcons.audiotrack)),
           ],
         ),
       ),
+      floatingActionButton: fab,
+      body: TabBarView(
+        controller: _tabController,
+        children: <Widget>[
+          StationsTab(),
+          PlaylistsTab(),
+          ArtistsTab(),
+          AlbumsTab(),
+          TracksTab(),
+        ],
+      ),
     );
   }
+}
+
+// TODO this FAB architecture is terrible, re-implement in a cleaner way
+class CollectionPageFAB {
+  final bool expanded;
+  final String title;
+  final String tooltip;
+  final IconData icon;
+  final Function(BuildContext context) onPressed;
+
+  CollectionPageFAB({
+    @required this.expanded,
+    @required this.title,
+    @required this.tooltip,
+    @required this.icon,
+    @required this.onPressed,
+  });
+
+  static List<CollectionPageFAB> _fabs = [
+    StationsTab.fab,
+    null,
+    null,
+    null,
+    null,
+  ];
 }

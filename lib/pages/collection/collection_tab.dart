@@ -1,4 +1,4 @@
-import 'package:epimetheus/models/collection/collection.dart';
+import 'package:epimetheus/models/collection/collection_model.dart';
 import 'package:epimetheus/models/collection/collection_provider.dart';
 import 'package:epimetheus/models/user/user.dart';
 import 'package:flutter/material.dart';

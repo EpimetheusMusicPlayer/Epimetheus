@@ -1,5 +1,5 @@
 import 'package:epimetheus/libepimetheus/songs.dart';
-import 'package:epimetheus/models/collection/collection.dart';
+import 'package:epimetheus/models/collection/collection_model.dart';
 import 'package:epimetheus/models/collection/paged_collection_provider.dart';
 import 'package:epimetheus/pages/collection/paged_collection_tab.dart';
 import 'package:flutter/material.dart';

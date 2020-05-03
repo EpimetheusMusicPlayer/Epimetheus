@@ -1,7 +1,7 @@
 import 'package:epimetheus/audio/audio_task.dart';
 import 'package:epimetheus/audio/providers/station_music_provider.dart';
 import 'package:epimetheus/libepimetheus/songs.dart';
-import 'package:epimetheus/models/collection/collection.dart';
+import 'package:epimetheus/models/collection/collection_model.dart';
 import 'package:epimetheus/models/user/user.dart';
 import 'package:flutter/widgets.dart';
 

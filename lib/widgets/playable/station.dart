@@ -17,15 +17,7 @@ class StationListTile extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: <Widget>[
-            CachedNetworkImage(
-              height: 56,
-              imageUrl: station.getArtUrl(500),
-              placeholder: (context, imageUrl) => Image.asset(
-                'assets/music_note.png',
-                height: 56,
-              ),
-              placeholderFadeInDuration: const Duration(milliseconds: 500),
-            ),
+            _StationListTileArt(station),
             const SizedBox(width: 16),
             Expanded(
               child: Text(station.title),
@@ -40,4 +32,39 @@ class StationListTile extends StatelessWidget {
     height: 0,
     indent: 88,
   );
+}
+
+class _StationListTileArt extends StatelessWidget {
+  final Station station;
+
+  _StationListTileArt(this.station);
+
+  @override
+  Widget build(BuildContext context) {
+    final image = CachedNetworkImage(
+      height: 56,
+      imageUrl: station.getArtUrl(500),
+      placeholder: (context, imageUrl) => Image.asset(
+        'assets/music_note.png',
+        height: 56,
+      ),
+      placeholderFadeInDuration: const Duration(milliseconds: 500),
+    );
+
+    // The thumbprint icon has SVG rings around it. The SVG is pulled directly from the Pandora web app.
+    // Disabled for now because it looks like garbage.
+//    if (station.isThumbprint) {
+//      return Stack(
+//        children: <Widget>[
+//          SvgPicture.asset(
+//            'assets/thumbprint.svg',
+//            width: 56,
+//          ),
+//          image,
+//        ],
+//      );
+//    }
+
+    return image;
+  }
 }
