@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:audio_service/audio_service.dart';
 import 'package:epimetheus/art_constants.dart';
 import 'package:epimetheus/audio/providers/music_provider.dart';
@@ -7,7 +5,6 @@ import 'package:epimetheus/libepimetheus/authentication.dart';
 import 'package:epimetheus/libepimetheus/songs.dart';
 import 'package:epimetheus/libepimetheus/stations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 class StationMusicProvider extends MusicProvider {
   final List<Station> _stations;
