@@ -307,6 +307,7 @@ class EpimetheusAudioTask extends BackgroundAudioTask {
   Future<void> load(bool firstLoad) async {
     final List<String> urls = await musicProvider.load(user);
     player.addAllToQueue(urls, firstLoad);
+    // TODO the media service queue doesn't always get updated
   }
 
   // A function to update the media metadata, used by the system.
@@ -329,7 +330,7 @@ class EpimetheusAudioTask extends BackgroundAudioTask {
     AudioServiceBackground.setMediaItem(mediaItem);
 
     // Set the queue, used by Android Auto and some custom ROMs
-    AudioServiceBackground.setQueue(queue);
+    AudioServiceBackground.setQueue(queue, preloadArtwork: true);
 
     // Update the playback state for the new position.
     if (updatePlaybackState) this.updatePlaybackState(AudioServiceBackground.state.basicState);

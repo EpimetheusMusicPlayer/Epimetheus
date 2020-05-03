@@ -14,14 +14,11 @@ class StationMusicProvider extends MusicProvider {
   final int _stationIndex;
 
   final List<Song> _songs = List<Song>();
-  BaseCacheManager _cacheManager;
 
   StationMusicProvider(this._stations, this._stationIndex);
 
   @override
-  void init() {
-    _cacheManager = DefaultCacheManager();
-  }
+  void init() {}
 
   @override
   String get id => _stations[_stationIndex].stationId;
@@ -107,17 +104,13 @@ class StationMusicProvider extends MusicProvider {
   @override
   Future<List<String>> load(User user) async {
     try {
+      // Download the next few song entries
       List<Song> newSongs = await _stations[_stationIndex].getPlaylistFragment(user);
+
+      // Add the new entries to the internally managed queue
       _songs.addAll(newSongs);
 
-      // Cache the album art
-      for (Song song in newSongs) {
-        _cacheManager.downloadFile(song.getArtUrl(serviceArtSize)).catchError(
-              (error) {},
-              test: (error) => error is HttpException || error is SocketException,
-            );
-      }
-
+      // Return the new songs to be added into the audio service's queue
       return newSongs.map<String>((Song song) => song.audioUrl).toList(growable: false);
     } catch (error) {
       return null; // TODO handle errors
