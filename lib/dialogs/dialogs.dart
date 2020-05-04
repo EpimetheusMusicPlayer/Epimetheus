@@ -33,6 +33,7 @@ void showEpimetheusDialog({
           content: Text(dialog.description),
           actions: <Widget>[
             FlatButton(
+              textColor: Theme.of(context).accentColor,
               onPressed: dialog.onClickButton,
               child: Text(dialog.buttonLabel),
             )
