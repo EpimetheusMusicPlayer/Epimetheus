@@ -6,14 +6,26 @@ import 'package:meta/meta.dart';
 import './networking.dart';
 
 class AuthenticatedEntity {
-  final String authToken;
+  String _authToken;
+  String get authToken => _authToken;
 
-  AuthenticatedEntity._internal(this.authToken);
+  // This proxy object is used to recreate the HTTP client if it becomes null.
+  // The HTTP client needs to become null for the user to be sent through isolate nameservers.
+  Proxy _proxy;
+
+  http.BaseClient _proxyClient;
+  http.BaseClient get proxyClient => _proxyClient ??= (_proxy?.toClient() ?? http.Client());
+
+  AuthenticatedEntity._internal(this._authToken, this._proxyClient, this._proxy);
+
+  void discardClient() {
+    // Discard the client to be recreated when next used
+    _proxyClient = null;
+  }
 }
 
 /// [User] class, required for all api calls.
 class User extends AuthenticatedEntity {
-  bool useProxy;
   final String email;
   final String password;
   final String username;
@@ -21,19 +33,27 @@ class User extends AuthenticatedEntity {
   final String profileImageUrl;
 
   User._internal({
+    @required Proxy proxy,
+    @required http.BaseClient client,
     @required authToken,
-    @required this.useProxy,
     @required this.email,
     @required this.password,
     @required this.username,
     @required this.webname,
     @required this.profileImageUrl,
-  }) : super._internal(authToken);
+  }) : super._internal(authToken, client, proxy);
 
   /// Creates a user object, authenticating with the given [email] and [password].
   /// If the [useProxy] boolean is true, a proxy service will be used.
-  static Future<User> create(email, String password, [useProxy = false]) async {
-    var authResponse = await makeApiRequest(
+  static Future<User> create({
+    @required email,
+    @required String password,
+    Proxy proxy,
+  }) async {
+    // Create a HTTP client with the correct proxy settings.
+    final proxyClient = proxy == null ? http.Client() : proxy.toClient();
+
+    final authResponse = await makeApiRequest(
       version: 'v1',
       endpoint: 'auth/login',
       requestData: {
@@ -41,26 +61,54 @@ class User extends AuthenticatedEntity {
         'password': password,
         'keepLoggedIn': true,
       },
-      useProxy: useProxy,
+      anonymousProxyClient: proxyClient,
     );
 
     return User._internal(
+      proxy: proxy,
+      client: proxyClient,
       authToken: authResponse['authToken'],
-      useProxy: useProxy,
       email: email,
       password: password,
-      username: await _getUsername(AuthenticatedEntity._internal(authResponse['authToken']), authResponse['webname'], useProxy),
+      username: await _getUsername(AuthenticatedEntity._internal(authResponse['authToken'], proxyClient, proxy), authResponse['webname']),
       webname: authResponse['webname'],
       profileImageUrl: (await _getFacebookProfileImageUrl(authResponse['facebookData'])) ?? authResponse['placeholderProfileImageUrl'],
     );
   }
 
-  static Future<String> _getUsername(AuthenticatedEntity auth, String webname, bool usePortaller) async {
+  Future<void> reauthenticate() async {
+    _authToken = (await makeApiRequest(
+      version: 'v1',
+      endpoint: 'auth/login',
+      requestData: {
+        'username': email,
+        'password': password,
+        'keepLoggedIn': true,
+        'existingAuthToken':
+            _authToken, // I think this is used when the web client's webpage is reloaded. The API seems to just spit this value out again when supplied. It could, however, be used to refresh the token.
+      },
+      anonymousProxyClient: proxyClient,
+    ))['authToken'];
+  }
+
+  User clone() {
+    return User._internal(
+      proxy: _proxy,
+      client: _proxyClient,
+      authToken: _authToken,
+      email: email,
+      password: password,
+      username: username,
+      webname: webname,
+      profileImageUrl: profileImageUrl,
+    );
+  }
+
+  static Future<String> _getUsername(AuthenticatedEntity auth, String webname) async {
     var userProfileResponse = await makeApiRequest(
       version: 'v1',
       endpoint: 'listener/getProfile',
       requestData: {'webname': webname},
-      useProxy: usePortaller,
       user: auth,
     );
 
@@ -87,5 +135,5 @@ class User extends AuthenticatedEntity {
   }
 
   @override
-  String toString() => 'usePortaller: $useProxy, email: $email, username: $username, webname: $webname, profilePicUrl: $profileImageUrl';
+  String toString() => 'email: $email, username: $username, webname: $webname, profilePicUrl: $profileImageUrl';
 }

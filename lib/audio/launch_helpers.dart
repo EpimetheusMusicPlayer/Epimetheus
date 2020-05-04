@@ -12,7 +12,7 @@ void launchStation(BuildContext context, int stationIndex) {
   if (stations == null) return;
 
   launchMusicProvider(
-    user,
+    user.clone()..discardClient(),
     StationMusicProvider(
       stations,
       stationIndex,

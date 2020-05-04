@@ -85,7 +85,6 @@ Future<List<Track>> getTracks({
         'typePrefixes': const ['TR'],
       },
     },
-    useProxy: user.useProxy,
     user: user,
   );
 
@@ -164,7 +163,6 @@ class Feedback extends ArtItem {
         'isPositive': _rating.isThumbUp(),
       },
       user: user,
-      useProxy: user.useProxy,
     );
     _rating = const Rating.newUnratedRating(RatingStyle.thumbUpDown);
     _pendingRating = const Rating.newUnratedRating(RatingStyle.thumbUpDown);
@@ -243,7 +241,6 @@ class Song extends Feedback {
         'isPositive': positive,
       },
       user: user,
-      useProxy: user.useProxy,
     );
     _feedbackId = response['feedbackId'];
     _rating = Rating.newThumbRating(response['isPositive']);

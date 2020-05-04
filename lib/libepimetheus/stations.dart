@@ -63,7 +63,6 @@ class Station extends ArtItem {
         'onDemandArtistMessageIdHex': null,
       },
       user: user,
-      useProxy: user.useProxy,
     ))['tracks'];
 
     List<Song> playlistFragment = playlistFragmentJSON.map((songJSON) => Song(Map<String, dynamic>.from(songJSON))).toList();
@@ -87,7 +86,6 @@ class Station extends ArtItem {
         'stationId': stationId,
       },
       user: user,
-      useProxy: user.useProxy,
     );
 
     return FeedbackListSegment(
@@ -104,7 +102,6 @@ Future<List<Station>> getStations(User user, bool includeShuffle) async {
     endpoint: 'station/getStations',
     requestData: {'pageSize': 250},
     user: user,
-    useProxy: user.useProxy,
   ))['stations'];
 
   if (includeShuffle) {
@@ -112,7 +109,6 @@ Future<List<Station>> getStations(User user, bool includeShuffle) async {
       version: 'v1',
       endpoint: 'station/shuffle',
       user: user,
-      useProxy: user.useProxy,
     ));
   }
 

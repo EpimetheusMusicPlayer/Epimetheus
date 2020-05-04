@@ -104,7 +104,6 @@ Future<Recommendations> getRecommendations(User user) async {
     version: 'v1',
     endpoint: 'search/getStationRecommendations',
     user: user,
-    useProxy: user.useProxy,
   );
 
   return Recommendations._internal(

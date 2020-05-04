@@ -110,6 +110,7 @@ class StationMusicProvider extends MusicProvider {
       // Return the new songs to be added into the audio service's queue
       return newSongs.map<String>((Song song) => song.audioUrl).toList(growable: false);
     } catch (error) {
+      throw error;
       return null; // TODO handle errors
     }
   }
