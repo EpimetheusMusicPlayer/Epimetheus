@@ -44,7 +44,7 @@ Future<void> launchMusicProvider(User user, MusicProvider musicProvider) async {
 
   if (!wasConnected) AudioService.disconnect();
 
-  IsolateNameServer.lookupPortByName('audio_task').send(
+  IsolateNameServer.lookupPortByName('audio_task')?.send(
     _AudioTaskPayload(
       user: user,
       musicProvider: musicProvider,
