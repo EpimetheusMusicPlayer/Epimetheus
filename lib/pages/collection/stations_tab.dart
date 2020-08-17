@@ -1,99 +1,39 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:epimetheus/audio/launch_helpers.dart';
 import 'package:epimetheus/libepimetheus/stations.dart';
-import 'package:epimetheus/models/collection.dart';
-import 'package:epimetheus/models/user.dart';
+import 'package:epimetheus/models/collection/collection_model.dart';
+import 'package:epimetheus/models/collection/collection_provider.dart';
+import 'package:epimetheus/pages/collection/collection_page.dart';
+import 'package:epimetheus/pages/collection/collection_tab.dart';
+import 'package:epimetheus/widgets/playable/station.dart';
 import 'package:flutter/material.dart';
-import 'package:scoped_model/scoped_model.dart';
 
-class StationsTab extends StatelessWidget {
-  final _refreshKey = GlobalKey<RefreshIndicatorState>();
-
-  void sortStations(List<Station> stations) {
-    stations.sort((s1, s2) {
-      if (s1.isShuffle) return -2;
-      if (s2.isShuffle) return 2;
-      if (s1.isThumbprint) return -1;
-      if (s2.isThumbprint) return 1;
-
-      return s1.title.compareTo(s2.title);
-    });
+class StationsTab extends CollectionTab<Station> {
+  @override
+  CollectionProvider<Station> getCollectionProvider(BuildContext context) {
+    return CollectionModel.of(context).stationCollectionProvider;
   }
 
   @override
-  Widget build(BuildContext context) {
-    return RefreshIndicator(
-      key: _refreshKey,
-      onRefresh: () => CollectionModel.of(context).refreshStations(UserModel.of(context).user),
-      child: ScopedModelDescendant<CollectionModel>(
-        builder: (context, child, model) {
-          if (model.hasErrorStations) {
-            return Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  const Text(
-                    'There was an error fetching your stations.',
-                    textAlign: TextAlign.center,
-                  ),
-                  FlatButton(
-                    child: const Text('Try again'),
-                    onPressed: _refreshKey.currentState.show,
-                  ),
-                ],
-              ),
-            );
-          }
-
-          if (!model.downloadedStations) model.refreshStations(UserModel.of(context).user);
-
-          if (!model.downloadedStations || model.downloadingStations) {
-            return const Center(
-              child: const CircularProgressIndicator(),
-            );
-          }
-
-          return buildMainContent(context, model);
-        },
-      ),
-    );
-  }
-
-  Widget buildMainContent(BuildContext context, CollectionModel model) {
-    final List<Station> stations = model.asyncStations(UserModel.of(context).user);
-    sortStations(stations);
+  Widget buildMainContent(BuildContext context, List<Station> stations) {
+    final hasShuffle = stations[0].isShuffle;
 
     return ListView.separated(
-      itemCount: stations.length,
-      itemBuilder: (context, index) {
-        final station = stations[index];
-
-        return Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: <Widget>[
-              CachedNetworkImage(
-                height: 56,
-                imageUrl: station.getArtUrl(500),
-                placeholder: (context, imageUrl) => Image.asset(
-                  'assets/music_note.png',
-                  height: 56,
-                ),
-                placeholderFadeInDuration: const Duration(milliseconds: 500),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(station.title),
-              ),
-            ],
-          ),
-        );
+      itemCount: hasShuffle ? stations.length - 1 : stations.length,
+      itemBuilder: (context, realIndex) {
+        final virtIndex = hasShuffle ? realIndex + 1 : realIndex;
+        return StationListTile(stations[virtIndex], virtIndex);
       },
-      separatorBuilder: (context, index) {
-        return Divider(
-          height: 0,
-          indent: 88,
-        );
-      },
+      separatorBuilder: (context, index) => StationListTile.separator,
     );
   }
+
+  static CollectionPageFAB fab = CollectionPageFAB(
+    expanded: false,
+    title: 'SHUFFLE',
+    tooltip: 'Shuffle stations',
+    icon: Icons.shuffle,
+    onPressed: (BuildContext context) {
+      launchStation(context, 0);
+    },
+  );
 }

@@ -15,6 +15,9 @@ class MusicProviderAction {
 }
 
 abstract class MusicProvider {
+  /// Called when the MusicProvider is received in the isolate.
+  void init();
+
   /// A unique id for the MusicProvider.
   String get id;
 

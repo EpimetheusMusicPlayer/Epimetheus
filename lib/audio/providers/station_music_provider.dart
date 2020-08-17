@@ -1,6 +1,6 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:epimetheus/art_constants.dart';
-import 'package:epimetheus/audio/music_provider.dart';
+import 'package:epimetheus/audio/providers/music_provider.dart';
 import 'package:epimetheus/libepimetheus/authentication.dart';
 import 'package:epimetheus/libepimetheus/songs.dart';
 import 'package:epimetheus/libepimetheus/stations.dart';
@@ -13,6 +13,9 @@ class StationMusicProvider extends MusicProvider {
   final List<Song> _songs = List<Song>();
 
   StationMusicProvider(this._stations, this._stationIndex);
+
+  @override
+  void init() {}
 
   @override
   String get id => _stations[_stationIndex].stationId;
@@ -29,19 +32,19 @@ class StationMusicProvider extends MusicProvider {
   @override
   List<MediaItem> get queue {
     return [
-      for (int i = 0; i < _songs.length; i++)
+      for (Song song in _songs)
         MediaItem(
-          id: _songs[i].pandoraId,
-          title: _songs[i].title,
-          artist: _songs[i].artistTitle,
-          album: _songs[i].albumTitle,
-          artUri: _songs[i].getArtUrl(serviceArtSize),
-          displayTitle: _songs[i].title,
-          displaySubtitle: '${_songs[i].artistTitle} - ${_songs[i].albumTitle}',
+          id: song.pandoraId,
+          title: song.title,
+          artist: song.artistTitle,
+          album: song.albumTitle,
+          artUri: song.getArtUrl(serviceArtSize),
+          displayTitle: song.title,
+          displaySubtitle: '${song.artistTitle} - ${song.albumTitle}',
           displayDescription: title,
           playable: true,
-          rating: _songs[i].rating,
-          genre: _songs[i].pendingRating.isRated() ? _songs[i].pendingRating.isThumbUp().toString() : 'null',
+          rating: song.rating,
+          genre: song.pendingRating.isRated() ? song.pendingRating.isThumbUp().toString() : 'null',
         ),
     ];
   }
@@ -98,11 +101,17 @@ class StationMusicProvider extends MusicProvider {
   @override
   Future<List<String>> load(User user) async {
     try {
+      // Download the next few song entries
       List<Song> newSongs = await _stations[_stationIndex].getPlaylistFragment(user);
+
+      // Add the new entries to the internally managed queue
       _songs.addAll(newSongs);
+
+      // Return the new songs to be added into the audio service's queue
       return newSongs.map<String>((Song song) => song.audioUrl).toList(growable: false);
     } catch (error) {
-      return null;
+      throw error;
+      return null; // TODO handle errors
     }
   }
 

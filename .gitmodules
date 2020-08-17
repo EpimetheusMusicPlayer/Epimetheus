@@ -1,0 +1,3 @@
+[submodule "flutter_audio"]
+	path = flutter_audio
+	url = https://github.com/hacker1024/flutter_audio

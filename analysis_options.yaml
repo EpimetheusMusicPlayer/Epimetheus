@@ -1,4 +1,7 @@
 analyzer:
   exclude:
+    - flutter_autofill/**
+    - qudio/**
     - audio_service/**
-    - animated-stream-list/**
+    - paginator/**
+    - flutter_audio/**

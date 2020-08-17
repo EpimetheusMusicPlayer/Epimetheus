@@ -1,5 +1,5 @@
 import 'package:audio_service/audio_service.dart';
-import 'package:epimetheus/libepimetheus/art_item.dart';
+import 'package:epimetheus/libepimetheus/structures/art_item.dart';
 import 'package:epimetheus/libepimetheus/networking.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
@@ -7,59 +7,130 @@ import 'package:meta/meta.dart';
 import 'authentication.dart';
 
 enum TrackType {
-  TRACK,
-  ARTIST_MESSAGE,
+  track, // Track
+  artistMessage, // ??
 }
 
-/// A static track object obtained from recommendations or search results.
+enum TrackExplicitness {
+  explicit, // EXPLICIT
+  none, // NONE
+}
+
+enum TrackSortOrder {
+  alpha, // ALPHA
+  dateAdded, // MOST_RECENT_ADDED
+}
+
+/// A static track object.
 class Track extends ArtItem {
   final String title;
-  final String artistTitle;
+  final int trackNumber;
+  final String albumId;
   final String albumTitle;
+  final String artistId;
+  final String artistTitle;
+  final int duration;
+  final TrackExplicitness explicitness;
 
   const Track._internal({
     @required String pandoraId,
     @required this.title,
-    @required this.artistTitle,
+    @required this.trackNumber,
+    @required this.albumId,
     @required this.albumTitle,
+    @required this.artistId,
+    @required this.artistTitle,
+    @required this.duration,
+    @required this.explicitness,
     @required Map<int, String> artUrls,
   }) : super(pandoraId, artUrls);
 
-  Track(Map<String, dynamic> trackJSON)
+  Track(String pandoraId, Map<String, dynamic> annotationJSON)
       : this._internal(
-          pandoraId: trackJSON['pandoraId'],
-          title: trackJSON['songTitle'],
-          artistTitle: trackJSON['artistName'],
-          albumTitle: trackJSON['albumTitle'],
-          artUrls: createArtMapFromDecodedJSON(trackJSON['albumArt']),
+          pandoraId: pandoraId,
+          title: annotationJSON['name'],
+          trackNumber: annotationJSON['trackCount'],
+          albumId: annotationJSON['albumId'],
+          albumTitle: annotationJSON['albumName'],
+          artistId: annotationJSON['artistId'],
+          artistTitle: annotationJSON['artistName'],
+          duration: annotationJSON['duration'],
+          explicitness: annotationJSON['explicitness'] == 'EXPLICIT' ? TrackExplicitness.explicit : TrackExplicitness.none,
+          artUrls: {
+            500: 'https://content-images.p-cdn.com/${annotationJSON['icon']['thorId']}',
+          },
         );
+
+  @override
+  String toString() {
+    return '$title by $artistTitle ($albumTitle)';
+  }
+}
+
+Future<List<Track>> getTracks({
+  @required User user,
+  @required TrackSortOrder sortOrder,
+  @required int offset,
+  int pageSize = 24,
+}) async {
+  final trackListJSON = await makeApiRequest(
+    version: 'v6',
+    endpoint: 'collections/getSortedByTypes',
+    requestData: {
+      'request': {
+        'sortOrder': sortOrder == TrackSortOrder.alpha ? 'ALPHA' : 'MOST_RECENT_ADDED',
+        'offset': offset,
+        'limit': pageSize,
+        'annotationLimit': pageSize,
+        'typePrefixes': const ['TR'],
+      },
+    },
+    user: user,
+  );
+
+  if (!trackListJSON.containsKey('items')) return const [];
+
+  final tracksJSON = trackListJSON['items'];
+  final annotationsJSON = trackListJSON['annotations'];
+  final tracks = List<Track>(tracksJSON.length);
+
+  for (int i = 0; i < tracks.length; ++i) {
+    final String pandoraId = tracksJSON[i]['pandoraId'];
+    tracks[i] = (Track(pandoraId, annotationsJSON[pandoraId]));
+  }
+
+  return tracks;
 }
 
 /// An object that holds feedback about a track
-class Feedback extends Track {
+class Feedback extends ArtItem {
+  final String title;
+  final String artistTitle;
+  final String albumTitle;
+
   String _feedbackId;
+
   String get feedbackId => _feedbackId;
 
   Rating _rating;
+
   Rating get rating => _rating;
 
   Rating _pendingRating = const Rating.newUnratedRating(RatingStyle.thumbUpDown);
+
   Rating get pendingRating => _pendingRating;
 
   Feedback._internal(
     pandoraId,
     this._feedbackId,
     this._rating,
-    title,
-    artistTitle,
-    albumTitle,
+    this.title,
+    this.artistTitle,
+    this.albumTitle,
     Map<int, String> artUrls,
-  ) : super._internal(
-          pandoraId: pandoraId,
-          title: title,
-          artistTitle: artistTitle,
-          albumTitle: albumTitle,
-          artUrls: artUrls,
+  ) : super(
+          pandoraId,
+          artUrls,
         );
 
   Feedback(Map<String, dynamic> feedbackJSON)
@@ -92,7 +163,6 @@ class Feedback extends Track {
         'isPositive': _rating.isThumbUp(),
       },
       user: user,
-      useProxy: user.useProxy,
     );
     _rating = const Rating.newUnratedRating(RatingStyle.thumbUpDown);
     _pendingRating = const Rating.newUnratedRating(RatingStyle.thumbUpDown);
@@ -101,6 +171,7 @@ class Feedback extends Track {
 
 class FeedbackListSegment {
   final int total;
+
   int get length => segment.length;
   final List<Feedback> segment;
 
@@ -136,7 +207,7 @@ class Song extends Feedback {
   Song(Map<String, dynamic> songJSON)
       : this._internal(
           pandoraId: songJSON['pandoraId'],
-          trackType: songJSON['trackType'] == 'Track' ? TrackType.TRACK : TrackType.ARTIST_MESSAGE,
+          trackType: songJSON['trackType'] == 'Track' ? TrackType.track : TrackType.artistMessage,
           trackToken: songJSON['trackToken'],
           title: songJSON['songTitle'],
           artistTitle: songJSON['artistName'],
@@ -146,6 +217,7 @@ class Song extends Feedback {
           artUrls: createArtMapFromDecodedJSON(songJSON['albumArt']),
         );
 
+  // TODO doesn't this need a user function?
   Future<String> _getFeedbackId() async {
     assert(rating.isRated(), 'Rating is not rated!');
     return (await makeApiRequest(
@@ -169,7 +241,6 @@ class Song extends Feedback {
         'isPositive': positive,
       },
       user: user,
-      useProxy: user.useProxy,
     );
     _feedbackId = response['feedbackId'];
     _rating = Rating.newThumbRating(response['isPositive']);

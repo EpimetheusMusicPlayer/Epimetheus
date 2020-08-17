@@ -1,18 +1,30 @@
-import 'package:epimetheus/models/collection.dart';
-import 'package:epimetheus/models/user.dart';
+import 'package:epimetheus/models/collection/collection_model.dart';
+import 'package:epimetheus/models/color/color_model.dart';
+import 'package:epimetheus/models/user/user.dart';
 import 'package:epimetheus/pages/authentication/authentication_page.dart';
 import 'package:epimetheus/pages/collection/collection_page.dart';
+import 'package:epimetheus/pages/now_playing/now_playing_page.dart';
+import 'package:epimetheus/pages/preferences/proxy_preferences_page.dart';
 import 'package:epimetheus/pages/signin/signin_page.dart';
+import 'package:epimetheus/widgets/audio/audio_service_display.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 void main() async {
-  FlutterSecureStorage storage = FlutterSecureStorage();
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final storage = const FlutterSecureStorage();
+
+  final creds = await Future.wait<String>([
+    storage.read(key: 'email'),
+    storage.read(key: 'password'),
+  ]);
+
   runApp(
     Epimetheus(
-      email: await storage.read(key: 'email'),
-      password: await storage.read(key: 'password'),
+      email: creds[0],
+      password: creds[1],
     ),
   );
 }
@@ -22,8 +34,8 @@ class Epimetheus extends StatefulWidget {
   final String password;
 
   const Epimetheus({
-    this.email,
-    this.password,
+    @required this.email,
+    @required this.password,
   });
 
   @override
@@ -33,6 +45,19 @@ class Epimetheus extends StatefulWidget {
 class _EpimetheusState extends State<Epimetheus> {
   UserModel _userModel = UserModel();
   CollectionModel _collectionModel = CollectionModel();
+  ColorModel _colorModel = ColorModel();
+
+  @override
+  initState() {
+    super.initState();
+    _colorModel.init();
+  }
+
+  @override
+  dispose() {
+    _colorModel.dispose();
+    super.dispose();
+  }
 
   Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -74,31 +99,38 @@ class _EpimetheusState extends State<Epimetheus> {
       );
     }
 
-    return ScopedModel<UserModel>(
-      model: _userModel,
-      child: ScopedModel<CollectionModel>(
-        model: _collectionModel,
-        child: MaterialApp(
-          theme: ThemeData(
-            primaryColor: const Color(0xFF332B57),
-            accentColor: const Color(0xFFb700c8),
-            pageTransitionsTheme: const PageTransitionsTheme(
-              builders: const {
-                TargetPlatform.android: const OpenUpwardsPageTransitionsBuilder(),
-                TargetPlatform.iOS: const OpenUpwardsPageTransitionsBuilder(),
-                TargetPlatform.fuchsia: const OpenUpwardsPageTransitionsBuilder(),
+    return AudioServiceDisplay(
+      child: ScopedModel<UserModel>(
+        model: _userModel,
+        child: ScopedModel<CollectionModel>(
+          model: _collectionModel,
+          child: ScopedModel<ColorModel>(
+            model: _colorModel,
+            child: MaterialApp(
+              theme: ThemeData(
+                primaryColor: const Color(0xFF332B57),
+                accentColor: const Color(0xFFb700c8),
+                pageTransitionsTheme: const PageTransitionsTheme(
+                  builders: const {
+                    TargetPlatform.android: const ZoomPageTransitionsBuilder(),
+                    TargetPlatform.iOS: const ZoomPageTransitionsBuilder(),
+                    TargetPlatform.fuchsia: const ZoomPageTransitionsBuilder(),
+                  },
+                ),
+                buttonTheme: const ButtonThemeData(
+                  buttonColor: const Color(0xFF332B57),
+                  textTheme: ButtonTextTheme.primary,
+                ),
+              ),
+              routes: {
+                '/': (context) => startingPage,
+                '/collection': (context) => CollectionPage(),
+                '/now-playing': (context) => NowPlayingPage(),
+                '/preferences/proxy': (context) => ProxyPreferencesPage(),
               },
-            ),
-            buttonTheme: const ButtonThemeData(
-              buttonColor: const Color(0xFF332B57),
-              textTheme: ButtonTextTheme.primary,
+              onGenerateRoute: generateRoute,
             ),
           ),
-          routes: {
-            '/': (context) => startingPage,
-            '/collection': (context) => CollectionPage(),
-          },
-          onGenerateRoute: generateRoute,
         ),
       ),
     );

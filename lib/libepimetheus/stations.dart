@@ -1,10 +1,9 @@
+import 'package:epimetheus/libepimetheus/authentication.dart';
+import 'package:epimetheus/libepimetheus/networking.dart';
 import 'package:epimetheus/libepimetheus/songs.dart';
+import 'package:epimetheus/libepimetheus/structures/art_item.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
-
-import './art_item.dart';
-import './authentication.dart';
-import './networking.dart';
 
 class Station extends ArtItem {
   final String stationId;
@@ -26,14 +25,7 @@ class Station extends ArtItem {
   }) : super(pandoraId, artUrls);
 
   @override
-  bool operator ==(Object other) => other is Station
-      ? stationId == other.stationId &&
-          pandoraId == other.pandoraId &&
-          isShuffle == other.isShuffle &&
-          isThumbprint == other.isThumbprint &&
-          canRename == other.canDelete &&
-          canRename == other.canRename
-      : super == (other);
+  bool operator ==(Object other) => other is Station ? stationId == other.stationId && pandoraId == other.pandoraId && isShuffle == other.isShuffle && isThumbprint == other.isThumbprint && canRename == other.canDelete && canRename == other.canRename : super == (other);
 
   @override
   int get hashCode {
@@ -63,11 +55,10 @@ class Station extends ArtItem {
         'onDemandArtistMessageIdHex': null,
       },
       user: user,
-      useProxy: user.useProxy,
     ))['tracks'];
 
     List<Song> playlistFragment = playlistFragmentJSON.map((songJSON) => Song(Map<String, dynamic>.from(songJSON))).toList();
-    playlistFragment.removeWhere((Song song) => song.trackType == TrackType.ARTIST_MESSAGE);
+    playlistFragment.removeWhere((Song song) => song.trackType == TrackType.artistMessage);
     return playlistFragment;
   }
 
@@ -87,14 +78,9 @@ class Station extends ArtItem {
         'stationId': stationId,
       },
       user: user,
-      useProxy: user.useProxy,
     );
 
-    return FeedbackListSegment(
-        feedbackListSegmentJSON['total'],
-        (feedbackListSegmentJSON['feedback'] as List<dynamic>)
-            .map<Feedback>((feedbackJSON) => Feedback(Map<String, dynamic>.from(feedbackJSON)))
-            .toList(growable: false));
+    return FeedbackListSegment(feedbackListSegmentJSON['total'], (feedbackListSegmentJSON['feedback'] as List<dynamic>).map<Feedback>((feedbackJSON) => Feedback(Map<String, dynamic>.from(feedbackJSON))).toList(growable: false));
   }
 }
 
@@ -102,9 +88,8 @@ Future<List<Station>> getStations(User user, bool includeShuffle) async {
   List<dynamic> stationsJSON = (await makeApiRequest(
     version: 'v1',
     endpoint: 'station/getStations',
-    requestData: {'pageSize': 4096},
+    requestData: {'pageSize': 250},
     user: user,
-    useProxy: user.useProxy,
   ))['stations'];
 
   if (includeShuffle) {
@@ -112,20 +97,20 @@ Future<List<Station>> getStations(User user, bool includeShuffle) async {
       version: 'v1',
       endpoint: 'station/shuffle',
       user: user,
-      useProxy: user.useProxy,
     ));
   }
 
   return stationsJSON.map((stationJSON) {
+    final isThumbprint = stationJSON['isThumbprint'];
     return Station._internal(
       pandoraId: stationJSON['pandoraId'],
       stationId: stationJSON['stationId'],
       title: stationJSON['name'],
       isShuffle: stationJSON['isShuffle'],
-      isThumbprint: stationJSON['isThumbprint'],
+      isThumbprint: isThumbprint,
       canDelete: stationJSON['allowDelete'],
       canRename: stationJSON['allowRename'],
-      artUrls: createArtMapFromDecodedJSON(stationJSON['art']),
+      artUrls: createArtMapFromDecodedJSON(stationJSON['art'], isThumbprint),
     );
   }).toList(growable: false);
 }
