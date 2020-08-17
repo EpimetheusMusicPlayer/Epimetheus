@@ -104,12 +104,13 @@ class _AuthenticationPageState extends State<AuthenticationPage> with SingleTick
           ),
         );
       }
-    } on PandoraException {
+    } on PandoraException catch (e) {
       _animationController.stop();
       showEpimetheusDialog(
         dialog: APIErrorDialog(
           context: context,
           onClickButton: navigateBackToSignInPage,
+          exception: e,
         ),
       );
     }

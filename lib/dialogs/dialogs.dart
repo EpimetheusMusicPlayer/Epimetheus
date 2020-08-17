@@ -1,3 +1,4 @@
+import 'package:epimetheus/libepimetheus/exceptions.dart';
 import 'package:flutter/material.dart';
 
 /// A class defining properties common to all the various dialogs in the app.
@@ -59,14 +60,15 @@ class NetworkErrorDialog extends EpimetheusDialog {
 }
 
 class APIErrorDialog extends EpimetheusDialog {
-  const APIErrorDialog({
+  APIErrorDialog({
     @required BuildContext context,
     String buttonLabel = 'Okay',
     @required VoidCallback onClickButton,
+    PandoraException exception,
   }) : super(
           context: context,
           title: 'An API error has occured.',
-          description: 'Please sign in again. If this is a recurring issue, please contact the developer(s).',
+          description: 'Please sign in again. If this is a recurring issue, please contact the developer(s). ${exception == null ? '' : '\n\n${exception.errorString}: ${exception.message} (${exception.errorCode})'}',
           buttonLabel: buttonLabel,
           onClickButton: onClickButton,
         );
@@ -95,6 +97,20 @@ class AuthenticationErrorDialog extends EpimetheusDialog {
           context: context,
           title: 'Incorrect email address or password.',
           description: 'Please try again, or reset your password at pandora.com.',
+          buttonLabel: buttonLabel,
+          onClickButton: onClickButton,
+        );
+}
+
+class ProxyErrorDialog extends EpimetheusDialog {
+  const ProxyErrorDialog({
+    @required BuildContext context,
+    String buttonLabel = 'Proxy settings',
+    @required VoidCallback onClickButton,
+  }) : super(
+          context: context,
+          title: 'Failed to use proxy.',
+          description: 'Please confirm that your proxy settings are correct.',
           buttonLabel: buttonLabel,
           onClickButton: onClickButton,
         );

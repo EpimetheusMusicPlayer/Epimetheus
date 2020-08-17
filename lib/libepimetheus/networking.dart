@@ -26,12 +26,14 @@ Future<Map<String, dynamic>> makeApiRequest({
   BaseClient anonymousProxyClient,
   bool needsProxy = false,
 }) async {
+  print('$version/$endpoint');
+
   final proxyClient = user?.proxyClient ?? anonymousProxyClient;
   final client = needsProxy ? proxyClient : _client;
 
-  final Map<String, dynamic> response = jsonDecode((await client.post(
+  final response = await client.post(
     'https://www.pandora.com/api/$version/$endpoint',
-    encoding: Encoding.getByName('utf-8'),
+    encoding: utf8,
     body: jsonEncode(requestData),
     headers: {
       'Content-Type': 'application/json',
@@ -39,18 +41,39 @@ Future<Map<String, dynamic>> makeApiRequest({
       'X-CsrfToken': csrfToken, // The csrfToken is definitely initialised due to the line above
       'X-AuthToken': user?.authToken ?? '',
     },
-  ))
-      .body);
+  );
 
-  if (response.containsKey('errorCode')) throwException(response['errorString'], response['message'], response['errorCode']);
+  final Map<String, dynamic> responseJSON = jsonDecode(response.body);
 
-  return response;
+  if (response.statusCode != 200) {
+    throwException(
+      responseJSON['errorString'],
+      responseJSON['message'],
+      responseJSON['errorCode'],
+      response.statusCode,
+      '$version/$endpoint',
+    );
+  }
+
+  return responseJSON;
 }
 
 Future<String> getCsrfToken(BaseClient proxyClient) async {
+  print('Getting csrfToken');
+
   String _csrfToken;
 
-  final headers = (await proxyClient.head('https://www.pandora.com/')).headers;
+//  final headers = (await proxyClient.head('https://www.pandora.com/')).headers;
+  final headers = (await proxyClient.send(
+    Request(
+      'HEAD',
+      Uri.parse('https://www.pandora.com/'),
+    ),
+  ))
+      .headers;
+
+  print('Got headers');
+
   if (headers.containsKey('set-cookie')) {
     for (String string in headers['set-cookie'].split(RegExp(r';|,'))) {
       if (string.startsWith('csrftoken')) {
