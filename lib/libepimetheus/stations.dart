@@ -1,10 +1,9 @@
+import 'package:epimetheus/libepimetheus/authentication.dart';
+import 'package:epimetheus/libepimetheus/networking.dart';
 import 'package:epimetheus/libepimetheus/songs.dart';
+import 'package:epimetheus/libepimetheus/structures/art_item.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
-
-import 'structures/art_item.dart';
-import './authentication.dart';
-import './networking.dart';
 
 class Station extends ArtItem {
   final String stationId;
@@ -26,14 +25,7 @@ class Station extends ArtItem {
   }) : super(pandoraId, artUrls);
 
   @override
-  bool operator ==(Object other) => other is Station
-      ? stationId == other.stationId &&
-          pandoraId == other.pandoraId &&
-          isShuffle == other.isShuffle &&
-          isThumbprint == other.isThumbprint &&
-          canRename == other.canDelete &&
-          canRename == other.canRename
-      : super == (other);
+  bool operator ==(Object other) => other is Station ? stationId == other.stationId && pandoraId == other.pandoraId && isShuffle == other.isShuffle && isThumbprint == other.isThumbprint && canRename == other.canDelete && canRename == other.canRename : super == (other);
 
   @override
   int get hashCode {
@@ -88,11 +80,7 @@ class Station extends ArtItem {
       user: user,
     );
 
-    return FeedbackListSegment(
-        feedbackListSegmentJSON['total'],
-        (feedbackListSegmentJSON['feedback'] as List<dynamic>)
-            .map<Feedback>((feedbackJSON) => Feedback(Map<String, dynamic>.from(feedbackJSON)))
-            .toList(growable: false));
+    return FeedbackListSegment(feedbackListSegmentJSON['total'], (feedbackListSegmentJSON['feedback'] as List<dynamic>).map<Feedback>((feedbackJSON) => Feedback(Map<String, dynamic>.from(feedbackJSON))).toList(growable: false));
   }
 }
 
