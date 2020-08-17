@@ -13,7 +13,7 @@ dependencies:
   scoped_model: ^1.0.1
   http: ^0.12.0+2
   connectivity: ^0.4.5+3
-  flutter_secure_storage: ^3.3.1+1
+  flutter_secure_storage: ^3.3.3
 #  audio_service: ^0.5.4
   audio_service:
     path: './audio_service'
@@ -22,7 +22,7 @@ dependencies:
     path: './qudio'
   audio:
     path: './flutter_audio'
-  palette_generator: ^0.2.0
+  palette_generator: ^0.2.3
   flare_flutter: ^1.8.3
   flutter_pagewise: ^1.2.3
   paginator:
@@ -36,6 +36,7 @@ dependencies:
   outline_material_icons: ^0.1.0
   flutter_svg: ^0.17.3+1
   shared_preferences: ^0.5.7
+#  flutter_stetho: ^0.5.2
 
 dev_dependencies:
   flutter_test:
