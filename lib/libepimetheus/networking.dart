@@ -59,20 +59,9 @@ Future<Map<String, dynamic>> makeApiRequest({
 }
 
 Future<String> getCsrfToken(BaseClient proxyClient) async {
-  print('Getting csrfToken');
-
   String _csrfToken;
 
-//  final headers = (await proxyClient.head('https://www.pandora.com/')).headers;
-  final headers = (await proxyClient.send(
-    Request(
-      'HEAD',
-      Uri.parse('https://www.pandora.com/'),
-    ),
-  ))
-      .headers;
-
-  print('Got headers');
+  final headers = (await proxyClient.head('https://www.pandora.com/')).headers;
 
   if (headers.containsKey('set-cookie')) {
     for (String string in headers['set-cookie'].split(RegExp(r';|,'))) {
@@ -107,22 +96,19 @@ class Proxy {
   });
 
   BaseClient toClient() {
+    assert(!(host.contains('@') || host.contains(':')));
+
+    String authPrefix;
+    if (username != null) {
+      authPrefix = Uri.encodeComponent(username);
+      if (password != null) authPrefix += ':' + Uri.encodeComponent(password);
+      authPrefix += '@';
+    }
+
     final httpClient = HttpClient()
       ..findProxy = ((uri) {
-        return 'PROXY $host:$port';
+        return 'PROXY ${authPrefix ?? ''}$host:$port';
       });
-
-    if (username != null) {
-      httpClient.addProxyCredentials(
-        host,
-        port,
-        'pandora.com',
-        HttpClientBasicCredentials(
-          username,
-          password,
-        ),
-      );
-    }
 
     if (ignoreSSLErrors) httpClient.badCertificateCallback = (cert, host, port) => true;
 

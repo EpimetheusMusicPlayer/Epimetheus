@@ -4,6 +4,7 @@ import 'package:epimetheus/models/user/user.dart';
 import 'package:epimetheus/pages/authentication/authentication_page.dart';
 import 'package:epimetheus/pages/collection/collection_page.dart';
 import 'package:epimetheus/pages/now_playing/now_playing_page.dart';
+import 'package:epimetheus/pages/preferences/proxy_preferences_page.dart';
 import 'package:epimetheus/pages/signin/signin_page.dart';
 import 'package:epimetheus/widgets/audio/audio_service_display.dart';
 import 'package:flutter/material.dart';
@@ -13,11 +14,17 @@ import 'package:scoped_model/scoped_model.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  FlutterSecureStorage storage = FlutterSecureStorage();
+  final storage = const FlutterSecureStorage();
+
+  final creds = await Future.wait<String>([
+    storage.read(key: 'email'),
+    storage.read(key: 'password'),
+  ]);
+
   runApp(
     Epimetheus(
-      email: await storage.read(key: 'email'),
-      password: await storage.read(key: 'password'),
+      email: creds[0],
+      password: creds[1],
     ),
   );
 }
@@ -27,8 +34,8 @@ class Epimetheus extends StatefulWidget {
   final String password;
 
   const Epimetheus({
-    this.email,
-    this.password,
+    @required this.email,
+    @required this.password,
   });
 
   @override
@@ -119,6 +126,7 @@ class _EpimetheusState extends State<Epimetheus> {
                 '/': (context) => startingPage,
                 '/collection': (context) => CollectionPage(),
                 '/now-playing': (context) => NowPlayingPage(),
+                '/preferences/proxy': (context) => ProxyPreferencesPage(),
               },
               onGenerateRoute: generateRoute,
             ),

@@ -5,9 +5,12 @@ import 'package:epimetheus/libepimetheus/authentication.dart';
 import 'package:epimetheus/libepimetheus/exceptions.dart';
 import 'package:epimetheus/models/collection/collection_model.dart';
 import 'package:epimetheus/models/user/user.dart';
+import 'package:epimetheus/proxy/proxy_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// This page authenticates with Pandora's servers and shows a loading animation. It doesn't take input from the user.
 
@@ -59,9 +62,33 @@ class _AuthenticationPageState extends State<AuthenticationPage> with SingleTick
         );
     }
 
+    void showProxyErrorDialog() {
+      _animationController.stop();
+      showEpimetheusDialog(
+        dialog: ProxyErrorDialog(
+          context: context,
+          onClickButton: () {
+            navigateBackToSignInPage();
+            Navigator.pushNamed(context, '/preferences/proxy');
+          },
+        ),
+      );
+    }
+
     try {
+      // Configure and load some proxy settings
+      final prefs = await SharedPreferences.getInstance();
+      final isProxyEnabled = ProxyManager.isProxyEnabled(prefs);
+      final proxy = isProxyEnabled ? await ProxyManager.geProxy(prefs) : null;
+      if (isProxyEnabled && proxy == null) showProxyErrorDialog();
+
       // Authenticate with Pandora
-      final User user = (await User.create(widget.email, widget.password));
+      final User user = (await User.create(
+        email: widget.email,
+        password: widget.password,
+        proxy: proxy,
+      ));
+
       UserModel.of(context).user = user;
 
       // Set the _authenticated bool to true so the app progresses after the next animation loop
@@ -69,6 +96,12 @@ class _AuthenticationPageState extends State<AuthenticationPage> with SingleTick
 
       // Pre-cache some data
       cache(user);
+    } on ClientException catch (e) {
+      if (e.message.contains('407')) {
+        showProxyErrorDialog();
+      } else {
+        throw (e);
+      }
     } on HandshakeException {
       _animationController.stop();
       showEpimetheusDialog(

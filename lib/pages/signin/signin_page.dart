@@ -1,4 +1,5 @@
 import 'package:audio_service/audio_service.dart';
+import 'package:epimetheus/libepimetheus/networking.dart';
 import 'package:epimetheus/models/collection/collection_model.dart';
 import 'package:epimetheus/models/user/user.dart';
 import 'package:epimetheus/pages/authentication/authentication_page.dart';
@@ -8,7 +9,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// The user inputs their credentials to this page, which then passes them on to [AuthenticationPage].
-/// If an email is passed in from the app launching code,it automatically fill that in.
+/// If an email is passed in from the app launching code, it automatically fills that in.
 
 const _emailRegex = r"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?";
 
@@ -24,6 +25,7 @@ void signOut(BuildContext context) async {
 
   userModel.clear();
   collectionModel.clear();
+  csrfToken = null; // Clear the csrfToken to avoid geo-blocking glitches
 }
 
 class SignInPage extends StatefulWidget {
@@ -98,6 +100,16 @@ class _SignInPageState extends State<SignInPage> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Sign in'),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.vpn_lock),
+              tooltip: 'Proxy settings',
+              onPressed: () async {
+                await FlutterAutofill.cancel();
+                Navigator.pushNamed(context, '/preferences/proxy');
+              },
+            ),
+          ],
         ),
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 48),
