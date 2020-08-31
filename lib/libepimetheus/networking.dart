@@ -26,7 +26,7 @@ Future<Map<String, dynamic>> makeApiRequest({
   BaseClient anonymousProxyClient,
   bool needsProxy = false,
 }) async {
-  print('$version/$endpoint');
+  print('Sending $version/$endpoint: $requestData');
 
   final proxyClient = user?.proxyClient ?? anonymousProxyClient;
   final client = needsProxy ? proxyClient : _client;
@@ -54,6 +54,8 @@ Future<Map<String, dynamic>> makeApiRequest({
       '$version/$endpoint',
     );
   }
+
+  print('Received $version/$endpoint: $requestData');
 
   return responseJSON;
 }
