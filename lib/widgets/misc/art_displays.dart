@@ -2,6 +2,28 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 
+class ArtListTileImage extends StatelessWidget {
+  final String artUrl;
+
+  ArtListTileImage(this.artUrl);
+
+  @override
+  Widget build(BuildContext context) {
+    return CachedNetworkImage(
+      width: 56,
+      height: 56,
+      fit: BoxFit.cover,
+      alignment: Alignment.center,
+      imageUrl: artUrl,
+      placeholder: (context, imageUrl) => Image.asset(
+        'assets/music_note.png',
+        height: 56,
+      ),
+      placeholderFadeInDuration: const Duration(milliseconds: 500),
+    );
+  }
+}
+
 class ArtTile extends StatelessWidget {
   final String artUrl;
   final String label;
@@ -77,9 +99,11 @@ class ArtTileCarousel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CarouselSlider(
-      viewportFraction: 0.5,
-      autoPlay: true,
-      aspectRatio: (4 / 3) / 0.5,
+      options: CarouselOptions(
+        viewportFraction: 0.5,
+        autoPlay: true,
+        aspectRatio: (4 / 3) / 0.5,
+      ),
       items: <Widget>[
         for (int i = 0; i < artUrls.length; i++)
           Card(

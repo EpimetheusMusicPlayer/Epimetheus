@@ -2,14 +2,16 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/widgets.dart';
 
 abstract class Player {
-  final Function(BasicPlaybackState newPlaybackState) onPlaybackStateChange;
+  final Function(bool playing) onPlayPauseStateChange;
+  final Function(AudioProcessingState newAudioProcessingState) onAudioProcessingStateChange;
   final Function(int newQueueSize) onSongAdvancement;
   final Function(int newDuration) onDurationChange;
   final VoidCallback onSeek;
   final VoidCallback onError;
 
   Player({
-    @required this.onPlaybackStateChange,
+    @required this.onPlayPauseStateChange,
+    @required this.onAudioProcessingStateChange,
     @required this.onSongAdvancement,
     @required this.onDurationChange,
     @required this.onSeek,
@@ -61,6 +63,6 @@ abstract class Player {
   // Get the current playback position.
   Future<int> getPosition();
 
-  // Get the duration of the playing media.
+  // Get the duration of the playing media, in milliseconds.
   Future<int> getDuration();
 }

@@ -5,6 +5,7 @@ import 'package:epimetheus/libepimetheus/authentication.dart';
 import 'package:epimetheus/libepimetheus/exceptions.dart';
 import 'package:epimetheus/models/collection/collection_model.dart';
 import 'package:epimetheus/models/user/user.dart';
+import 'package:epimetheus/pages/signin/signin_page.dart';
 import 'package:epimetheus/proxy/proxy_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
@@ -53,11 +54,14 @@ class _AuthenticationPageState extends State<AuthenticationPage> with SingleTick
     void navigateBackToSignInPage() {
       Navigator.of(context)
         ..pop()
-        ..pushReplacementNamed(
-          '/sign-in',
-          arguments: AuthenticationPageArguments(
-            email: widget.email,
-            password: widget.password,
+        ..pushReplacement(
+          MaterialPageRoute(
+            builder: (context) {
+              return SignInPage(
+                email: widget.email,
+                password: widget.password,
+              );
+            },
           ),
         );
     }

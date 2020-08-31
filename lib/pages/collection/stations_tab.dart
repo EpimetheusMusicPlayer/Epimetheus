@@ -1,18 +1,11 @@
 import 'package:epimetheus/audio/launch_helpers.dart';
 import 'package:epimetheus/libepimetheus/stations.dart';
-import 'package:epimetheus/models/collection/collection_model.dart';
-import 'package:epimetheus/models/collection/collection_provider.dart';
 import 'package:epimetheus/pages/collection/collection_page.dart';
-import 'package:epimetheus/pages/collection/collection_tab.dart';
+import 'package:epimetheus/pages/collection/static_collection_tab.dart';
 import 'package:epimetheus/widgets/playable/station.dart';
 import 'package:flutter/material.dart';
 
-class StationsTab extends CollectionTab<Station> {
-  @override
-  CollectionProvider<Station> getCollectionProvider(BuildContext context) {
-    return CollectionModel.of(context).stationCollectionProvider;
-  }
-
+class StationsTab extends StaticCollectionTab<Station> {
   @override
   Widget buildMainContent(BuildContext context, List<Station> stations) {
     final hasShuffle = stations[0].isShuffle;

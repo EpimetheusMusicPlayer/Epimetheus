@@ -1,20 +1,19 @@
+import 'package:epimetheus/libepimetheus/structures/pandora_entity.dart';
 import 'package:epimetheus/models/collection/collection_model.dart';
-import 'package:epimetheus/models/collection/collection_provider.dart';
+import 'package:epimetheus/models/collection/static_collection_provider.dart';
 import 'package:epimetheus/models/user/user.dart';
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 
-abstract class CollectionTab<T> extends StatelessWidget {
+abstract class StaticCollectionTab<T extends PandoraEntity> extends StatelessWidget {
   final _refreshKey = GlobalKey<RefreshIndicatorState>();
-
-  CollectionProvider<T> getCollectionProvider(BuildContext context);
 
   Widget buildMainContent(BuildContext context, List<T> data);
 
   @override
   Widget build(BuildContext context) {
     final user = UserModel.of(context).user;
-    final collectionProvider = getCollectionProvider(context);
+    final collectionProvider = CollectionModel.of(context).getCollectionProvider(T) as StaticCollectionProvider;
 
     return RefreshIndicator(
       key: _refreshKey,
@@ -27,7 +26,7 @@ abstract class CollectionTab<T> extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   Text(
-                    collectionProvider.errorMessage,
+                    'There was an error showing your ${collectionProvider.typeName}.',
                     textAlign: TextAlign.center,
                   ),
                   FlatButton(
@@ -39,15 +38,13 @@ abstract class CollectionTab<T> extends StatelessWidget {
             );
           }
 
-          final data = collectionProvider.getAsync(user);
-
-          if (data == null) {
+          if (!collectionProvider.getAsync(user)) {
             return const Center(
               child: const CircularProgressIndicator(),
             );
           }
 
-          return buildMainContent(context, data);
+          return buildMainContent(context, collectionProvider.getDownloaded());
         },
       ),
     );

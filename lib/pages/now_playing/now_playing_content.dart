@@ -82,10 +82,12 @@ class _SeamlessMediaControlsState extends State<SeamlessMediaControls> with Sing
     );
 
     _playbackStateListener = AudioService.playbackStateStream.listen((playbackState) {
-      if (playbackState.basicState == BasicPlaybackState.paused)
-        _playPauseController.forward();
-      else
-        _playPauseController.reverse();
+      if (playbackState != null) {
+        if (playbackState.playing)
+          _playPauseController.reverse();
+        else
+          _playPauseController.forward();
+      }
     });
   }
 
@@ -141,10 +143,11 @@ class _SeamlessMediaControlsState extends State<SeamlessMediaControls> with Sing
                 ),
                 iconSize: iconSize,
                 onPressed: () {
-                  if (AudioService.playbackState.basicState == BasicPlaybackState.paused)
-                    AudioService.play();
-                  else
+                  print(AudioService.playbackState.playing); // TODO remove print;
+                  if (AudioService.playbackState.playing)
                     AudioService.pause();
+                  else
+                    AudioService.play();
                 },
               ),
               IconButton(

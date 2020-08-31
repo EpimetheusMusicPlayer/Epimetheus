@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class Explicit extends StatelessWidget {
+  static const _color = const Color(0xFFA00000);
+
   const Explicit();
 
   @override
@@ -9,7 +11,7 @@ class Explicit extends StatelessWidget {
       decoration: const BoxDecoration(
         border: const Border.fromBorderSide(
           const BorderSide(
-            color: Colors.red,
+            color: _color,
           ),
         ),
         borderRadius: const BorderRadius.all(
@@ -19,13 +21,13 @@ class Explicit extends StatelessWidget {
         ),
       ),
       child: const Padding(
-        padding: const EdgeInsets.only(left: 4, right: 4, top: 2),
+        padding: const EdgeInsets.only(left: 4, right: 4, top: 2, bottom: 2),
         child: const Text(
           'E',
           softWrap: false,
           textAlign: TextAlign.center,
           style: const TextStyle(
-            color: Colors.red,
+            color: _color,
           ),
         ),
       ),

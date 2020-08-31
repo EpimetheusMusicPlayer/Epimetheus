@@ -2,12 +2,23 @@ import 'package:epimetheus/pages/collection/albums_tab.dart';
 import 'package:epimetheus/pages/collection/artists_tab.dart';
 import 'package:epimetheus/pages/collection/playlists_tab.dart';
 import 'package:epimetheus/pages/collection/stations_tab.dart';
+import 'package:epimetheus/pages/collection/subsections/items_by_artist.dart';
 import 'package:epimetheus/pages/collection/tracks_tab.dart';
 import 'package:epimetheus/pages/navigation_drawer.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:outline_material_icons/outline_material_icons.dart';
 
 class CollectionPage extends StatefulWidget {
+  static const pathPrefix = 'collection';
+
+  static Route<dynamic> generateRoute(RouteSettings settings, List<String> paths) {
+    if (paths[1] == 'artists')
+      return CollectedItemsByArtistPage.generateRoute(settings, paths);
+    else
+      return null;
+  }
+
   @override
   _CollectionPageState createState() => _CollectionPageState();
 }
@@ -68,16 +79,34 @@ class _CollectionPageState extends State<CollectionPage> with SingleTickerProvid
             const Tab(text: 'Songs', icon: const Icon(OMIcons.audiotrack)),
           ],
         ),
+//        actions: kDebugMode
+//            ? [
+//                IconButton(
+//                  icon: const Icon(Icons.http),
+//                  tooltip: 'API test',
+//                  onPressed: () async {
+//                    print(
+//                      await makeApiRequest(
+//                        version: '',
+//                        endpoint: '',
+//                        requestData: {},
+//                        user: UserModel.of(context).user,
+//                      ),
+//                    );
+//                  },
+//                ),
+//              ]
+//            : null,
       ),
       floatingActionButton: fab,
       body: TabBarView(
         controller: _tabController,
         children: <Widget>[
           StationsTab(),
-          PlaylistsTab(),
-          ArtistsTab(),
-          AlbumsTab(),
-          TracksTab(),
+          const PlaylistsTab(),
+          const ArtistsTab(),
+          const AlbumsTab(),
+          const TracksTab(),
         ],
       ),
     );

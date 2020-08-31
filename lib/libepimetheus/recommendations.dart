@@ -1,115 +1,117 @@
-import 'package:epimetheus/libepimetheus/structures/art_item.dart';
-import 'package:epimetheus/libepimetheus/artists.dart';
-import 'package:epimetheus/libepimetheus/authentication.dart';
-import 'package:epimetheus/libepimetheus/networking.dart';
-import 'package:meta/meta.dart';
-
-abstract class Recommendation extends ArtItem {
-  final String title;
-  final int listenerCount;
-
-  Recommendation._internal({
-    @required String pandoraId,
-    @required this.title,
-    @required this.listenerCount,
-    @required Map<int, String> artUrls,
-  }) : super(pandoraId, artUrls);
-}
-
-class ArtistRecommendation extends Recommendation {
-  final String detailUrl;
-
-  ArtistRecommendation._internal({
-    String pandoraId,
-    String title,
-    int listenerCount,
-    Map<int, String> artUrls,
-    this.detailUrl,
-  }) : super._internal(pandoraId: pandoraId, title: title, listenerCount: listenerCount, artUrls: artUrls);
-
-  ArtistRecommendation(Map<String, dynamic> artistJSON)
-      : this._internal(
-          pandoraId: artistJSON['pandoraId'],
-          title: artistJSON['name'],
-          listenerCount: artistJSON['listenerCount'],
-          artUrls: createArtMapFromDecodedJSON(artistJSON['art']),
-        );
-}
-
-class GenreStationRecommendation extends Recommendation {
-  final String description;
-  final List<TrackRecommendation> sampleTracks;
-  final List<Artist> sampleArtists;
-  final Map<int, String> headerArt;
-
-  GenreStationRecommendation._internal({
-    @required String pandoraId,
-    @required String title,
-    @required this.description,
-    @required this.sampleTracks,
-    @required this.sampleArtists,
-    @required int listenerCount,
-    @required Map<int, String> artUrls,
-    @required this.headerArt,
-  }) : super._internal(pandoraId: pandoraId, title: title, listenerCount: listenerCount, artUrls: artUrls);
-
-  GenreStationRecommendation(Map<String, dynamic> genreStationJSON)
-      : this._internal(
-          pandoraId: genreStationJSON['pandoraId'],
-          title: genreStationJSON['name'],
-          description: genreStationJSON['description'],
-          sampleTracks: genreStationJSON['sampleTracks'].map<TrackRecommendation>((trackJSON) => TrackRecommendation(trackJSON)).toList(growable: false),
-          sampleArtists: genreStationJSON['sampleArtists'].map<Artist>((artistJSON) => Artist(artistJSON)).toList(growable: false),
-          listenerCount: genreStationJSON['listenerCount'],
-          artUrls: createArtMapFromDecodedJSON(genreStationJSON['art']),
-          headerArt: createArtMapFromDecodedJSON(genreStationJSON['headerArt']),
-        );
-}
-
-class TrackRecommendation extends ArtItem {
-  final String title;
-  final String albumTitle;
-  final String artistTitle;
-
-  const TrackRecommendation._internal({
-    @required String pandoraId,
-    @required this.title,
-    @required this.albumTitle,
-    @required this.artistTitle,
-    @required Map<int, String> artUrls,
-  }) : super(pandoraId, artUrls);
-
-  TrackRecommendation(Map<String, dynamic> trackJSON)
-      : this._internal(
-          pandoraId: trackJSON['pandoraId'],
-          title: trackJSON['songTitle'],
-          artistTitle: trackJSON['artistName'],
-          albumTitle: trackJSON['albumTitle'],
-          artUrls: createArtMapFromDecodedJSON(trackJSON['albumArt']),
-        );
-}
-
-class Recommendations {
-  final List<ArtistRecommendation> artists;
-  final List<GenreStationRecommendation> genreStations;
-
-  Recommendations._internal({
-    @required this.artists,
-    @required this.genreStations,
-  });
-}
-
-Future<Recommendations> getRecommendations(User user) async {
-  Map<String, dynamic> recommendations = await makeApiRequest(
-    version: 'v1',
-    endpoint: 'search/getStationRecommendations',
-    user: user,
-  );
-
-  return Recommendations._internal(
-    artists: recommendations['artists'].map<ArtistRecommendation>((artistJSON) => ArtistRecommendation(artistJSON)).toList(growable: false),
-    genreStations: recommendations['genreStations']
-        .map<GenreStationRecommendation>((genreStationJSON) => GenreStationRecommendation(genreStationJSON))
-        .toList(growable: false),
-  );
-}
+//import 'package:epimetheus/libepimetheus/structures/static_art_item.dart';
+//import 'package:epimetheus/libepimetheus/artists.dart';
+//import 'package:epimetheus/libepimetheus/authentication.dart';
+//import 'package:epimetheus/libepimetheus/networking.dart';
+//import 'package:epimetheus/libepimetheus/structures/pandora_entity.dart';
+//import 'package:meta/meta.dart';
+//
+//abstract class Recommendation extends PandoraEntity with ArtItem {
+//  final Map<int, String> artUrls;
+//  final String title;
+//  final int listenerCount;
+//
+//  Recommendation._internal({
+//    @required String pandoraId,
+//    @required this.title,
+//    @required this.listenerCount,
+//    this.artUrls,
+//  }) : super(pandoraId, );
+//}
+//
+//class ArtistRecommendation extends Recommendation {
+//  final String detailUrl;
+//
+//  ArtistRecommendation._internal({
+//    String pandoraId,
+//    String title,
+//    int listenerCount,
+//    Map<int, String> artUrls,
+//    this.detailUrl,
+//  }) : super._internal(pandoraId: pandoraId, title: title, listenerCount: listenerCount, artUrls: artUrls);
+//
+//  ArtistRecommendation(Map<String, dynamic> artistJSON)
+//      : this._internal(
+//          pandoraId: artistJSON['pandoraId'],
+//          title: artistJSON['name'],
+//          listenerCount: artistJSON['listenerCount'],
+//          artUrls: createArtMapFromDecodedJSON(artistJSON['art']),
+//        );
+//}
+//
+//class GenreStationRecommendation extends Recommendation {
+//  final String description;
+//  final List<TrackRecommendation> sampleTracks;
+//  final List<Artist> sampleArtists;
+//  final Map<int, String> headerArt;
+//
+//  GenreStationRecommendation._internal({
+//    @required String pandoraId,
+//    @required String title,
+//    @required this.description,
+//    @required this.sampleTracks,
+//    @required this.sampleArtists,
+//    @required int listenerCount,
+//    @required Map<int, String> artUrls,
+//    @required this.headerArt,
+//  }) : super._internal(pandoraId: pandoraId, title: title, listenerCount: listenerCount, artUrls: artUrls);
+//
+//  GenreStationRecommendation(Map<String, dynamic> genreStationJSON)
+//      : this._internal(
+//          pandoraId: genreStationJSON['pandoraId'],
+//          title: genreStationJSON['name'],
+//          description: genreStationJSON['description'],
+//          sampleTracks: genreStationJSON['sampleTracks'].map<TrackRecommendation>((trackJSON) => TrackRecommendation(trackJSON)).toList(growable: false),
+//          sampleArtists: genreStationJSON['sampleArtists'].map<Artist>((artistJSON) => Artist(artistJSON)).toList(growable: false),
+//          listenerCount: genreStationJSON['listenerCount'],
+//          artUrls: createArtMapFromDecodedJSON(genreStationJSON['art']),
+//          headerArt: createArtMapFromDecodedJSON(genreStationJSON['headerArt']),
+//        );
+//}
+//
+//class TrackRecommendation extends ArtItem {
+//  final String title;
+//  final String albumTitle;
+//  final String artistTitle;
+//
+//  const TrackRecommendation._internal({
+//    @required String pandoraId,
+//    @required this.title,
+//    @required this.albumTitle,
+//    @required this.artistTitle,
+//    @required Map<int, String> artUrls,
+//  }) : super(pandoraId, artUrls);
+//
+//  TrackRecommendation(Map<String, dynamic> trackJSON)
+//      : this._internal(
+//          pandoraId: trackJSON['pandoraId'],
+//          title: trackJSON['songTitle'],
+//          artistTitle: trackJSON['artistName'],
+//          albumTitle: trackJSON['albumTitle'],
+//          artUrls: createArtMapFromDecodedJSON(trackJSON['albumArt']),
+//        );
+//}
+//
+//class Recommendations {
+//  final List<ArtistRecommendation> artists;
+//  final List<GenreStationRecommendation> genreStations;
+//
+//  Recommendations._internal({
+//    @required this.artists,
+//    @required this.genreStations,
+//  });
+//}
+//
+//Future<Recommendations> getRecommendations(User user) async {
+//  Map<String, dynamic> recommendations = await makeApiRequest(
+//    version: 'v1',
+//    endpoint: 'search/getStationRecommendations',
+//    user: user,
+//  );
+//
+//  return Recommendations._internal(
+//    artists: recommendations['artists'].map<ArtistRecommendation>((artistJSON) => ArtistRecommendation(artistJSON)).toList(growable: false),
+//    genreStations: recommendations['genreStations']
+//        .map<GenreStationRecommendation>((genreStationJSON) => GenreStationRecommendation(genreStationJSON))
+//        .toList(growable: false),
+//  );
+//}

@@ -1,6 +1,7 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 
+/// Legacy code; unused. No longer necessary thanks to the addition of [AudioServiceWidget] in audio_service.
 class AudioServiceDisplay extends StatefulWidget {
   final Widget child;
 

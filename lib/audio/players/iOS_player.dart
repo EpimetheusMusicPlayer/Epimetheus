@@ -7,13 +7,15 @@ import 'package:flutter/widgets.dart';
 
 class iOSPlayer extends Player {
   iOSPlayer({
-    @required Function(BasicPlaybackState newPlaybackState) onPlaybackStateChange,
+    @required Function(bool playing) onPlayPauseStateChange,
+    @required Function(AudioProcessingState newAudioProcessingState) onAudioProcessingStateChange,
     @required Function(int newQueueSize) onSongAdvancement,
     @required Function(int newDuration) onDurationChange,
     @required VoidCallback onSeek,
     @required VoidCallback onError,
   }) : super(
-          onPlaybackStateChange: onPlaybackStateChange,
+          onPlayPauseStateChange: onPlayPauseStateChange,
+          onAudioProcessingStateChange: onAudioProcessingStateChange,
           onSongAdvancement: onSongAdvancement,
           onDurationChange: onDurationChange,
           onSeek: onSeek,
@@ -34,7 +36,7 @@ class iOSPlayer extends Player {
     _onPlayerStateChangedListener = player.onPlayerStateChanged.listen((playerState) {
       switch (playerState) {
         case AudioPlayerState.LOADING:
-          onPlaybackStateChange(BasicPlaybackState.buffering);
+          onAudioProcessingStateChange(AudioProcessingState.buffering);
           break;
 
         case AudioPlayerState.READY:
@@ -42,16 +44,18 @@ class iOSPlayer extends Player {
           break;
 
         case AudioPlayerState.PLAYING:
-          onPlaybackStateChange(BasicPlaybackState.playing);
+          onPlayPauseStateChange(true);
+          onAudioProcessingStateChange(AudioProcessingState.ready);
           break;
 
         case AudioPlayerState.PAUSED:
-          onPlaybackStateChange(BasicPlaybackState.paused);
+          onPlayPauseStateChange(false);
+          onAudioProcessingStateChange(AudioProcessingState.ready);
           break;
 
         case AudioPlayerState.STOPPED:
           queue.removeAt(0);
-          onPlaybackStateChange(BasicPlaybackState.buffering);
+          onAudioProcessingStateChange(AudioProcessingState.buffering);
           onSongAdvancement(queue.length);
           break;
       }

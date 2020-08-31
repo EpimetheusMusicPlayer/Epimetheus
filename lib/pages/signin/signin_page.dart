@@ -51,12 +51,14 @@ class _SignInPageState extends State<SignInPage> {
     if (_formKeyState.validate()) {
       _formKeyState.save();
       FlutterAutofill.commit();
-      Navigator.pushReplacementNamed(
-        context,
-        '/auth',
-        arguments: AuthenticationPageArguments(
-          email: _email,
-          password: _password,
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) {
+            return AuthenticationPage(
+              email: _email,
+              password: _password,
+            );
+          },
         ),
       );
     }

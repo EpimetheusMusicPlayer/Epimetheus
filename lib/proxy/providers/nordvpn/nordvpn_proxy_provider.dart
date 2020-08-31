@@ -78,9 +78,11 @@ class NordVPNProxyProvider extends ProxyProvider {
       host: 'api.nordvpn.com',
       path: '/v1/servers/recommendations',
       queryParameters: const {
-        'limit': '5', // The server picker tool at https://nordvpn.com/servers/tools/ appears to grab five and choose the first. We do the same here. The results are ordered by load; lowest -> highest.
+        'limit': '1', // The official chrome extension limits to 1. We do the same.
         'filters[servers_technologies][pivot][status]': 'online', // Not really sure what this does; copied from the Android app.
-        'filters[country_id]': '228', // The US country id is 228.
+        'filters[country_id]': '228', // The US country id is 228. Full list at https://api.nordvpn.com/v1/servers/countries.
+//        'filters[servers_technologies][identifier]': 'proxy_ssl',
+//        'filters[servers_groups][identifier]': 'legacy_standard',
         'filters[servers_technologies][id]': '9',
         'filters[servers_technologies]': '9', // Either this query or the one above selects proxy servers. As most servers have proxy support anyway, and no official client does this, it's hard to tell which is correct.
       },

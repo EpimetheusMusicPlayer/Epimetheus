@@ -7,13 +7,15 @@ import 'package:qudio/qudio.dart';
 
 class AndroidPlayer extends Player {
   AndroidPlayer({
-    @required Function(BasicPlaybackState newPlaybackState) onPlaybackStateChange,
+    @required Function(bool playing) onPlayPauseStateChange,
+    @required Function(AudioProcessingState newAudioProcessingState) onAudioProcessingStateChange,
     @required Function(int newQueueSize) onSongAdvancement,
     @required Function(int newDuration) onDurationChange,
     @required VoidCallback onSeek,
     @required VoidCallback onError,
   }) : super(
-          onPlaybackStateChange: onPlaybackStateChange,
+          onPlayPauseStateChange: onPlayPauseStateChange,
+          onAudioProcessingStateChange: onAudioProcessingStateChange,
           onSongAdvancement: onSongAdvancement,
           onDurationChange: onDurationChange,
           onSeek: onSeek,
@@ -33,19 +35,20 @@ class AndroidPlayer extends Player {
     _playbackStatusListener = Qudio.playbackStatusStream.listen((playbackStatus) {
       switch (playbackStatus.playbackState) {
         case QudioPlaybackState.idle:
-          onPlaybackStateChange(BasicPlaybackState.none);
+          onAudioProcessingStateChange(AudioProcessingState.none);
           break;
 
         case QudioPlaybackState.buffering:
-          onPlaybackStateChange(BasicPlaybackState.buffering);
+          onAudioProcessingStateChange(AudioProcessingState.buffering);
           break;
 
         case QudioPlaybackState.ready:
-          onPlaybackStateChange(playbackStatus.playing ? BasicPlaybackState.playing : BasicPlaybackState.paused);
+          onPlayPauseStateChange(playbackStatus.playing);
+          onAudioProcessingStateChange(AudioProcessingState.ready);
           break;
 
         case QudioPlaybackState.ended:
-          onPlaybackStateChange(BasicPlaybackState.buffering);
+          onAudioProcessingStateChange(AudioProcessingState.buffering);
           break;
       }
     });

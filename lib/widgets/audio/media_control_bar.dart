@@ -31,10 +31,9 @@ class MediaControlBar extends StatelessWidget {
             initialData: AudioService.playbackState,
             stream: AudioService.playbackStateStream,
             builder: (context, snapshot) {
-              final paused = snapshot.data.basicState == BasicPlaybackState.paused;
               return IconButton(
-                icon: Icon(paused ? Icons.play_arrow : Icons.pause),
-                onPressed: paused ? AudioService.play : AudioService.pause,
+                icon: Icon(snapshot.data.playing ? Icons.pause : Icons.play_arrow),
+                onPressed: snapshot.data.playing ? AudioService.pause : AudioService.play,
               );
             },
           ),

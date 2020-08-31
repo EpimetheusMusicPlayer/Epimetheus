@@ -1,6 +1,10 @@
 import 'package:audio_service/audio_service.dart';
-import 'package:epimetheus/libepimetheus/structures/art_item.dart';
+import 'package:epimetheus/libepimetheus/collections.dart';
 import 'package:epimetheus/libepimetheus/networking.dart';
+import 'package:epimetheus/libepimetheus/structures/art/static_art_item.dart';
+import 'package:epimetheus/libepimetheus/structures/paged_collection_list.dart';
+import 'package:epimetheus/libepimetheus/structures/pandora_entity.dart';
+import 'package:epimetheus/libepimetheus/utils.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
@@ -11,26 +15,18 @@ enum TrackType {
   artistMessage, // ??
 }
 
-enum TrackExplicitness {
-  explicit, // EXPLICIT
-  none, // NONE
-}
-
-enum TrackSortOrder {
-  alpha, // ALPHA
-  dateAdded, // MOST_RECENT_ADDED
-}
-
 /// A static track object.
-class Track extends ArtItem {
+class Track extends PandoraEntity with StaticArtItem {
+  final Map<int, String> artUrls;
   final String title;
   final int trackNumber;
   final String albumId;
   final String albumTitle;
   final String artistId;
   final String artistTitle;
-  final int duration;
-  final TrackExplicitness explicitness;
+  final Duration duration;
+  final PandoraEntityExplicitness explicitness;
+  final Color dominantColor;
 
   const Track._internal({
     @required String pandoraId,
@@ -42,24 +38,51 @@ class Track extends ArtItem {
     @required this.artistTitle,
     @required this.duration,
     @required this.explicitness,
-    @required Map<int, String> artUrls,
-  }) : super(pandoraId, artUrls);
+    @required this.dominantColor,
+    @required this.artUrls,
+    @required PandoraEntityType type,
+  }) : super(pandoraId, type);
 
-  Track(String pandoraId, Map<String, dynamic> annotationJSON)
-      : this._internal(
-          pandoraId: pandoraId,
-          title: annotationJSON['name'],
-          trackNumber: annotationJSON['trackCount'],
-          albumId: annotationJSON['albumId'],
-          albumTitle: annotationJSON['albumName'],
-          artistId: annotationJSON['artistId'],
-          artistTitle: annotationJSON['artistName'],
-          duration: annotationJSON['duration'],
-          explicitness: annotationJSON['explicitness'] == 'EXPLICIT' ? TrackExplicitness.explicit : TrackExplicitness.none,
-          artUrls: {
-            500: 'https://content-images.p-cdn.com/${annotationJSON['icon']['thorId']}',
-          },
-        );
+  static Track createFromMaps(Map<String, dynamic> annotation, [Map<String, dynamic> collectionDetails]) {
+    final icon = annotation['icon'];
+    return Track._internal(
+      pandoraId: annotation['pandoraId'],
+      title: annotation['name'],
+      trackNumber: annotation['trackCount'],
+      albumId: annotation['albumId'],
+      albumTitle: annotation['albumName'],
+      artistId: annotation['artistId'],
+      artistTitle: annotation['artistName'],
+      duration: Duration(seconds: annotation['duration']),
+      explicitness: annotation['explicitness'] == 'EXPLICIT' ? PandoraEntityExplicitness.explicit : PandoraEntityExplicitness.none,
+      dominantColor: pandoraColorToColor(icon['dominantColor']),
+      artUrls: {
+        500: 'https://content-images.p-cdn.com/${icon['artUrl']}',
+      },
+      type: PandoraEntity.types[annotation['type']],
+    );
+  }
+
+  static PagedCollectionList<Track> _createListFromMap(Map<String, dynamic> map) {
+    return PagedCollectionList<Track>.createFromMap(map, createFromMaps, createDynamicEntityFromMaps);
+  }
+
+  static Future<PagedCollectionList<Track>> getTracks({
+    @required User user,
+    @required PagedCollectionListSortOrder sortOrder,
+    @required int limit,
+    @required int offset,
+  }) async {
+    return Track._createListFromMap(
+      await getCollection(
+        user: user,
+        typePrefixes: const [PandoraEntityType.track],
+        sortOrder: sortOrder,
+        limit: limit,
+        offset: offset,
+      ),
+    );
+  }
 
   @override
   String toString() {
@@ -67,43 +90,9 @@ class Track extends ArtItem {
   }
 }
 
-Future<List<Track>> getTracks({
-  @required User user,
-  @required TrackSortOrder sortOrder,
-  @required int offset,
-  int pageSize = 24,
-}) async {
-  final trackListJSON = await makeApiRequest(
-    version: 'v6',
-    endpoint: 'collections/getSortedByTypes',
-    requestData: {
-      'request': {
-        'sortOrder': sortOrder == TrackSortOrder.alpha ? 'ALPHA' : 'MOST_RECENT_ADDED',
-        'offset': offset,
-        'limit': pageSize,
-        'annotationLimit': pageSize,
-        'typePrefixes': const ['TR'],
-      },
-    },
-    user: user,
-  );
-
-  if (!trackListJSON.containsKey('items')) return const [];
-
-  final tracksJSON = trackListJSON['items'];
-  final annotationsJSON = trackListJSON['annotations'];
-  final tracks = List<Track>(tracksJSON.length);
-
-  for (int i = 0; i < tracks.length; ++i) {
-    final String pandoraId = tracksJSON[i]['pandoraId'];
-    tracks[i] = (Track(pandoraId, annotationsJSON[pandoraId]));
-  }
-
-  return tracks;
-}
-
 /// An object that holds feedback about a track
-class Feedback extends ArtItem {
+class Feedback extends PandoraEntity with StaticArtItem {
+  final Map<int, String> artUrls;
   final String title;
   final String artistTitle;
   final String albumTitle;
@@ -127,10 +116,10 @@ class Feedback extends ArtItem {
     this.title,
     this.artistTitle,
     this.albumTitle,
-    Map<int, String> artUrls,
+    this.artUrls,
   ) : super(
           pandoraId,
-          artUrls,
+          PandoraEntityType.track,
         );
 
   Feedback(Map<String, dynamic> feedbackJSON)

@@ -1,12 +1,10 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:epimetheus/models/collection/collection_model.dart';
 import 'package:epimetheus/models/color/color_model.dart';
 import 'package:epimetheus/models/user/user.dart';
+import 'package:epimetheus/navigation/routing.dart';
 import 'package:epimetheus/pages/authentication/authentication_page.dart';
-import 'package:epimetheus/pages/collection/collection_page.dart';
-import 'package:epimetheus/pages/now_playing/now_playing_page.dart';
-import 'package:epimetheus/pages/preferences/proxy_preferences_page.dart';
 import 'package:epimetheus/pages/signin/signin_page.dart';
-import 'package:epimetheus/widgets/audio/audio_service_display.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:scoped_model/scoped_model.dart';
@@ -59,33 +57,6 @@ class _EpimetheusState extends State<Epimetheus> {
     super.dispose();
   }
 
-  Route<dynamic> generateRoute(RouteSettings settings) {
-    switch (settings.name) {
-      case '/auth':
-        final AuthenticationPageArguments args = settings.arguments;
-        return MaterialPageRoute(
-          builder: (context) {
-            return AuthenticationPage(
-              email: args.email,
-              password: args.password,
-            );
-          },
-        );
-
-      case '/sign-in':
-        final AuthenticationPageArguments args = settings.arguments;
-        return MaterialPageRoute(
-          builder: (context) {
-            return SignInPage(
-              email: args?.email,
-              password: args?.password,
-            );
-          },
-        );
-    }
-    return null;
-  }
-
   @override
   Widget build(BuildContext context) {
     Widget startingPage;
@@ -99,7 +70,10 @@ class _EpimetheusState extends State<Epimetheus> {
       );
     }
 
-    return AudioServiceDisplay(
+    final generatedRoutes = routes;
+    generatedRoutes['/'] = (context) => startingPage;
+
+    return AudioServiceWidget(
       child: ScopedModel<UserModel>(
         model: _userModel,
         child: ScopedModel<CollectionModel>(
@@ -122,12 +96,7 @@ class _EpimetheusState extends State<Epimetheus> {
                   textTheme: ButtonTextTheme.primary,
                 ),
               ),
-              routes: {
-                '/': (context) => startingPage,
-                '/collection': (context) => CollectionPage(),
-                '/now-playing': (context) => NowPlayingPage(),
-                '/preferences/proxy': (context) => ProxyPreferencesPage(),
-              },
+              routes: generatedRoutes,
               onGenerateRoute: generateRoute,
             ),
           ),

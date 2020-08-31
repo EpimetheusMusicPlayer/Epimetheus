@@ -3,18 +3,18 @@ import 'dart:ui';
 
 import 'package:epimetheus/libepimetheus/authentication.dart';
 import 'package:epimetheus/libepimetheus/stations.dart';
-import 'package:epimetheus/models/collection/collection_provider.dart';
+import 'package:epimetheus/models/collection/static_collection_provider.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
-class StationCollectionProvider extends CollectionProvider<Station> {
+class StationCollectionProvider extends StaticCollectionProvider<Station> {
   StationCollectionProvider(
     VoidCallback notifyListeners,
     BaseCacheManager cacheManager,
-  ) : super(notifyListeners, cacheManager, 'There was an error fetching your stations.');
+  ) : super(notifyListeners, cacheManager, 'stations');
 
   @override
   Future<List<Station>> getData(User user) async {
-    final stations = await getStations(user, true);
+    final stations = await Station.getStations(user, true);
 
     stations.sort((s1, s2) {
       if (s1.isShuffle) return -2;

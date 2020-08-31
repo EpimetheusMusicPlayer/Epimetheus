@@ -1,10 +1,9 @@
-import 'package:epimetheus/libepimetheus/structures/pandora_entity.dart';
+import 'package:epimetheus/libepimetheus/structures/art/art_item.dart';
 
-class ArtItem extends PandoraEntity {
-  final Map<int, String> artUrls;
+mixin StaticArtItem implements ArtItem {
+  Map<int, String> get artUrls;
 
-  const ArtItem(String pandoraId, this.artUrls) : super(pandoraId);
-
+  @override
   String getArtUrl(int preferredSize) {
     if (artUrls.isNotEmpty) {
       if (artUrls.containsKey(preferredSize)) return artUrls[preferredSize];

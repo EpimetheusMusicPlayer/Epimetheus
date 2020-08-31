@@ -1,13 +1,17 @@
 import 'package:epimetheus/libepimetheus/authentication.dart';
 import 'package:epimetheus/libepimetheus/networking.dart';
 import 'package:epimetheus/libepimetheus/songs.dart';
-import 'package:epimetheus/libepimetheus/structures/art_item.dart';
+import 'package:epimetheus/libepimetheus/structures/art/static_art_item.dart';
+import 'package:epimetheus/libepimetheus/structures/pandora_entity.dart';
+import 'package:epimetheus/libepimetheus/utils.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
-class Station extends ArtItem {
+class Station extends PandoraEntity with StaticArtItem {
+  final Map<int, String> artUrls;
   final String stationId;
   final String title;
+  final Color dominantColor;
   final bool isShuffle;
   final bool isThumbprint;
   final bool canDelete;
@@ -17,12 +21,13 @@ class Station extends ArtItem {
     @required String pandoraId,
     @required this.stationId,
     @required this.title,
+    @required this.dominantColor,
     @required this.isShuffle,
     @required this.isThumbprint,
     @required this.canDelete,
     @required this.canRename,
-    @required artUrls,
-  }) : super(pandoraId, artUrls);
+    this.artUrls,
+  }) : super(pandoraId, PandoraEntityType.station);
 
   @override
   bool operator ==(Object other) => other is Station ? stationId == other.stationId && pandoraId == other.pandoraId && isShuffle == other.isShuffle && isThumbprint == other.isThumbprint && canRename == other.canDelete && canRename == other.canRename : super == (other);
@@ -41,6 +46,39 @@ class Station extends ArtItem {
   @override
   String toString() => 'name: $title, isShuffle: $isShuffle, isThumbprint: $isThumbprint, canDelete: $canDelete, canRename: $canRename';
 
+  static Future<List<Station>> getStations(User user, bool includeShuffle) async {
+    List<dynamic> stationsJSON = (await makeApiRequest(
+      version: 'v1',
+      endpoint: 'station/getStations',
+      requestData: {'pageSize': 250},
+      user: user,
+    ))['stations'];
+
+    if (includeShuffle) {
+      stationsJSON.add(await makeApiRequest(
+        version: 'v1',
+        endpoint: 'station/shuffle',
+        user: user,
+      ));
+    }
+
+    return stationsJSON.map((stationJSON) {
+      final dominantColor = stationJSON['dominantColor'];
+      final isThumbprint = stationJSON['isThumbprint'];
+      return Station._internal(
+        pandoraId: stationJSON['pandoraId'],
+        stationId: stationJSON['stationId'],
+        title: stationJSON['name'],
+        dominantColor: pandoraColorToColor(dominantColor),
+        isShuffle: stationJSON['isShuffle'],
+        isThumbprint: isThumbprint,
+        canDelete: stationJSON['allowDelete'],
+        canRename: stationJSON['allowRename'],
+        artUrls: createArtMapFromDecodedJSON(stationJSON['art'], isThumbprint),
+      );
+    }).toList(growable: false);
+  }
+
   Future<List<Song>> getPlaylistFragment(User user) async {
     List<dynamic> playlistFragmentJSON = (await makeApiRequest(
       version: 'v1',
@@ -49,7 +87,8 @@ class Station extends ArtItem {
         'stationId': stationId,
         'isStationStart': false,
         'fragmentRequestReason': 'Normal',
-        'audioFormat': 'aacplus',
+//        'audioFormat': 'aacplus',
+        'audioFormat': 'aacplus-hifi',
         'startingAtTrackId': null,
         'onDemandArtistMessageArtistUidHex': null,
         'onDemandArtistMessageIdHex': null,
@@ -82,35 +121,4 @@ class Station extends ArtItem {
 
     return FeedbackListSegment(feedbackListSegmentJSON['total'], (feedbackListSegmentJSON['feedback'] as List<dynamic>).map<Feedback>((feedbackJSON) => Feedback(Map<String, dynamic>.from(feedbackJSON))).toList(growable: false));
   }
-}
-
-Future<List<Station>> getStations(User user, bool includeShuffle) async {
-  List<dynamic> stationsJSON = (await makeApiRequest(
-    version: 'v1',
-    endpoint: 'station/getStations',
-    requestData: {'pageSize': 250},
-    user: user,
-  ))['stations'];
-
-  if (includeShuffle) {
-    stationsJSON.add(await makeApiRequest(
-      version: 'v1',
-      endpoint: 'station/shuffle',
-      user: user,
-    ));
-  }
-
-  return stationsJSON.map((stationJSON) {
-    final isThumbprint = stationJSON['isThumbprint'];
-    return Station._internal(
-      pandoraId: stationJSON['pandoraId'],
-      stationId: stationJSON['stationId'],
-      title: stationJSON['name'],
-      isShuffle: stationJSON['isShuffle'],
-      isThumbprint: isThumbprint,
-      canDelete: stationJSON['allowDelete'],
-      canRename: stationJSON['allowRename'],
-      artUrls: createArtMapFromDecodedJSON(stationJSON['art'], isThumbprint),
-    );
-  }).toList(growable: false);
 }
