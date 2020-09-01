@@ -1,11 +1,14 @@
+import 'dart:io';
+
 import 'package:audio_service/audio_service.dart';
 import 'package:epimetheus/libepimetheus/networking.dart';
 import 'package:epimetheus/models/collection/collection_model.dart';
 import 'package:epimetheus/models/user/user.dart';
 import 'package:epimetheus/pages/authentication/authentication_page.dart';
+import 'package:epimetheus/storage/secure_storage_manager.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_autofill/flutter_autofill.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// The user inputs their credentials to this page, which then passes them on to [AuthenticationPage].
@@ -16,7 +19,11 @@ const _emailRegex = r"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~
 void signOut(BuildContext context) async {
   AudioService.stop();
 
-  FlutterSecureStorage()..delete(key: 'email')..delete(key: 'password');
+  final secureStorageManager = await getPlatformSecureStorageManager();
+  await Future.wait([
+    secureStorageManager.delete('email'),
+    secureStorageManager.delete('password'),
+  ]);
 
   final userModel = UserModel.of(context);
   final collectionModel = CollectionModel.of(context);
@@ -50,7 +57,7 @@ class _SignInPageState extends State<SignInPage> {
     final _formKeyState = _formKey.currentState;
     if (_formKeyState.validate()) {
       _formKeyState.save();
-      FlutterAutofill.commit();
+      if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) FlutterAutofill.commit();
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (context) {
@@ -107,7 +114,7 @@ class _SignInPageState extends State<SignInPage> {
               icon: Icon(Icons.vpn_lock),
               tooltip: 'Proxy settings',
               onPressed: () async {
-                await FlutterAutofill.cancel();
+                if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) await FlutterAutofill.cancel();
                 Navigator.pushNamed(context, '/preferences/proxy');
               },
             ),

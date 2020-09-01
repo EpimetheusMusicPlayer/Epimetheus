@@ -1,9 +1,9 @@
 import 'package:epimetheus/libepimetheus/networking.dart';
 import 'package:epimetheus/proxy/providers/simple/simple_proxy_provider_ui.dart';
 import 'package:epimetheus/proxy/proxy_provider.dart';
+import 'package:epimetheus/storage/secure_storage_manager.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SimpleProxyProvider extends ProxyProvider {
@@ -22,13 +22,13 @@ class SimpleProxyProvider extends ProxyProvider {
 
   bool get authEnabled => prefs.getBool(_authEnabledKey);
 
-  Future<String> get username => storage.read(key: _usernameKey);
+  Future<String> get username => storage.read(_usernameKey);
 
-  Future<String> get password => storage.read(key: _passwordKey);
+  Future<String> get password => storage.read(_passwordKey);
 
   SimpleProxyProvider({
     @required SharedPreferences prefs,
-    @required FlutterSecureStorage storage,
+    @required SecureStorageManager storage,
   }) : super(prefs: prefs, storage: storage);
 
   Future<bool> write({
@@ -44,12 +44,12 @@ class SimpleProxyProvider extends ProxyProvider {
       prefs.setBool(_authEnabledKey, authEnabled),
       authEnabled
           ? Future.wait<void>([
-              storage.write(key: _usernameKey, value: username),
-              storage.write(key: _passwordKey, value: password),
+              storage.write(_usernameKey, username),
+              storage.write(_passwordKey, password),
             ])
           : Future.wait<void>([
-              storage.delete(key: _usernameKey),
-              storage.delete(key: _passwordKey),
+              storage.delete(_usernameKey),
+              storage.delete(_passwordKey),
             ]),
     ]);
 

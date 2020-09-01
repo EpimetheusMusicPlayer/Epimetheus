@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:epimetheus/proxy/providers/nordvpn/nordvpn_proxy_provider.dart';
 import 'package:epimetheus/proxy/proxy_provider.dart';
 import 'package:epimetheus/widgets/misc/list_header.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_autofill/flutter_autofill.dart';
 
@@ -58,7 +61,7 @@ class _NordVPNProxyProviderUIState extends ProxyProviderUIState<NordVPNProxyProv
   Widget buildUI(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        if (!_autofillCommited) FlutterAutofill.cancel();
+        if (!_autofillCommited && ((!kIsWeb && (Platform.isAndroid || Platform.isIOS)))) FlutterAutofill.cancel();
         return true;
       },
       child: Form(

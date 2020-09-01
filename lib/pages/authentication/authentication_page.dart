@@ -7,9 +7,9 @@ import 'package:epimetheus/models/collection/collection_model.dart';
 import 'package:epimetheus/models/user/user.dart';
 import 'package:epimetheus/pages/signin/signin_page.dart';
 import 'package:epimetheus/proxy/proxy_manager.dart';
+import 'package:epimetheus/storage/secure_storage_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -83,7 +83,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> with SingleTick
       // Configure and load some proxy settings
       final prefs = await SharedPreferences.getInstance();
       final isProxyEnabled = ProxyManager.isProxyEnabled(prefs);
-      final proxy = isProxyEnabled ? await ProxyManager.geProxy(prefs) : null;
+      final proxy = isProxyEnabled ? await ProxyManager.geProxy(prefs, await getPlatformSecureStorageManager()) : null;
       if (isProxyEnabled && proxy == null) showProxyErrorDialog();
 
       // Authenticate with Pandora
@@ -153,9 +153,13 @@ class _AuthenticationPageState extends State<AuthenticationPage> with SingleTick
     }
   }
 
-  void _postAuthentication() {
+  void _postAuthentication() async {
     Navigator.pushReplacementNamed(context, '/collection');
-    FlutterSecureStorage()..write(key: 'email', value: widget.email)..write(key: 'password', value: widget.password);
+    final secureStorageManager = await getPlatformSecureStorageManager();
+    await Future.wait([
+      secureStorageManager.write('email', widget.email),
+      secureStorageManager.write('password', widget.password),
+    ]);
   }
 
   void _initializeAnimationController() {

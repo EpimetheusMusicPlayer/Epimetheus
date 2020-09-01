@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:epimetheus/libepimetheus/networking.dart';
 import 'package:epimetheus/proxy/providers/nordvpn/nordvpn_proxy_provider_ui.dart';
 import 'package:epimetheus/proxy/proxy_provider.dart';
+import 'package:epimetheus/storage/secure_storage_manager.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -17,13 +17,13 @@ class NordVPNProxyProvider extends ProxyProvider {
   static const _usernameKey = _localStorageKeyPrefix + 'username';
   static const _passwordKey = _localStorageKeyPrefix + 'password';
 
-  Future<String> get username => storage.read(key: _usernameKey);
+  Future<String> get username => storage.read(_usernameKey);
 
-  Future<String> get password => storage.read(key: _passwordKey);
+  Future<String> get password => storage.read(_passwordKey);
 
   NordVPNProxyProvider({
     @required SharedPreferences prefs,
-    @required FlutterSecureStorage storage,
+    @required SecureStorageManager storage,
   }) : super(prefs: prefs, storage: storage);
 
   Future<bool> write({
@@ -31,8 +31,8 @@ class NordVPNProxyProvider extends ProxyProvider {
     @required String password,
   }) async {
     await Future.wait<void>([
-      storage.write(key: _usernameKey, value: username),
-      storage.write(key: _passwordKey, value: password),
+      storage.write(_usernameKey, username),
+      storage.write(_passwordKey, password),
     ]);
     return true;
   }
@@ -43,10 +43,10 @@ class NordVPNProxyProvider extends ProxyProvider {
 
   @override
   Future<Proxy> getProxy() async {
-    final password = await storage.read(key: _passwordKey);
+    final password = await storage.read(_passwordKey);
     if (password == null) return null;
 
-    final username = await storage.read(key: _usernameKey);
+    final username = await storage.read(_usernameKey);
     if (username == null) return null;
 
     final servers = await getServers();

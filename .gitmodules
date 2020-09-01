@@ -4,3 +4,9 @@
 [submodule "fast_marquee"]
 	path = fast_marquee
 	url = https://github.com/hacker1024/fast_marquee
+[submodule "flutter_secure_storage"]
+	path = flutter_secure_storage
+	url = https://github.com/mogol/flutter_secure_storage
+[submodule "flutter_autofill"]
+	path = flutter_autofill
+	url = https://github.com/saharh/flutter_autofill

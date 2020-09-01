@@ -163,9 +163,9 @@ packages:
   flutter_autofill:
     dependency: "direct main"
     description:
-      name: flutter_autofill
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: flutter_autofill
+      relative: true
+    source: path
     version: "0.4.2"
   flutter_blurhash:
     dependency: transitive
@@ -205,9 +205,9 @@ packages:
   flutter_secure_storage:
     dependency: "direct main"
     description:
-      name: flutter_secure_storage
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: flutter_secure_storage
+      relative: true
+    source: path
     version: "3.3.3"
   flutter_svg:
     dependency: "direct main"
@@ -567,6 +567,7 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.0-nullsafety.2"
+  window_size:
   xdg_directories:
     dependency: transitive
     description:

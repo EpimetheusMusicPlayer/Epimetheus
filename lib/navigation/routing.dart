@@ -21,7 +21,7 @@ Route<dynamic> generateRoute(RouteSettings settings) {
   final name = settings.name.startsWith('/') ? settings.name.substring(1) : settings.name;
   final paths = name.split('/');
 
-  return _routeGenerators[paths[0]](settings, paths);
+  return _routeGenerators[paths[0]]?.call(settings, paths);
 }
 
 final _routeGenerators = <String, Route<dynamic> Function(RouteSettings settings, List<String> paths)>{

@@ -1,8 +1,7 @@
 analyzer:
   exclude:
-    - flutter_autofill/**
     - qudio/**
-    - audio_service/**
     - flutter_paginator_wrapper/**
     - flutter_audio/**
-    - marquee/**
+    - flutter_secure_storage/**
+    - flutter_autofill/**

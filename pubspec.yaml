@@ -13,8 +13,8 @@ dependencies:
   scoped_model: ^1.0.1
   http: ^0.12.0+2
   connectivity: ^0.4.5+3
-  flutter_secure_storage: ^3.3.3
-  audio_service: ^0.14.0
+  flutter_secure_storage:
+    path: './flutter_secure_storage'
 #  audio_service:
 #    path: './audio_service'
 #  just_audio: ^0.0.2
@@ -31,13 +31,18 @@ dependencies:
   transparent_image: ^1.0.0
   flutter_cache_manager: ^1.4.1
   cached_network_image: ^2.3.1
-  flutter_autofill: ^0.4.2
+  flutter_autofill:
+    path: './flutter_autofill'
   carousel_slider: ^2.2.1
   outline_material_icons: ^0.1.0
   flutter_svg: ^0.18.1
   shared_preferences: ^0.5.7
   fast_marquee:
     path: './fast_marquee'
+  window_size:
+    git:
+      url: git://github.com/google/flutter-desktop-embedding.git
+      path: plugins/window_size
 #  flutter_stetho: ^0.5.2
 
 dev_dependencies:

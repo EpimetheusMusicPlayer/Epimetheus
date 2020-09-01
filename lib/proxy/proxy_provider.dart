@@ -1,7 +1,7 @@
 import 'package:epimetheus/libepimetheus/networking.dart';
+import 'package:epimetheus/storage/secure_storage_manager.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// This class defines functions all proxy providers must implement.
@@ -10,7 +10,7 @@ abstract class ProxyProvider {
   static const storageKeyPrefix = 'proxy_provider_';
 
   final SharedPreferences prefs;
-  final FlutterSecureStorage storage;
+  final SecureStorageManager storage;
 
   ProxyProvider({
     @required this.prefs,

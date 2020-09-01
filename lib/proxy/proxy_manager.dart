@@ -3,14 +3,13 @@ import 'package:epimetheus/proxy/providers/nordvpn/nordvpn_proxy_provider.dart';
 import 'package:epimetheus/proxy/providers/null_proxy_provider.dart';
 import 'package:epimetheus/proxy/providers/simple/simple_proxy_provider.dart';
 import 'package:epimetheus/proxy/proxy_provider.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:epimetheus/storage/secure_storage_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// This class contains functions used to manage proxies for the app.
 class ProxyManager {
   static const _proxyEnableKey = 'proxy_enable';
   static const _proxyProviderKey = 'proxy_provider';
-  static const _storage = const FlutterSecureStorage();
 
   ProxyManager._();
 
@@ -35,33 +34,47 @@ class ProxyManager {
     return prefs.getString(_proxyProviderKey);
   }
 
-  static ProxyProvider getProxyProviderFromId(SharedPreferences prefs, String providerId) {
+  static ProxyProvider getProxyProviderFromId(
+    SharedPreferences prefs,
+    SecureStorageManager secureStorageManager,
+    String providerId,
+  ) {
     switch (providerId) {
       case SimpleProxyProvider.id:
         return SimpleProxyProvider(
           prefs: prefs,
-          storage: _storage,
+          storage: secureStorageManager,
         );
       case NordVPNProxyProvider.id:
         return NordVPNProxyProvider(
           prefs: prefs,
-          storage: _storage,
+          storage: secureStorageManager,
         );
       default:
         return NullProxyProvider(
           prefs: prefs,
-          storage: _storage,
+          storage: secureStorageManager,
         );
     }
   }
 
-  static ProxyProvider getProxyProvider(SharedPreferences prefs) {
-    return getProxyProviderFromId(prefs, getProxyProviderId(prefs));
+  static ProxyProvider getProxyProvider(
+    SharedPreferences prefs,
+    SecureStorageManager secureStorageManager,
+  ) {
+    return getProxyProviderFromId(
+      prefs,
+      secureStorageManager,
+      getProxyProviderId(prefs),
+    );
   }
 
   /// Can return a null future, if no username or password is saved.
-  static Future<Proxy> geProxy(SharedPreferences prefs) {
+  static Future<Proxy> geProxy(
+    SharedPreferences prefs,
+    SecureStorageManager secureStorageManager,
+  ) {
     assert(isProxyEnabled(prefs));
-    return getProxyProvider(prefs).getProxy();
+    return getProxyProvider(prefs, secureStorageManager).getProxy();
   }
 }
