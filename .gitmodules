@@ -7,3 +7,5 @@
 [submodule "flutter_autofill"]
 	path = flutter_autofill
 	url = https://github.com/saharh/flutter_autofill
+[submodule "flutter_pagination_wrapper"]
+	path = flutter_pagination_wrapper
