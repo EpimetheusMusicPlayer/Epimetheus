@@ -29,8 +29,6 @@ jobs:
         with:
           channel: 'dev'
 
-      - run: |
-          flutter pub get
-          flutter build apk --release
-          flutter build ios --release --no-codesign
-          flutter build macos --release
+      - run: flutter pub get
+      - run: flutter build apk --release
+      - run: flutter build ios --release --no-codesign
