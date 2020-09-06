@@ -1,27 +1,36 @@
+import 'dart:async';
+
 import 'package:audio_service/audio_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:epimetheus/models/color/color_model.dart';
 import 'package:flutter/material.dart';
-import 'package:scoped_model/scoped_model.dart';
 
-class SongDisplay extends StatefulWidget {
+class AlbumArtDisplay extends StatefulWidget {
   final void Function(int newPage) onPageChanged;
+  int initialPage;
 
-  SongDisplay(this.onPageChanged);
+  AlbumArtDisplay({
+    @required this.onPageChanged,
+    this.initialPage = 0,
+  });
 
   @override
-  _SongDisplayState createState() => _SongDisplayState();
+  _AlbumArtDisplayState createState() => _AlbumArtDisplayState();
 }
 
-class _SongDisplayState extends State<SongDisplay> {
+class _AlbumArtDisplayState extends State<AlbumArtDisplay> {
   PageController _controller;
-  int _selected = 0;
+  int _selected;
+
+  StreamSubscription<MediaItem> _currentMediaItemSubscription;
 
   @override
   void initState() {
     super.initState();
 
+    _selected = widget.initialPage;
+
     _controller = PageController(
+      initialPage: widget.initialPage,
       viewportFraction: 0.8,
     )..addListener(
         () {
@@ -34,12 +43,20 @@ class _SongDisplayState extends State<SongDisplay> {
           }
         },
       );
+
+    int oldIndex = widget.initialPage;
+    _currentMediaItemSubscription = AudioService.currentMediaItemStream.listen((mediaItem) async {
+      final newIndex = AudioService.queue.indexOf(mediaItem);
+      if (mounted) _controller.animateToPage(_controller.page.toInt() + (newIndex - oldIndex), duration: const Duration(milliseconds: 500), curve: Curves.decelerate);
+      oldIndex = newIndex;
+    });
   }
 
   @override
   void dispose() {
-    super.dispose();
+    _currentMediaItemSubscription.cancel();
     _controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -105,39 +122,6 @@ class _SongTile extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _SongInfoText extends StatelessWidget {
-  final MediaItem mediaItem;
-
-  _SongInfoText(this.mediaItem);
-
-  @override
-  Widget build(BuildContext context) {
-    return ScopedModelDescendant<ColorModel>(
-      builder: (context, child, model) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 32,
-          ),
-          child: Column(
-            children: <Widget>[
-              Align(
-                alignment: Alignment.topLeft,
-                child: Text(
-                  mediaItem.title,
-                  style: TextStyle(
-                    color: model.readableForegroundColor,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
     );
   }
 }
