@@ -3,9 +3,10 @@
 	url = https://github.com/hacker1024/fast_marquee
 [submodule "flutter_secure_storage"]
 	path = flutter_secure_storage
-	url = https://github.com/mogol/flutter_secure_storage
+	url = https://github.com/hacker1024/flutter_secure_storage
 [submodule "flutter_autofill"]
 	path = flutter_autofill
-	url = https://github.com/saharh/flutter_autofill
+	url = https://github.com/hacker1024/flutter_autofill
 [submodule "flutter_pagination_wrapper"]
 	path = flutter_pagination_wrapper
+	url = https://github.com/hacker1024/flutter_pagination_wrapper
