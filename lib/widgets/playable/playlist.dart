@@ -42,6 +42,7 @@ class PlaylistListTile extends PlayableWidget<Playlist> {
       ),
       duration: item.duration,
       isExplicit: false, // Playlists don't get flagged as explicit, no matter their contents.
+      onPlayPress: onPlayPress,
     );
   }
 }

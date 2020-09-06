@@ -12,7 +12,7 @@ class StationListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => launchStation(context, index),
+      onTap: () => launchMusicProviderFromCollection<Station>(context, index),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(

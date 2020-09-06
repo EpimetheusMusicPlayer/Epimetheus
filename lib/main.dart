@@ -10,14 +10,11 @@ import 'package:epimetheus/pages/signin/signin_page.dart';
 import 'package:epimetheus/storage/secure_storage_manager.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:window_size/window_size.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-
-  final storage = const FlutterSecureStorage();
 
   if (!kIsWeb && (Platform.isMacOS || Platform.isWindows)) {
     getWindowInfo().then((windowInfo) {
@@ -63,7 +60,7 @@ class _EpimetheusState extends State<Epimetheus> {
   @override
   initState() {
     super.initState();
-    _colorModel.init();
+    _colorModel.init(_userModel);
   }
 
   @override
@@ -88,40 +85,39 @@ class _EpimetheusState extends State<Epimetheus> {
     final generatedRoutes = routes;
     generatedRoutes['/'] = (context) => startingPage;
 
-    final mainContent = ScopedModel<UserModel>(
-      model: _userModel,
-      child: ScopedModel<CollectionModel>(
-        model: _collectionModel,
-        child: ScopedModel<ColorModel>(
-          model: _colorModel,
-          child: MaterialApp(
-            theme: ThemeData(
-              primaryColor: const Color(0xFF332B57),
-              accentColor: const Color(0xFFb700c8),
-              pageTransitionsTheme: const PageTransitionsTheme(
-                builders: const {
-                  TargetPlatform.android: const ZoomPageTransitionsBuilder(),
-                  TargetPlatform.iOS: const ZoomPageTransitionsBuilder(),
-                  TargetPlatform.fuchsia: const ZoomPageTransitionsBuilder(),
-                },
+    return AudioServiceWidget(
+      child: ScopedModel<UserModel>(
+        model: _userModel,
+        child: ScopedModel<CollectionModel>(
+          model: _collectionModel,
+          child: ScopedModel<ColorModel>(
+            model: _colorModel,
+            child: MaterialApp(
+              theme: ThemeData(
+                primaryColor: const Color(0xFF332B57),
+                accentColor: const Color(0xFFb700c8),
+                pageTransitionsTheme: const PageTransitionsTheme(
+                  builders: const {
+                    TargetPlatform.android: const ZoomPageTransitionsBuilder(),
+                    TargetPlatform.iOS: const ZoomPageTransitionsBuilder(),
+                    TargetPlatform.macOS: const ZoomPageTransitionsBuilder(),
+                    TargetPlatform.linux: const ZoomPageTransitionsBuilder(),
+                    TargetPlatform.windows: const ZoomPageTransitionsBuilder(),
+                    TargetPlatform.fuchsia: const ZoomPageTransitionsBuilder(),
+                  },
+                ),
+                buttonTheme: const ButtonThemeData(
+                  buttonColor: const Color(0xFF332B57),
+                  textTheme: ButtonTextTheme.primary,
+                ),
+                visualDensity: VisualDensity.adaptivePlatformDensity,
               ),
-              buttonTheme: const ButtonThemeData(
-                buttonColor: const Color(0xFF332B57),
-                textTheme: ButtonTextTheme.primary,
-              ),
-              visualDensity: VisualDensity.adaptivePlatformDensity,
+              routes: generatedRoutes,
+              onGenerateRoute: generateRoute,
             ),
-            routes: generatedRoutes,
-            onGenerateRoute: generateRoute,
           ),
         ),
       ),
     );
-
-    return !kIsWeb && (Platform.isAndroid || Platform.isIOS)
-        ? AudioServiceWidget(
-            child: mainContent,
-          )
-        : mainContent;
   }
 }

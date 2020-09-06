@@ -1,101 +1,90 @@
 import 'dart:async';
 
 import 'package:audio_service/audio_service.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:epimetheus/libepimetheus/tracks.dart';
+import 'package:epimetheus/models/user/user.dart';
 import 'package:flutter/material.dart';
-import 'package:palette_generator/palette_generator.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 class ColorModel extends Model {
   StreamSubscription<List<MediaItem>> _queueListener;
+  StreamSubscription<MediaItem> _currentMediaItemListener;
 
-  final Map<String, PaletteGenerator> paletteGenerators = {};
-  final Map<String, Future<PaletteGenerator>> _paletteGeneratorFutures = {};
+  final Map<String, Color> _dominantColors = {};
+  final Map<String, Future<Map<String, Color>>> _dominantColorFutures = {};
 
-  Color _backgroundColor;
-  Color get backgroundColor => _backgroundColor;
+  Color _dominantColor;
+
+  Color get dominantColor => _dominantColor;
 
   Color _readableForegroundColor;
+
   Color get readableForegroundColor => _readableForegroundColor;
 
-  void init() {
+  UserModel _userModel;
+
+  void init(UserModel userModel) {
+    _userModel = userModel;
     _queueListener = AudioService.queueStream.listen((queue) {
-      // If there are pending palette generators, they'll be added to the map after it's cleared.
+      // If there are pending colors, they'll be added to the map after the future completes.
       // This isn't a huge issue, as they'll be cleared when the queue next updates.
       if (queue == null || queue.isEmpty) {
-        paletteGenerators.clear();
+        _dominantColors.clear();
         setBackgroundColor(null);
         return;
       }
 
-      for (MediaItem mediaItem in queue) {
-        if (!paletteGenerators.containsKey(mediaItem.artUri)) {
-          print('GENERATING FOR ${mediaItem.title}, ${mediaItem.artUri}');
+      if (_userModel.user == null) return;
 
-          // Initialise the key so it doesn't launch multiple palette generator generations while the first is still generating
-          paletteGenerators[mediaItem.artUri] = null;
+      final pandoraIds = queue
+          .where(
+            (mediaItem) => !_dominantColorFutures.containsKey(mediaItem.id) && !_dominantColors.containsKey(mediaItem.id),
+          )
+          .map((mediaItem) => mediaItem.id)
+          .toList(growable: false);
 
-          // Add the generator future to the map
-          // Note: this has the side effect of caching all the album art in the queue, as it starts them downloading to generate the colors.
-          // As such, it's not necessary to use the audio_service plugin's built in caching.
-          final future = PaletteGenerator.fromImageProvider(CachedNetworkImageProvider(mediaItem.artUri));
-          _paletteGeneratorFutures[mediaItem.artUri] = future;
+      final future = Track.getDominantColorFromIds(
+        userModel.user,
+        pandoraIds,
+      )..then((dominantColors) {
+          _dominantColors.addAll(dominantColors);
+          _dominantColorFutures.remove(pandoraIds);
+        });
+      for (final pandoraId in pandoraIds) _dominantColorFutures[pandoraId] = future;
 
-          future.then((paletteGenerator) {
-            // Set the palette generator
-            paletteGenerators[mediaItem.artUri] = paletteGenerator;
-
-            // Remove the future from the map
-            _paletteGeneratorFutures.remove(mediaItem.artUri);
-          });
-        }
+      if (AudioService.queue != null) {
+        // If there are pending colors, they'll be added to the map after the future completes.
+        // This isn't a huge issue, as they'll be cleared when the queue next updates.
+        _dominantColors.removeWhere((pandoraId, color) => queue.indexWhere((mediaItem) => mediaItem.id == pandoraId) == -1);
       }
+    });
 
-      setBackgroundColor(queue[0].artUri);
-
-      // If there are pending palette generators, they'll be added to the map after the null placeholder is removed.
-      // This isn't a huge issue, as they'll be cleared when the queue next updates.
-      for (int i = 0; i < paletteGenerators.length; ++i) {
-        final key = paletteGenerators.keys.elementAt(i);
-        if (queue.indexWhere((mediaItem) => mediaItem.artUri == key) == -1) {
-          print('Removing $key');
-          paletteGenerators.remove(key);
-        }
-      }
+    _currentMediaItemListener = AudioService.currentMediaItemStream.listen((mediaItem) {
+      if (mediaItem != null && mediaItem.id != 'loading') setBackgroundColor(mediaItem.id);
     });
   }
 
   void dispose() {
     _queueListener.cancel();
+    _currentMediaItemListener.cancel();
   }
 
-  Future<void> _loadPaletteGenerator(String artUri) async {
-    if (paletteGenerators.containsKey(artUri)) {
-      if (_paletteGeneratorFutures.containsKey(artUri)) await _paletteGeneratorFutures[artUri];
-      return;
+  Future<void> _loadDominantColor(String pandoraId) async {
+    if (!_dominantColors.containsKey(pandoraId)) {
+      if (_dominantColorFutures.containsKey(pandoraId)) {
+        await _dominantColorFutures[pandoraId];
+      } else {
+        _dominantColors[pandoraId] = (await Track.getDominantColorFromIds(_userModel.user, [pandoraId]))[pandoraId];
+      }
     }
-
-    print('NOT USING CACHED GENERATOR!!!');
-    paletteGenerators[artUri] = await PaletteGenerator.fromImageProvider(CachedNetworkImageProvider(artUri));
   }
 
-  Future<void> setBackgroundColor(String artUri) async {
-    if (artUri == null) {
-      _backgroundColor = null;
+  Future<void> setBackgroundColor(String pandoraId) async {
+    if (pandoraId == null) {
+      _dominantColor = null;
     } else {
-      await _loadPaletteGenerator(artUri);
-      final paletteGenerator = paletteGenerators[artUri];
-
-      if (paletteGenerator == null)
-        _backgroundColor = null;
-      else if (paletteGenerator.dominantColor != null)
-        _backgroundColor = paletteGenerator.dominantColor.color;
-      else if (paletteGenerator.darkMutedColor != null)
-        _backgroundColor = paletteGenerator.darkMutedColor.color;
-      else if (paletteGenerator.darkVibrantColor != null)
-        _backgroundColor = paletteGenerator.darkVibrantColor.color;
-      else
-        _backgroundColor = null;
+      await _loadDominantColor(pandoraId);
+      _dominantColor = _dominantColors[pandoraId];
     }
 
     _setReadableForegroundColor();
@@ -104,8 +93,8 @@ class ColorModel extends Model {
   }
 
   void _setReadableForegroundColor() {
-    if (_backgroundColor == null) return null;
-    _readableForegroundColor = _backgroundColor.computeLuminance() > 0.5 ? Colors.black : Colors.white;
+    if (_dominantColor == null) return null;
+    _readableForegroundColor = _dominantColor.computeLuminance() > 0.5 ? Colors.black : Colors.white;
   }
 
   static ColorModel of(

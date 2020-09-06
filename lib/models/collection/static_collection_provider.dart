@@ -69,9 +69,7 @@ abstract class StaticCollectionProvider<T extends PandoraEntity> extends Collect
       return true;
   }
 
-  List<T> getDownloaded() {
-    return _collection;
-  }
+  List<T> get downloaded => _collection;
 
   @override
   void clear() {

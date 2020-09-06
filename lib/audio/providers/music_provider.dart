@@ -15,8 +15,20 @@ class MusicProviderAction {
 }
 
 abstract class MusicProvider {
+  /// True if the media items can be rated
+  final bool canRateItems;
+
+  MusicProvider({
+    this.canRateItems = false,
+  });
+
   /// Called when the MusicProvider is received in the isolate.
-  void init();
+  /// Returns true if initialisation is successful.
+  Future<bool> init(User user);
+
+  /// Called when the MusicProvider is no longer needed, and
+  /// about to be destroyed.
+  void dispose();
 
   /// A unique id for the MusicProvider.
   String get id;
@@ -24,26 +36,39 @@ abstract class MusicProvider {
   /// A human-readable title for the music collection.
   String get title;
 
-  /// The number of media items in the playlist.
-  int get count;
+  /// The index of the currently playing item in the audio service queue.
+  int get currentQueueIndex;
+  set currentQueueIndex(int value);
 
-  /// The currently playing audio URL
-  String get audioUrl;
+  /// Called before skipping so the provider prepares.
+  /// Returns a list of audio URIs that may need to be added to the player.
+  ///
+  /// Note: if the whole queue is not known for the type of media this a provider
+  /// provides, this should not be overridden. Instead, [load] and [shouldLoad]
+  /// should be implemented properly to provide pages. When the service receives
+  /// a new page, it will then ask for new URIs through [getAudioUri]. As this
+  /// will not happen when no new pages are added, this method exists to let
+  /// providers that give the entire queue at once (without all the audio URIs)
+  /// to add URIs when necessary.
+  Future<List<Uri>> prepareSkipTo(User user, String id) async => const [];
 
-  /// The media queue.
-  List<MediaItem> get queue;
+  /// Notifies the provider after a player skips to a media item.
+  void notifySkipTo(int index) {}
 
-  /// The currently playing [MediaItem] data.
-  MediaItem get currentMediaItem;
+  /// Called before skipping so the provider prepares.
+  /// Returns a list of audio URIs that may need to be added to the player.
+  ///
+  /// Note: if the whole queue is not known for the type of media this a provider
+  /// provides, this should not be overridden. Instead, [load] and [shouldLoad]
+  /// should be implemented properly to provide pages. When the service receives
+  /// a new page, it will then ask for new URIs through [getAudioUri]. As this
+  /// will not happen when no new pages are added, this method exists to let
+  /// providers that give the entire queue at once (without all the audio URIs)
+  /// to add URIs when necessary.
+  Future<List<Uri>> prepareSkip(User user, int oldIndex) async => const [];
 
-  /// Skip to a media item.
-  void skipTo(int index);
-
-  /// Skip to the next media item.
-  void skip() => skipTo(1);
-
-  /// Removes the media item at the given index.
-  void remove(int index);
+  /// Notifies the provider after a player skips to the next media item.
+  void notifySkip(int newIndex) {}
 
   /// Rates the media item at the given index.
   Future<void> rate(User user, int index, Rating rating, bool update);
@@ -52,8 +77,20 @@ abstract class MusicProvider {
   void tired(int index);
 
   /// Loads more media items.
-  /// Returns a list of the new URLs.
-  Future<List<String>> load(User user);
+  /// Returns a list of the new [MediaItem]s.
+  Future<List<MediaItem>> load(User user);
+
+  /// Returns true if the service should load a new page
+  /// (if the page count is getting low).
+  ///
+  /// Note: if all pages (that is, the whole queue) are available with the
+  /// first load, this should always return false. If not all audio URIs
+  /// are known, they can be provided when needed by overriding [prepareSkip]
+  /// and [prepareSkipTo].
+  bool shouldLoad();
+
+  /// Returns an audio URL for the given index. May be null if none is available.
+  Uri getAudioUri(int index);
 
   /// Get a list of media groups to play (e.g. stations).
   List<MediaItem> getChildren(String parentId);

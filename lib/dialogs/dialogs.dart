@@ -1,4 +1,6 @@
+import 'package:epimetheus/libepimetheus/authentication.dart';
 import 'package:epimetheus/libepimetheus/exceptions.dart';
+import 'package:epimetheus/models/user/user.dart';
 import 'package:flutter/material.dart';
 
 /// A class defining properties common to all the various dialogs in the app.
@@ -114,4 +116,39 @@ class ProxyErrorDialog extends EpimetheusDialog {
           buttonLabel: buttonLabel,
           onClickButton: onClickButton,
         );
+}
+
+class NeedsPremiumDialog extends EpimetheusDialog {
+  NeedsPremiumDialog({
+    @required BuildContext context,
+    String buttonLabel = 'Okay',
+    String action = 'use this feature',
+  }) : super(
+          context: context,
+          title: 'Pandora Premium is required to $action.',
+          description: 'You can purchase Pandora Premium through the official app or website.',
+          buttonLabel: buttonLabel,
+          onClickButton: () {
+            Navigator.of(context).pop();
+          },
+        );
+
+  static bool checkPremium({
+    @required BuildContext context,
+    String buttonLabel = 'Okay',
+    String action = 'use this feature',
+  }) {
+    if (UserModel.of(context).user.subscriptionType == SubscriptionType.premium) {
+      return true;
+    } else {
+      showEpimetheusDialog(
+        dialog: NeedsPremiumDialog(
+          context: context,
+          buttonLabel: buttonLabel,
+          action: action,
+        ),
+      );
+      return false;
+    }
+  }
 }

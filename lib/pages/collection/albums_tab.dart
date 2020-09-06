@@ -9,9 +9,17 @@ class AlbumsTab extends PagedCollectionTab<Album> {
   const AlbumsTab() : super(buildSeparators: true);
 
   @override
-  Widget itemListTileBuilder(BuildContext context, Album album, int index, PositionStorer storePosition, MenuShower showMenu) {
+  Widget itemListTileBuilder(
+    BuildContext context,
+    Album album,
+    int index,
+    PositionStorer storePosition,
+    MenuShower showMenu,
+    VoidCallback launch,
+  ) {
     return InkWell(
       onTapDown: storePosition,
+      onTap: launch,
       onLongPress: () => showMenu<void>(
         standardMenuItems: {
           if (album.trackCount == album.collectedTrackCount) StandardPopupMenuItem.delete: 'Remove' else StandardPopupMenuItem.add: 'Add all tracks',

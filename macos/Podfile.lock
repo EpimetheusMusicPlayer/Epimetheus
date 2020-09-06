@@ -1,16 +1,18 @@
 PODS:
+  - audio_service (0.14.1):
+    - FlutterMacOS
   - audio_session (0.0.1):
     - FlutterMacOS
   - connectivity (0.0.1)
   - connectivity_macos (0.0.1):
     - FlutterMacOS
     - Reachability
-  - flutter_secure_storage (3.3.1):
-    - FlutterMacOS
   - FlutterMacOS (1.0.0)
   - FMDB (2.7.5):
     - FMDB/standard (= 2.7.5)
   - FMDB/standard (2.7.5)
+  - just_audio (0.0.1):
+    - FlutterMacOS
   - path_provider (0.0.1)
   - path_provider_macos (0.0.1):
     - FlutterMacOS
@@ -28,11 +30,12 @@ PODS:
     - FlutterMacOS
 
 DEPENDENCIES:
+  - audio_service (from `Flutter/ephemeral/.symlinks/plugins/audio_service/macos`)
   - audio_session (from `Flutter/ephemeral/.symlinks/plugins/audio_session/macos`)
   - connectivity (from `Flutter/ephemeral/.symlinks/plugins/connectivity/macos`)
   - connectivity_macos (from `Flutter/ephemeral/.symlinks/plugins/connectivity_macos/macos`)
-  - flutter_secure_storage (from `Flutter/ephemeral/.symlinks/plugins/flutter_secure_storage/macos`)
   - FlutterMacOS (from `Flutter/ephemeral/.symlinks/flutter/darwin-x64`)
+  - just_audio (from `Flutter/ephemeral/.symlinks/plugins/just_audio/macos`)
   - path_provider (from `Flutter/ephemeral/.symlinks/plugins/path_provider/macos`)
   - path_provider_macos (from `Flutter/ephemeral/.symlinks/plugins/path_provider_macos/macos`)
   - shared_preferences (from `Flutter/ephemeral/.symlinks/plugins/shared_preferences/macos`)
@@ -48,16 +51,18 @@ SPEC REPOS:
     - Reachability
 
 EXTERNAL SOURCES:
+  audio_service:
+    :path: Flutter/ephemeral/.symlinks/plugins/audio_service/macos
   audio_session:
     :path: Flutter/ephemeral/.symlinks/plugins/audio_session/macos
   connectivity:
     :path: Flutter/ephemeral/.symlinks/plugins/connectivity/macos
   connectivity_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/connectivity_macos/macos
-  flutter_secure_storage:
-    :path: Flutter/ephemeral/.symlinks/plugins/flutter_secure_storage/macos
   FlutterMacOS:
     :path: Flutter/ephemeral/.symlinks/flutter/darwin-x64
+  just_audio:
+    :path: Flutter/ephemeral/.symlinks/plugins/just_audio/macos
   path_provider:
     :path: Flutter/ephemeral/.symlinks/plugins/path_provider/macos
   path_provider_macos:
@@ -76,12 +81,13 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/window_size/macos
 
 SPEC CHECKSUMS:
+  audio_service: b88ff778e0e3915efd4cd1a5ad6f0beef0c950a9
   audio_session: dea1f41890dbf1718f04a56f1d6150fd50039b72
   connectivity: 5da134a8c10a7b6f334a17217fe4d0cfc4fb1c64
   connectivity_macos: 9f30e9d0e67a0bc08a0c563ee82310b51ca6e818
-  flutter_secure_storage: 06c397200165bbea69a0071437f9d690f5e5c0a2
   FlutterMacOS: 15bea8a44d2fa024068daa0140371c020b4b6ff9
   FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
+  just_audio: 1a11463e7e522bd4e8caa925b4247f1360cbe5a2
   path_provider: e0848572d1d38b9a7dd099e79cf83f5b7e2cde9f
   path_provider_macos: a0a3fd666cb7cd0448e936fb4abad4052961002b
   Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
@@ -92,6 +98,6 @@ SPEC CHECKSUMS:
   url_launcher_macos: 45af3d61de06997666568a7149c1be98b41c95d4
   window_size: 339dafa0b27a95a62a843042038fa6c3c48de195
 
-PODFILE CHECKSUM: d8ba9b3e9e93c62c74a660b46c6fcb09f03991a7
+PODFILE CHECKSUM: 63c650af922428cf4112e5df20f0106bea441e53
 
 COCOAPODS: 1.9.3

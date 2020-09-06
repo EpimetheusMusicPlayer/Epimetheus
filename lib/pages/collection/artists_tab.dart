@@ -8,7 +8,14 @@ class ArtistsTab extends PagedCollectionTab<Artist> {
   const ArtistsTab() : super(buildSeparators: true);
 
   @override
-  Widget itemListTileBuilder(BuildContext context, Artist artist, int index, PositionStorer storePosition, MenuShower showMenu) {
+  Widget itemListTileBuilder(
+    BuildContext context,
+    Artist artist,
+    int index,
+    PositionStorer storePosition,
+    MenuShower showMenu,
+    VoidCallback launch,
+  ) {
     return InkWell(
       onTap: () {
         Navigator.of(context).pushNamed('/collection/artists/${artist.pandoraId}', arguments: artist.name);

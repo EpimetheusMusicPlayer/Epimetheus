@@ -14,7 +14,7 @@ class CollectionPage extends StatefulWidget {
 
   static Route<dynamic> generateRoute(RouteSettings settings, List<String> paths) {
     if (paths[1] == 'artists')
-      return CollectedItemsByArtistPage.generateRoute(settings, paths);
+      return CollectedItemsByArtistPage.generateLocalRoute(settings, paths);
     else
       return null;
   }

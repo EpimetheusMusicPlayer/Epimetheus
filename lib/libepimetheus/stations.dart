@@ -1,8 +1,8 @@
 import 'package:epimetheus/libepimetheus/authentication.dart';
 import 'package:epimetheus/libepimetheus/networking.dart';
-import 'package:epimetheus/libepimetheus/songs.dart';
 import 'package:epimetheus/libepimetheus/structures/art/static_art_item.dart';
 import 'package:epimetheus/libepimetheus/structures/pandora_entity.dart';
+import 'package:epimetheus/libepimetheus/tracks.dart';
 import 'package:epimetheus/libepimetheus/utils.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
@@ -79,7 +79,7 @@ class Station extends PandoraEntity with StaticArtItem {
     }).toList(growable: false);
   }
 
-  Future<List<Song>> getPlaylistFragment(User user) async {
+  Future<List<StationTrack>> getPlaylistFragment(User user) async {
     List<dynamic> playlistFragmentJSON = (await makeApiRequest(
       version: 'v1',
       endpoint: 'playlist/getFragment',
@@ -96,8 +96,8 @@ class Station extends PandoraEntity with StaticArtItem {
       user: user,
     ))['tracks'];
 
-    List<Song> playlistFragment = playlistFragmentJSON.map((songJSON) => Song(Map<String, dynamic>.from(songJSON))).toList();
-    playlistFragment.removeWhere((Song song) => song.trackType == TrackType.artistMessage);
+    List<StationTrack> playlistFragment = playlistFragmentJSON.map((songJSON) => StationTrack(Map<String, dynamic>.from(songJSON))).toList();
+    playlistFragment.removeWhere((StationTrack song) => song.trackType == TrackType.artistMessage);
     return playlistFragment;
   }
 

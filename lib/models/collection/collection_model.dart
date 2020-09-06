@@ -2,9 +2,9 @@ import 'package:epimetheus/libepimetheus/albums.dart';
 import 'package:epimetheus/libepimetheus/artists.dart';
 import 'package:epimetheus/libepimetheus/authentication.dart';
 import 'package:epimetheus/libepimetheus/playlists.dart';
-import 'package:epimetheus/libepimetheus/songs.dart';
 import 'package:epimetheus/libepimetheus/stations.dart';
 import 'package:epimetheus/libepimetheus/structures/pandora_entity.dart';
+import 'package:epimetheus/libepimetheus/tracks.dart';
 import 'package:epimetheus/models/collection/collection_provider.dart';
 import 'package:epimetheus/models/collection/standard_paged_collection_provider.dart';
 import 'package:epimetheus/models/collection/station_collection_provider.dart';
@@ -24,7 +24,7 @@ class CollectionModel extends Model {
   Map<Type, CollectionProvider<PandoraEntity>> _collectionProviders;
 
   /// Returns the collection provider for the passed [PandoraEntity] type.
-  CollectionProvider<PandoraEntity> getCollectionProvider(Type type) => _collectionProviders[type];
+  CollectionProvider<T> getCollectionProvider<T extends PandoraEntity>() => _collectionProviders[T];
 
   /// Asks each collection provider to pre-download some initial data.
   /// See [CollectionProvider.getAsync] for details.

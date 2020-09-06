@@ -13,7 +13,7 @@ abstract class StaticCollectionTab<T extends PandoraEntity> extends StatelessWid
   @override
   Widget build(BuildContext context) {
     final user = UserModel.of(context).user;
-    final collectionProvider = CollectionModel.of(context).getCollectionProvider(T) as StaticCollectionProvider;
+    final collectionProvider = CollectionModel.of(context).getCollectionProvider<T>() as StaticCollectionProvider;
 
     return RefreshIndicator(
       key: _refreshKey,
@@ -44,7 +44,7 @@ abstract class StaticCollectionTab<T extends PandoraEntity> extends StatelessWid
             );
           }
 
-          return buildMainContent(context, collectionProvider.getDownloaded());
+          return buildMainContent(context, collectionProvider.downloaded);
         },
       ),
     );

@@ -1,18 +1,15 @@
-import 'dart:io';
-
 import 'package:epimetheus/libepimetheus/albums.dart';
 import 'package:epimetheus/libepimetheus/artists.dart';
-import 'package:epimetheus/libepimetheus/authentication.dart';
-import 'package:epimetheus/libepimetheus/exceptions.dart';
-import 'package:epimetheus/libepimetheus/structures/paged_collection_list.dart';
 import 'package:epimetheus/libepimetheus/structures/pandora_entity.dart';
 import 'package:epimetheus/models/collection/collection_model.dart';
+import 'package:epimetheus/models/collection/paged_collection_provider.dart';
+import 'package:epimetheus/models/collection/standard_paged_collection_provider.dart';
 import 'package:epimetheus/models/user/user.dart';
+import 'package:epimetheus/pages/collection/paged_collection_tab.dart';
 import 'package:epimetheus/widgets/collection/paged_collection_list_view.dart';
 import 'package:epimetheus/widgets/mixins/custom_context_menu.dart';
 import 'package:epimetheus/widgets/playable/dynamic.dart';
 import 'package:flutter/material.dart';
-import 'package:scoped_model/scoped_model.dart';
 
 class CollectedItemsByArtistPage extends StatefulWidget {
   final String pandoraId;
@@ -21,7 +18,7 @@ class CollectedItemsByArtistPage extends StatefulWidget {
     @required this.pandoraId,
   });
 
-  static Route<void> generateRoute(RouteSettings settings, List<String> paths) {
+  static Route<void> generateLocalRoute(RouteSettings settings, List<String> paths) {
     return MaterialPageRoute(
       builder: (context) {
         return CollectedItemsByArtistPage(pandoraId: paths.last);
@@ -35,83 +32,47 @@ class CollectedItemsByArtistPage extends StatefulWidget {
 }
 
 class _CollectedItemsByArtistPageState extends State<CollectedItemsByArtistPage> with CustomPopupMenu, StandardPopupMenu {
-  final _listKey = GlobalKey<PagedCollectionListViewState>();
-  final _pendingFutures = <Future<dynamic>>[];
+  StandardPagedCollectionProvider<PandoraEntity> _collectionProvider;
+  Artist _initialData;
 
-  Future<PagedCollectionList<PandoraEntity>> _getPage(User user, int offset) async {
-    await Future.wait(_pendingFutures);
-    return await Artist.getCollectedItemsFromId(
-      pandoraId: widget.pandoraId,
-      user: user,
-      limit: CollectionModel.pageSize,
-      offset: offset,
+  @override
+  void initState() {
+    super.initState();
+    _collectionProvider = StandardPagedCollectionProvider(
+      pageGetter: ({limit, offset, sortOrder, user}) {
+        return Artist.getCollectedItemsFromId(
+          pandoraId: widget.pandoraId,
+          user: user,
+          limit: CollectionModel.pageSize,
+          offset: offset,
+        );
+      },
+      typeName: 'artist\'s items',
     );
   }
 
-  _itemListTileBuilder(BuildContext context, PandoraEntity item, int index, User user) {
-    return InkWell(
-      onTapDown: storePosition,
-      onLongPress: () {
-        if (item is Album) {
-          showStandardMenu(
-            context,
-            user,
-            item,
-            refresh: _listKey.currentState.refresh,
-            onAddRemove: (future) => _pendingFutures.add(future..then((future) => _pendingFutures.remove(future))),
-            standardMenuItems: {
-              if (item.trackCount == item.collectedTrackCount) StandardPopupMenuItem.delete: 'Remove' else StandardPopupMenuItem.add: 'Add all tracks',
-            },
+  Future<Artist> _getInitialData() async {
+    if (_initialData == null) {
+      _initialData = (await _collectionProvider.newPage(UserModel.of(context).user, 0)).relatedItems.singleWhere(
+            (item) => item.pandoraId == widget.pandoraId,
+            orElse: () => null,
           );
-        } else {
-          showStandardMenu(
-            context,
-            user,
-            item,
-            refresh: _listKey.currentState.refresh,
-            onAddRemove: (future) => _pendingFutures.add(future..then((future) => _pendingFutures.remove(future))),
-          );
-        }
-      },
-      child: DynamicPlayableListTile(item),
-    );
+    }
+
+    return _initialData;
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<PagedCollectionList<PandoraEntity>>(
-      future: _getPage(UserModel.of(context).user, 0),
+    return FutureBuilder<Artist>(
+      future: _getInitialData(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          final Artist artist = snapshot.data.relatedItems.singleWhere((item) => item.pandoraId == widget.pandoraId, orElse: () => null);
-
           return Scaffold(
             appBar: AppBar(
-              title: Text('Collected items by ${artist?.name ?? 'artist'}'),
+              title: Text('Collected items by ${snapshot.data?.name ?? 'artist'}'),
             ),
-            body: ScopedModelDescendant<UserModel>(
-              builder: (context, _, model) {
-                return PagedCollectionListView<PandoraEntity>(
-                  key: _listKey,
-                  typeName: 'artist\'s items',
-                  pageLoadFuture: (pageNumber) async {
-                    try {
-                      return await _getPage(
-                        model.user,
-                        PagedCollectionList.pageNumberToIndex(pageNumber, CollectionModel.pageSize),
-                      );
-                    } on SocketException {
-                      return null;
-                    } on PandoraException {
-                      return null;
-                    }
-                  },
-                  itemListTileBuilder: (BuildContext context, PandoraEntity item, int index) => _itemListTileBuilder(context, item, index, model.user),
-                  initialPage: snapshot.data,
-                  initialPageNumber: 1,
-                );
-              },
-            ),
+            body: _CollectedItemsByArtistPageList(_collectionProvider),
           );
         } else {
           final String artistName = ModalRoute.of(context).settings.arguments;
@@ -130,6 +91,34 @@ class _CollectedItemsByArtistPageState extends State<CollectedItemsByArtistPage>
           );
         }
       },
+    );
+  }
+}
+
+class _CollectedItemsByArtistPageList extends PagedCollectionTab<PandoraEntity> {
+  final StandardPagedCollectionProvider _collectionProvider;
+
+  const _CollectedItemsByArtistPageList(this._collectionProvider);
+
+  @override
+  PagedCollectionProvider<PandoraEntity> getCollectionProvider(BuildContext context) => _collectionProvider;
+
+  @override
+  Widget itemListTileBuilder(BuildContext context, PandoraEntity item, int index, storePosition, Future<T> Function<T>({List<PopupMenuItem<T>> customMenuItems, Map<StandardPopupMenuItem, String> standardMenuItems}) showMenu, launch) {
+    return InkWell(
+      onTapDown: storePosition,
+      onLongPress: () {
+        if (item is Album) {
+          showMenu<void>(
+            standardMenuItems: {
+              if (item.trackCount == item.collectedTrackCount) StandardPopupMenuItem.delete: 'Remove' else StandardPopupMenuItem.add: 'Add all tracks',
+            },
+          );
+        } else {
+          showMenu<void>();
+        }
+      },
+      child: DynamicPlayableListTile(item),
     );
   }
 }

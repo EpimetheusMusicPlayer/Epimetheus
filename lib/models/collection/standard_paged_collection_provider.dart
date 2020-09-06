@@ -1,5 +1,5 @@
 import 'package:epimetheus/libepimetheus/authentication.dart';
-import 'package:epimetheus/libepimetheus/structures/paged_collection_list.dart';
+import 'package:epimetheus/libepimetheus/structures/collection/paged_collection_list.dart';
 import 'package:epimetheus/libepimetheus/structures/pandora_entity.dart';
 import 'package:epimetheus/models/collection/collection_model.dart';
 import 'package:epimetheus/models/collection/paged_collection_provider.dart';
@@ -23,8 +23,8 @@ class StandardPagedCollectionProvider<T extends PandoraEntity> extends PagedColl
 
   StandardPagedCollectionProvider({
     @required this.pageGetter,
-    @required this.artUrlGetter,
-    @required BaseCacheManager cacheManager,
+    this.artUrlGetter,
+    BaseCacheManager cacheManager,
     @required String typeName,
     int pageSize = CollectionModel.pageSize,
   }) : super(cacheManager, typeName, pageSize);
@@ -40,7 +40,7 @@ class StandardPagedCollectionProvider<T extends PandoraEntity> extends PagedColl
   @override
   void cachePageArt(PagedCollectionList<T> collectionList, BaseCacheManager cacheManager) {
     collectionList.items.forEach((item) {
-      cacheManager.downloadFile(artUrlGetter(item, 500));
+      cacheManager?.downloadFile(artUrlGetter(item, 500));
     });
   }
 }

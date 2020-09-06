@@ -50,6 +50,8 @@ class _SongDisplayState extends State<SongDisplay> {
       stream: AudioService.queueStream,
       initialData: AudioService.queue,
       builder: (context, snapshot) {
+        if (!snapshot.hasData) return const SizedBox();
+
         for (int i = 0; i < snapshot.data.length; ++i) {
           tiles.add(
             _SongTile(

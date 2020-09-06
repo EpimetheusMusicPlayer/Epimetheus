@@ -1,11 +1,7 @@
 import 'package:epimetheus/api.dart';
-import 'package:epimetheus/libepimetheus/albums.dart';
-import 'package:epimetheus/libepimetheus/artists.dart';
 import 'package:epimetheus/libepimetheus/authentication.dart';
 import 'package:epimetheus/libepimetheus/networking.dart';
-import 'package:epimetheus/libepimetheus/playlists.dart';
-import 'package:epimetheus/libepimetheus/songs.dart';
-import 'package:epimetheus/libepimetheus/structures/paged_collection_list.dart';
+import 'package:epimetheus/libepimetheus/structures/collection/paged_collection_list.dart';
 import 'package:epimetheus/libepimetheus/structures/pandora_entity.dart';
 import 'package:flutter/foundation.dart';
 
@@ -31,22 +27,6 @@ Future<Map<String, dynamic>> getCollection({
     },
     user: user,
   );
-}
-
-/// This [EntityCreator] uses the right type-specific creator when given a [PandoraEntity] that may be any type.
-PandoraEntity createDynamicEntityFromMaps(Map<String, dynamic> annotation, [Map<String, dynamic> collectionDetails]) {
-  switch (PandoraEntity.types[annotation['type']]) {
-    case PandoraEntityType.track:
-      return Track.createFromMaps(annotation, collectionDetails);
-    case PandoraEntityType.playlist:
-      return Playlist.createFromMaps(annotation, collectionDetails);
-    case PandoraEntityType.artist:
-      return Artist.createFromMaps(annotation, collectionDetails);
-    case PandoraEntityType.album:
-      return Album.createFromMaps(annotation, collectionDetails);
-    default:
-      return null;
-  }
 }
 
 extension PandoraEntityExtensions on PandoraEntity {

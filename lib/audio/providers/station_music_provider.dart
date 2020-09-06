@@ -2,95 +2,49 @@ import 'package:audio_service/audio_service.dart';
 import 'package:epimetheus/art_constants.dart';
 import 'package:epimetheus/audio/providers/music_provider.dart';
 import 'package:epimetheus/libepimetheus/authentication.dart';
-import 'package:epimetheus/libepimetheus/songs.dart';
 import 'package:epimetheus/libepimetheus/stations.dart';
+import 'package:epimetheus/libepimetheus/tracks.dart';
 import 'package:flutter/material.dart';
 
 class StationMusicProvider extends MusicProvider {
-  final List<Station> _stations;
-  final int _stationIndex;
+  final Station _station;
+  final List<Station> _catalogue;
 
-  final List<Song> _songs = List<Song>();
+  final List<StationTrack> _tracks = <StationTrack>[];
 
-  StationMusicProvider(this._stations, this._stationIndex);
-
-  @override
-  void init() {}
+  StationMusicProvider(this._station, this._catalogue) : super(canRateItems: true);
 
   @override
-  String get id => _stations[_stationIndex].stationId;
+  Future<bool> init(User user) async => true;
 
   @override
-  String get title => _stations[_stationIndex].title;
+  void dispose() {}
 
   @override
-  int get count => _songs.length;
+  String get id => _station.stationId;
 
   @override
-  String get audioUrl => _songs[0].audioUrl;
+  String get title => _station.title;
 
   @override
-  List<MediaItem> get queue {
-    return [
-      for (Song song in _songs)
-        MediaItem(
-          id: song.pandoraId,
-          title: song.title,
-          artist: song.artistTitle,
-          album: song.albumTitle,
-          artUri: song.getArtUrl(serviceArtSize),
-          displayTitle: song.title,
-          displaySubtitle: '${song.artistTitle} - ${song.albumTitle}',
-          displayDescription: title,
-          playable: true,
-          rating: song.rating,
-          genre: song.pendingRating.isRated() ? song.pendingRating.isThumbUp().toString() : 'null',
-        ),
-    ];
-  }
+  int currentQueueIndex = 0;
 
   @override
-  MediaItem get currentMediaItem {
-    return MediaItem(
-      id: _songs[0].pandoraId,
-      title: _songs[0].title,
-      artist: _songs[0].artistTitle,
-      album: _songs[0].albumTitle,
-      artUri: _songs[0].getArtUrl(serviceArtSize),
-      displayTitle: _songs[0].title,
-      displaySubtitle: '${_songs[0].artistTitle} - ${_songs[0].albumTitle}',
-      displayDescription: '$title',
-      playable: true,
-      rating: _songs[0].rating,
-      genre: _songs[0].pendingRating.isRated() ? _songs[0].pendingRating.isThumbUp().toString() : 'null',
-    );
-  }
+  void notifySkipTo(int index) => currentQueueIndex = index;
 
   @override
-  void skipTo(int index) {
-    _songs.removeRange(0, index);
-  }
-
-  @override
-  void skip() {
-    _songs.removeAt(0);
-  }
-
-  @override
-  void remove(int index) {
-    _songs.removeAt(index);
-  }
+  void notifySkip(int newIndex) => ++currentQueueIndex;
 
   @override
   Future<void> rate(User user, int index, Rating rating, bool update) {
     if (update) {
-      _songs[index].updateFeedbackLocally(rating);
+      _tracks[index].updateFeedbackLocally(rating);
       return Future.value();
     } else {
       if (rating.isRated()) {
-        return _songs[index].addFeedback(user, rating.isThumbUp());
+        return _tracks[index].addFeedback(user, rating.isThumbUp());
       } else {
-        return _songs[index].deleteFeedback(user);
+        return _tracks[index].deleteFeedback(user);
       }
     }
   }
@@ -99,21 +53,29 @@ class StationMusicProvider extends MusicProvider {
   void tired(int index) {}
 
   @override
-  Future<List<String>> load(User user) async {
+  Future<List<MediaItem>> load(User user) async {
     try {
       // Download the next few song entries
-      List<Song> newSongs = await _stations[_stationIndex].getPlaylistFragment(user);
+      List<StationTrack> newTracks = await _station.getPlaylistFragment(user);
 
       // Add the new entries to the internally managed queue
-      _songs.addAll(newSongs);
+      _tracks.addAll(newTracks);
 
       // Return the new songs to be added into the audio service's queue
-      return newSongs.map<String>((Song song) => song.audioUrl).toList(growable: false);
+      return _tracksToMediaItems(newTracks);
     } catch (error) {
       throw error;
       return null; // TODO handle errors
     }
   }
+
+  @override
+  bool shouldLoad() {
+    return _tracks.length - currentQueueIndex <= 2;
+  }
+
+  @override
+  Uri getAudioUri(int index) => Uri.parse(_tracks[index].audioUrl);
 
   @override
   List<MediaItem> getChildren(String parentId) {
@@ -122,7 +84,7 @@ class StationMusicProvider extends MusicProvider {
 
   @override
   List<MusicProviderAction> getActions(State state) => [
-        if (!_stations[_stationIndex].isShuffle)
+        if (!_station.isShuffle)
           MusicProviderAction(
             iconData: Icons.thumbs_up_down,
             label: 'Station feedback',
@@ -131,4 +93,24 @@ class StationMusicProvider extends MusicProvider {
             },
           )
       ];
+
+  List<MediaItem> _tracksToMediaItems(List<StationTrack> tracks) {
+    return [
+      for (final track in tracks)
+        MediaItem(
+          id: track.pandoraId,
+          title: track.title,
+          artist: track.artistTitle,
+          album: track.albumTitle,
+          artUri: track.getArtUrl(serviceArtSize),
+          displayTitle: track.title,
+          displaySubtitle: '${track.artistTitle} - ${track.albumTitle}',
+          displayDescription: title,
+          playable: true,
+          rating: track.rating,
+          genre: track.pendingRating.isRated() ? track.pendingRating.isThumbUp().toString() : 'null',
+          duration: track.duration,
+        ),
+    ];
+  }
 }

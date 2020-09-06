@@ -7,6 +7,9 @@ abstract class CollectionProvider<T extends PandoraEntity> {
   /// Returns true if already downloaded.
   bool getAsync(User user);
 
+  /// Returns the downloaded items
+  List<T> get downloaded;
+
   /// Clears any downloaded collection items.
   void clear();
 }

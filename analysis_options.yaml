@@ -5,3 +5,4 @@ analyzer:
     - flutter_audio/**
     - flutter_secure_storage/**
     - flutter_autofill/**
+    - just_audio/**

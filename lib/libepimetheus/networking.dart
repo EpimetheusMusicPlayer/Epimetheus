@@ -45,14 +45,29 @@ Future<Map<String, dynamic>> makeApiRequest({
 
   final Map<String, dynamic> responseJSON = jsonDecode(response.body);
 
-  if (response.statusCode != 200) {
-    throwException(
-      responseJSON['errorString'],
-      responseJSON['message'],
-      responseJSON['errorCode'],
-      response.statusCode,
-      '$version/$endpoint',
-    );
+  if (responseJSON.containsKey('errorCode') || response.statusCode != 200) {
+    final errorCode = responseJSON['errorCode'];
+
+    if (errorCode == 1001) {
+      print('Auth token out-of-date; reauthenticating.');
+      await (user as User).reauthenticate();
+      return await makeApiRequest(
+        version: version,
+        endpoint: endpoint,
+        requestData: requestData,
+        user: user,
+        anonymousProxyClient: anonymousProxyClient,
+        needsProxy: needsProxy,
+      );
+    } else {
+      throwException(
+        responseJSON['errorString'],
+        responseJSON['message'],
+        errorCode,
+        response.statusCode,
+        '$version/$endpoint',
+      );
+    }
   }
 
   print('Received $version/$endpoint: $requestData');

@@ -27,16 +27,16 @@ class _NowPlayingContentState extends State<NowPlayingContent> {
     final model = ColorModel.of(context, rebuildOnChange: true);
 
     void onPageChanged(int newPage) {
-      setState(() {
-        firstPage = newPage == 0;
-        _selectedMediaItem = AudioService.queue[newPage];
-      });
+      // setState(() {
+      //   firstPage = newPage == 0;
+      //   _selectedMediaItem = AudioService.queue[newPage];
+      // });
     }
 
     return SizedBox.expand(
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        color: model.backgroundColor,
+        color: model.dominantColor,
         child: SafeArea(
           child: Stack(
             children: <Widget>[
@@ -103,7 +103,7 @@ class _SeamlessMediaControlsState extends State<SeamlessMediaControls> with Sing
     final model = ColorModel.of(context, rebuildOnChange: true);
 
     final colorFilter = ColorFilter.mode(
-      model.readableForegroundColor,
+      model.readableForegroundColor ?? Colors.black,
       BlendMode.srcIn,
     );
 
@@ -143,7 +143,6 @@ class _SeamlessMediaControlsState extends State<SeamlessMediaControls> with Sing
                 ),
                 iconSize: iconSize,
                 onPressed: () {
-                  print(AudioService.playbackState.playing); // TODO remove print;
                   if (AudioService.playbackState.playing)
                     AudioService.pause();
                   else

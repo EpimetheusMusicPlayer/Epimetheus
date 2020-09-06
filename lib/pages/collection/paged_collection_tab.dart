@@ -1,4 +1,5 @@
-import 'package:epimetheus/libepimetheus/structures/paged_collection_list.dart';
+import 'package:epimetheus/audio/launch_helpers.dart';
+import 'package:epimetheus/libepimetheus/structures/collection/paged_collection_list.dart';
 import 'package:epimetheus/libepimetheus/structures/pandora_entity.dart';
 import 'package:epimetheus/models/collection/collection_model.dart';
 import 'package:epimetheus/models/collection/paged_collection_provider.dart';
@@ -10,22 +11,25 @@ import 'package:scoped_model/scoped_model.dart';
 
 typedef PositionStorer = void Function(TapDownDetails details);
 typedef MenuShower = Future<T> Function<T>({Map<StandardPopupMenuItem, String> standardMenuItems, List<PopupMenuItem<T>> customMenuItems});
-typedef ItemListTileBuilderWithMenu<T extends PandoraEntity> = Widget Function(BuildContext context, T item, int index, PositionStorer storePosition, MenuShower showMenu);
+typedef ItemListTileBuilderWithMenu<T extends PandoraEntity> = Widget Function(BuildContext context, T item, int index, PositionStorer storePosition, MenuShower showMenu, VoidCallback launch);
 
 abstract class PagedCollectionTab<T extends PandoraEntity> extends StatelessWidget {
   final bool buildSeparators;
 
   const PagedCollectionTab({this.buildSeparators = false});
 
-  Widget itemListTileBuilder(BuildContext context, T item, int index, PositionStorer storePosition, MenuShower showMenu);
+  Widget itemListTileBuilder(BuildContext context, T item, int index, PositionStorer storePosition, MenuShower showMenu, VoidCallback launch);
 
   Widget separatorBuilder(BuildContext context, int index) => throw Error();
+
+  PagedCollectionProvider<T> getCollectionProvider(BuildContext context) => CollectionModel.of(context).getCollectionProvider<T>();
 
   @override
   Widget build(BuildContext context) {
     return _PagedCollectionTabListView(
       itemListTileBuilder: itemListTileBuilder,
       separatorBuilder: buildSeparators ? separatorBuilder : null,
+      collectionProvider: getCollectionProvider(context),
     );
   }
 }
@@ -33,10 +37,12 @@ abstract class PagedCollectionTab<T extends PandoraEntity> extends StatelessWidg
 class _PagedCollectionTabListView<T extends PandoraEntity> extends StatefulWidget {
   final ItemListTileBuilderWithMenu<T> itemListTileBuilder;
   final IndexedWidgetBuilder separatorBuilder;
+  final PagedCollectionProvider<T> collectionProvider;
 
   _PagedCollectionTabListView({
     @required this.itemListTileBuilder,
     this.separatorBuilder,
+    this.collectionProvider,
   });
 
   @override
@@ -54,7 +60,7 @@ class _PagedCollectionTabListViewState<T extends PandoraEntity> extends State<_P
         return ScopedModelDescendant<UserModel>(
           rebuildOnChange: false,
           builder: (context, _, userModel) {
-            final PagedCollectionProvider<T> collectionProvider = collectionModel.getCollectionProvider(T);
+            final collectionProvider = widget.collectionProvider;
             final user = userModel.user;
 
             Widget _itemListTileBuilder(BuildContext context, T item, int index) {
@@ -75,7 +81,11 @@ class _PagedCollectionTabListViewState<T extends PandoraEntity> extends State<_P
                 );
               }
 
-              return widget.itemListTileBuilder(context, item, index, storePosition, showMenu);
+              void launch() {
+                launchMusicProviderFromCollection<T>(context, index);
+              }
+
+              return widget.itemListTileBuilder(context, item, index, storePosition, showMenu, launch);
             }
 
             return PagedCollectionListView<T>(

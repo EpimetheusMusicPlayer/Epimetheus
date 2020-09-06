@@ -5,8 +5,19 @@ import 'package:meta/meta.dart';
 
 import './networking.dart';
 
+enum SubscriptionType {
+  free,
+  premium,
+}
+
+SubscriptionType _getSubscriptionType(String branding) {
+  if (branding == "PandoraPremium") return SubscriptionType.premium;
+  return SubscriptionType.free;
+}
+
 class AuthenticatedEntity {
   String _authToken;
+
   String get authToken => _authToken;
 
   // This proxy object is used to recreate the HTTP client if it becomes null.
@@ -14,12 +25,14 @@ class AuthenticatedEntity {
   Proxy _proxy;
 
   http.BaseClient _proxyClient;
+
   http.BaseClient get proxyClient => _proxyClient ??= (_proxy?.toClient() ?? http.Client());
 
   AuthenticatedEntity._internal(this._authToken, this._proxyClient, this._proxy);
 
   void discardClient() {
     // Discard the client to be recreated when next used
+    // Useful as the client cannot be passed to an isolate
     _proxyClient = null;
   }
 }
@@ -31,6 +44,13 @@ class User extends AuthenticatedEntity {
   final String username;
   final String webname;
   final String profileImageUrl;
+  final String webClientVersion;
+
+  SubscriptionType _subscriptionType;
+  SubscriptionType get subscriptionType => _subscriptionType;
+
+  bool _hasHighQualityStreaming;
+  bool get hasHighQualityStreaming => _hasHighQualityStreaming;
 
   User._internal({
     @required Proxy proxy,
@@ -41,7 +61,12 @@ class User extends AuthenticatedEntity {
     @required this.username,
     @required this.webname,
     @required this.profileImageUrl,
-  }) : super._internal(authToken, client, proxy);
+    @required SubscriptionType subscriptionType,
+    @required bool hasHighQualityStreaming,
+    @required this.webClientVersion,
+  })  : _subscriptionType = subscriptionType,
+        _hasHighQualityStreaming = hasHighQualityStreaming,
+        super._internal(authToken, client, proxy);
 
   /// Creates a user object, authenticating with the given [email] and [password].
   /// If the [useProxy] boolean is true, a proxy service will be used.
@@ -73,22 +98,28 @@ class User extends AuthenticatedEntity {
       username: await _getUsername(AuthenticatedEntity._internal(authResponse['authToken'], proxyClient, proxy), authResponse['webname']),
       webname: authResponse['webname'],
       profileImageUrl: (await _getFacebookProfileImageUrl(authResponse['facebookData'])) ?? authResponse['placeholderProfileImageUrl'],
+      webClientVersion: authResponse['webClientVersion'],
+      subscriptionType: _getSubscriptionType(authResponse['config']['branding']),
+      hasHighQualityStreaming: authResponse['highQualityStreamingEnabled'],
     );
   }
 
   Future<void> reauthenticate() async {
-    _authToken = (await makeApiRequest(
+    final response = await makeApiRequest(
       version: 'v1',
       endpoint: 'auth/login',
       requestData: {
         'username': email,
         'password': password,
         'keepLoggedIn': true,
-        'existingAuthToken':
-            _authToken, // I think this is used when the web client's webpage is reloaded. The API seems to just spit this value out again when supplied. It could, however, be used to refresh the token.
+        'existingAuthToken': _authToken, // I think this is used when the web client's webpage is reloaded. The API seems to just spit this value out again when supplied. It could, however, be used to refresh the token.
       },
       anonymousProxyClient: proxyClient,
-    ))['authToken'];
+    );
+
+    _authToken = response['authToken'];
+    _subscriptionType = _getSubscriptionType(response['config']['branding']);
+    _hasHighQualityStreaming = response['hasHighQualityStreaming'];
   }
 
   User clone() {
@@ -101,6 +132,7 @@ class User extends AuthenticatedEntity {
       username: username,
       webname: webname,
       profileImageUrl: profileImageUrl,
+      webClientVersion: webClientVersion,
     );
   }
 

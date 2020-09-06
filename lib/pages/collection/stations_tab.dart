@@ -26,7 +26,7 @@ class StationsTab extends StaticCollectionTab<Station> {
     tooltip: 'Shuffle stations',
     icon: Icons.shuffle,
     onPressed: (BuildContext context) {
-      launchStation(context, 0);
+      launchMusicProviderFromCollection<Station>(context, 0);
     },
   );
 }

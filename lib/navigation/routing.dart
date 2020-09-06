@@ -1,4 +1,5 @@
 import 'package:epimetheus/pages/collection/collection_page.dart';
+import 'package:epimetheus/pages/collection/subsections/playlist_tracks.dart';
 import 'package:epimetheus/pages/now_playing/now_playing_page.dart';
 import 'package:epimetheus/pages/preferences/proxy_preferences_page.dart';
 import 'package:epimetheus/pages/signin/signin_page.dart';
@@ -26,6 +27,7 @@ Route<dynamic> generateRoute(RouteSettings settings) {
 
 final _routeGenerators = <String, Route<dynamic> Function(RouteSettings settings, List<String> paths)>{
   CollectionPage.pathPrefix: CollectionPage.generateRoute,
+  PlaylistTracksPage.pathPrefix: PlaylistTracksPage.generateLocalRoute,
 };
 // Half-done implementation that may come in handy for web support.
 // Route<dynamic> generateRoute(RouteSettings settings) {

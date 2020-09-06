@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:epimetheus/libepimetheus/authentication.dart';
 import 'package:epimetheus/libepimetheus/exceptions.dart';
-import 'package:epimetheus/libepimetheus/structures/paged_collection_list.dart';
+import 'package:epimetheus/libepimetheus/structures/collection/paged_collection_list.dart';
 import 'package:epimetheus/libepimetheus/structures/pandora_entity.dart';
 import 'package:epimetheus/models/collection/collection_model.dart';
 import 'package:epimetheus/models/collection/collection_provider.dart';
@@ -26,9 +26,9 @@ abstract class PagedCollectionProvider<T extends PandoraEntity> extends Collecti
   void cachePageArt(PagedCollectionList<T> collection, BaseCacheManager cacheManager);
 
   /// Holds a merged collection containing all the downloaded pages
-  PagedCollectionList<T> _cachedCollection;
+  PagedCollectionList<T> cachedCollection;
 
-  PagedCollectionList<T> get collection => _cachedCollection;
+  PagedCollectionList<T> get collection => cachedCollection;
 
   /// Holds the error state
   bool _hasError = false;
@@ -63,10 +63,10 @@ abstract class PagedCollectionProvider<T extends PandoraEntity> extends Collecti
 
     try {
       await Future.wait(_pendingFutures);
-      if (_cachedCollection == null) {
+      if (cachedCollection == null) {
         // If the cached collection is null, grab the first page.
         if (index == 0) {
-          _cachedCollection = await getPage(user, index, pageSize);
+          cachedCollection = await getPage(user, index, pageSize);
         } else {
           // If the cached collection is null, no page other than the first should ever be requested.
           // If this has happened, something's terribly wrong.
@@ -79,13 +79,13 @@ abstract class PagedCollectionProvider<T extends PandoraEntity> extends Collecti
         // If the page is the last, it will be equal to the total item count.
         //
         // If the page is not already cached, download it.
-        final needsLastPage = _cachedCollection.totalCount - index < pageSize;
-        if (_cachedCollection.items.length < (needsLastPage ? _cachedCollection.totalCount : index + pageSize)) {
+        final needsLastPage = cachedCollection.totalCount - index < pageSize;
+        if (cachedCollection.items.length < (needsLastPage ? cachedCollection.totalCount : index + pageSize)) {
           // Download the new page (since it is not already cached)
           final newPage = await getPage(user, index, pageSize);
 
           // Add the new page to the merged collection
-          _cachedCollection += newPage;
+          cachedCollection += newPage;
 
           // Cache the new page's art.
           cachePageArt(newPage, _cacheManager);
@@ -94,8 +94,8 @@ abstract class PagedCollectionProvider<T extends PandoraEntity> extends Collecti
 
       // Sublist and return the requested page from the merged collection (at this point, it should always be cached).
       final pageEndOffset = index + pageSize;
-      final sublistEnd = _cachedCollection.totalCount < pageEndOffset ? _cachedCollection.totalCount : pageEndOffset;
-      return _cachedCollection.sublist(index, sublistEnd);
+      final sublistEnd = cachedCollection.totalCount < pageEndOffset ? cachedCollection.totalCount : pageEndOffset;
+      return cachedCollection.sublist(index, sublistEnd);
     } on SocketException catch (e) {
       // Catch network errors
       onError(e);
@@ -109,13 +109,13 @@ abstract class PagedCollectionProvider<T extends PandoraEntity> extends Collecti
 
   Future<void> reset(User user) async {
     onError(Exception e) {
-      _cachedCollection = null;
+      cachedCollection = null;
       _hasError = true;
     }
 
     try {
       final newPage = await getPage(user, 0, pageSize);
-      _cachedCollection = newPage;
+      cachedCollection = newPage;
       _hasError = false;
     } on SocketException catch (e) {
       // Catch network errors
@@ -128,7 +128,7 @@ abstract class PagedCollectionProvider<T extends PandoraEntity> extends Collecti
 
   @override
   bool getAsync(User user) {
-    if (_cachedCollection == null) {
+    if (cachedCollection == null) {
       addPendingFuture(newPage(user, 0));
       return false;
     } else
@@ -136,8 +136,11 @@ abstract class PagedCollectionProvider<T extends PandoraEntity> extends Collecti
   }
 
   @override
+  List<T> get downloaded => cachedCollection.items;
+
+  @override
   void clear() {
-    _cachedCollection = null;
+    cachedCollection = null;
     _hasError = false;
   }
 }

@@ -101,13 +101,14 @@ class _AuthenticationPageState extends State<AuthenticationPage> with SingleTick
       // Pre-cache some data
       cache(user);
     } on ClientException catch (e) {
+      if (mounted) _animationController.stop();
       if (e.message.contains('407')) {
         showProxyErrorDialog();
       } else {
         throw (e);
       }
     } on HandshakeException {
-      _animationController.stop();
+      if (mounted) _animationController.stop();
       showEpimetheusDialog(
         dialog: GeoBlockErrorDialog(
           context: context,
@@ -115,15 +116,15 @@ class _AuthenticationPageState extends State<AuthenticationPage> with SingleTick
         ),
       );
     } on LocationException {
-      _animationController.stop();
+      if (mounted) _animationController.stop();
       showEpimetheusDialog(
         dialog: GeoBlockErrorDialog(
           context: context,
           onClickButton: navigateBackToSignInPage,
         ),
       );
-    } on SocketException {
-      _animationController.stop();
+    } on SocketException catch (e, s) {
+      if (mounted) _animationController.stop();
       showEpimetheusDialog(
         dialog: NetworkErrorDialog(
           context: context,
@@ -131,8 +132,16 @@ class _AuthenticationPageState extends State<AuthenticationPage> with SingleTick
           onClickButton: navigateBackToSignInPage,
         ),
       );
+    } on InvalidAuthException {
+      if (mounted) _animationController.stop();
+      showEpimetheusDialog(
+        dialog: AuthenticationErrorDialog(
+          context: context,
+          onClickButton: navigateBackToSignInPage,
+        ),
+      );
     } on InvalidRequestException catch (e) {
-      _animationController.stop();
+      if (mounted) _animationController.stop();
       if (e.errorCode == 0) {
         showEpimetheusDialog(
           dialog: AuthenticationErrorDialog(
@@ -142,7 +151,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> with SingleTick
         );
       }
     } on PandoraException catch (e) {
-      _animationController.stop();
+      if (mounted) _animationController.stop();
       showEpimetheusDialog(
         dialog: APIErrorDialog(
           context: context,

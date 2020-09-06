@@ -1,6 +1,6 @@
 import 'package:epimetheus/libepimetheus/authentication.dart';
 import 'package:epimetheus/libepimetheus/collections.dart';
-import 'package:epimetheus/libepimetheus/structures/paged_collection_list.dart';
+import 'package:epimetheus/libepimetheus/structures/collection/paged_collection_list.dart';
 import 'package:epimetheus/libepimetheus/structures/pandora_entity.dart';
 import 'package:epimetheus/widgets/mixins/custom_context_menu.dart';
 import 'package:flutter/material.dart';
