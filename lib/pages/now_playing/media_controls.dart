@@ -80,7 +80,7 @@ class _EmbededMediaControlsState extends State<EmbeddedMediaControls> with Singl
                   ),
                 ),
                 iconSize: EmbeddedMediaControls.iconSize,
-                tooltip: '-15s',
+                tooltip: '-10s',
                 onPressed: () {
                   _rewindController.play('fast_forward');
                   AudioService.rewind();
@@ -107,7 +107,7 @@ class _EmbededMediaControlsState extends State<EmbeddedMediaControls> with Singl
                   controller: _fastForwardController,
                 ),
                 iconSize: EmbeddedMediaControls.iconSize,
-                tooltip: '+15s',
+                tooltip: '+10s',
                 onPressed: () {
                   _fastForwardController.play('fast_forward');
                   AudioService.fastForward();
