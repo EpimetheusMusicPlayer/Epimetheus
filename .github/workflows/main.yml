@@ -31,20 +31,32 @@ jobs:
       - run: flutter config --enable-macos-desktop
       - run: flutter pub get
       - run: flutter build apk --release
-      - run: flutter build ios --release --no-codesign
-      - run: flutter build macos --release
-      
+
       - uses: actions/upload-artifact@v2
         with:
-          name: android-release
+          name: android-release.apk.zip
           path: build/app/outputs/apk/release/app-release.apk
-      
+
+      - run: flutter build ios --release --no-codesign
+
+      - uses: papeloto/action-zip@v1
+        with:
+          files: build/ios/iphoneos/Runner.app/
+          dest: build/ios/iphoneos/Runner.app.zip
+
       - uses: actions/upload-artifact@v2
         with:
-          name: ios-release
-          path: build/ios/iphoneos/Runner.app
-          
+          name: ios-release.app.zip
+          path: build/ios/iphoneos/Runner.app.zip
+
+      - run: flutter build macos --release
+
+      - uses: papeloto/action-zip@v1
+        with:
+          files: build/macos/Build/Products/Release/Epimetheus.app/
+          dest: build/macos/Build/Products/Release/Epimetheus.app.zip
+
       - uses: actions/upload-artifact@v2
         with:
-          name: macos-release
-          path: build/macos/Build/Products/Release/Epimetheus.app
+          name: macos-release.app.zip
+          path: build/macos/Build/Products/Release/Epimetheus.app.zip
