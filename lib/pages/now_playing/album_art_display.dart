@@ -47,7 +47,7 @@ class _AlbumArtDisplayState extends State<AlbumArtDisplay> {
     int oldIndex = widget.initialPage;
     _currentMediaItemSubscription = AudioService.currentMediaItemStream.listen((mediaItem) async {
       final newIndex = AudioService.queue.indexOf(mediaItem);
-      if (mounted) _controller.animateToPage(_controller.page.toInt() + (newIndex - oldIndex), duration: const Duration(milliseconds: 500), curve: Curves.decelerate);
+      if (mounted) _controller.animateToPage(_controller.page.toInt() + (newIndex - oldIndex), duration: const Duration(milliseconds: 200), curve: Curves.decelerate);
       oldIndex = newIndex;
     });
   }
