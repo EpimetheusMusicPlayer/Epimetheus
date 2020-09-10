@@ -5,6 +5,7 @@ import 'package:epimetheus/libepimetheus/networking.dart';
 import 'package:epimetheus/models/collection/collection_model.dart';
 import 'package:epimetheus/models/user/user.dart';
 import 'package:epimetheus/pages/authentication/authentication_page.dart';
+import 'package:epimetheus/platform_constants.dart';
 import 'package:epimetheus/storage/secure_storage_manager.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -38,8 +39,9 @@ void signOut(BuildContext context) async {
 class SignInPage extends StatefulWidget {
   final String email;
   final String password;
+  final String apiHost;
 
-  SignInPage({this.email, this.password});
+  SignInPage({this.email, this.password, this.apiHost});
 
   @override
   _SignInPageState createState() => _SignInPageState();
@@ -49,9 +51,11 @@ class _SignInPageState extends State<SignInPage> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController _emailController;
   TextEditingController _passwordController;
+  TextEditingController _apiHostController;
 
   String _email;
   String _password;
+  String _apiHost;
 
   void _signIn() {
     final _formKeyState = _formKey.currentState;
@@ -64,6 +68,7 @@ class _SignInPageState extends State<SignInPage> {
             return AuthenticationPage(
               email: _email,
               password: _password,
+              apiHost: _apiHost,
             );
           },
         ),
@@ -80,12 +85,14 @@ class _SignInPageState extends State<SignInPage> {
     super.initState();
     _emailController = TextEditingController(text: widget.email);
     _passwordController = TextEditingController(text: widget.password);
+    if (kIsWeb) _apiHostController = TextEditingController(text: widget.apiHost);
   }
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    if (kIsWeb) _apiHostController.dispose();
     super.dispose();
   }
 
@@ -100,6 +107,46 @@ class _SignInPageState extends State<SignInPage> {
     String passwordValidator(String password) {
       if (password.isEmpty) return 'Please enter a password.';
       return null;
+    }
+
+    String apiHostValidator(String apiHost) {
+      if (apiHost.isEmpty) return 'A CORS stripper hostname is required in the Web app.';
+      return null;
+    }
+
+    void _showCORSDialog() {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('CORS stripper'),
+            content: const Text(
+              'Due to a browser limitation, a CORS stripper proxy must be used to communicate '
+              'with Pandora.\nYou may create your own for free, or use a desktop/mobile '
+              'version of Epimetheus.',
+            ),
+            actions: [
+              FlatButton(
+                textColor: Theme.of(context).accentColor,
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Back'),
+              ),
+              RaisedButton(
+                onPressed: () {
+                  launch('https://github.com/EpimetheusMusicPlayer/CORSflare-for-Pandora');
+                  Navigator.of(context).pop();
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: const Text('Make one'),
+                ),
+              ),
+            ],
+          );
+        },
+      );
     }
 
     return WillPopScope(
@@ -120,83 +167,117 @@ class _SignInPageState extends State<SignInPage> {
             ),
           ],
         ),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 48),
-          child: Form(
-            key: _formKey,
-            child: Align(
-              alignment: const Alignment(0, -0.25),
-              child: ListView(
-                shrinkWrap: true,
-                children: <Widget>[
-                  Row(
+        body: Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: largeScreenUIConstraints,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 48),
+              child: Form(
+                key: _formKey,
+                child: Align(
+                  alignment: const Alignment(0, -0.25),
+                  child: ListView(
+                    shrinkWrap: true,
                     children: <Widget>[
-                      Hero(
-                        tag: 'app_icon',
-                        child: Image.asset(
-                          'assets/app_icon.png',
-                          width: 96,
+                      Row(
+                        children: <Widget>[
+                          Hero(
+                            tag: 'app_icon',
+                            child: Image.asset(
+                              'assets/app_icon.png',
+                              width: 96,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          const Text('Epimetheus', textScaleFactor: 2),
+                        ],
+                      ),
+                      const SizedBox(height: 48),
+                      Autofill(
+                        autofillHints: const [FlutterAutofill.AUTOFILL_HINT_EMAIL_ADDRESS],
+                        autofillType: FlutterAutofill.AUTOFILL_TYPE_TEXT,
+                        onAutofilled: (value) {
+                          _emailController.text = value;
+                        },
+                        textController: _emailController,
+                        child: TextFormField(
+                          controller: _emailController,
+                          validator: emailValidator,
+                          textInputAction: TextInputAction.next,
+                          onSaved: (email) => _email = email,
+                          decoration: const InputDecoration(
+                            border: const OutlineInputBorder(),
+                            labelText: 'Email address',
+                          ),
+                          keyboardType: TextInputType.emailAddress,
                         ),
                       ),
-                      const SizedBox(width: 16),
-                      const Text('Epimetheus', textScaleFactor: 2),
+                      const SizedBox(height: 16),
+                      Autofill(
+                        autofillHints: const [FlutterAutofill.AUTOFILL_HINT_PASSWORD],
+                        autofillType: FlutterAutofill.AUTOFILL_TYPE_TEXT,
+                        onAutofilled: (value) {
+                          _passwordController.text = value;
+                        },
+                        textController: _passwordController,
+                        child: TextFormField(
+                          controller: _passwordController,
+                          validator: passwordValidator,
+                          textInputAction: TextInputAction.next,
+                          onSaved: (password) => _password = password,
+                          decoration: const InputDecoration(
+                            border: const OutlineInputBorder(),
+                            labelText: 'Password',
+                          ),
+                          obscureText: true,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      if (kIsWeb)
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                controller: _apiHostController,
+                                validator: apiHostValidator,
+                                textInputAction: TextInputAction.next,
+                                onSaved: (apiHost) => _apiHost = apiHost,
+                                decoration: const InputDecoration(
+                                  border: const OutlineInputBorder(),
+                                  labelText: 'CORS stripper',
+                                ),
+                                keyboardType: TextInputType.url,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            IconButton(
+                              icon: const Icon(Icons.help_outline),
+                              color: Colors.black54,
+                              tooltip: 'What is this?',
+                              onPressed: _showCORSDialog,
+                            ),
+                          ],
+                        ),
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: <Widget>[
+                          FlatButton(
+                            textColor: Theme.of(context).accentColor,
+                            onPressed: _signUp,
+                            child: const Text('Sign up'),
+                          ),
+                          const SizedBox(width: 8),
+                          RaisedButton(
+                            onPressed: _signIn,
+                            child: const Text('Sign in'),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 48),
-                  Autofill(
-                    autofillHints: const [FlutterAutofill.AUTOFILL_HINT_EMAIL_ADDRESS],
-                    autofillType: FlutterAutofill.AUTOFILL_TYPE_TEXT,
-                    onAutofilled: (value) {
-                      _emailController.text = value;
-                    },
-                    textController: _emailController,
-                    child: TextFormField(
-                      controller: _emailController,
-                      validator: emailValidator,
-                      onSaved: (email) => _email = email,
-                      decoration: const InputDecoration(
-                        border: const OutlineInputBorder(),
-                        labelText: 'Email address',
-                      ),
-                      keyboardType: TextInputType.emailAddress,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Autofill(
-                    autofillHints: const [FlutterAutofill.AUTOFILL_HINT_PASSWORD],
-                    autofillType: FlutterAutofill.AUTOFILL_TYPE_TEXT,
-                    onAutofilled: (value) {
-                      _passwordController.text = value;
-                    },
-                    textController: _passwordController,
-                    child: TextFormField(
-                      controller: _passwordController,
-                      validator: passwordValidator,
-                      onSaved: (password) => _password = password,
-                      decoration: const InputDecoration(
-                        border: const OutlineInputBorder(),
-                        labelText: 'Password',
-                      ),
-                      obscureText: true,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: <Widget>[
-                      FlatButton(
-                        textColor: Theme.of(context).accentColor,
-                        onPressed: _signUp,
-                        child: const Text('Sign up'),
-                      ),
-                      const SizedBox(width: 8),
-                      RaisedButton(
-                        onPressed: _signIn,
-                        child: const Text('Sign in'),
-                      ),
-                    ],
-                  ),
-                ],
+                ),
               ),
             ),
           ),

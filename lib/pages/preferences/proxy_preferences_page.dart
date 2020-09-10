@@ -3,6 +3,7 @@ import 'package:epimetheus/proxy/providers/simple/simple_proxy_provider.dart';
 import 'package:epimetheus/proxy/proxy_manager.dart';
 import 'package:epimetheus/proxy/proxy_provider.dart';
 import 'package:epimetheus/storage/secure_storage_manager.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -18,22 +19,28 @@ class _ProxyPreferencesPageState extends State<ProxyPreferencesPage> {
       appBar: AppBar(
         title: const Text('Proxy settings'),
       ),
-      body: ListView(
-        children: <Widget>[
-          _ProxyInfo(),
-          const SizedBox(height: 16),
-          FutureBuilder<SharedPreferences>(
-            future: SharedPreferences.getInstance(),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) return const SizedBox();
+      body: !kIsWeb
+          ? ListView(
+              children: <Widget>[
+                _ProxyInfo(),
+                const SizedBox(height: 16),
+                FutureBuilder<SharedPreferences>(
+                  future: SharedPreferences.getInstance(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) return const SizedBox();
 
-              return _ProxyConfigurationUI(
-                prefs: snapshot.data,
-              );
-            },
-          )
-        ],
-      ),
+                    return _ProxyConfigurationUI(
+                      prefs: snapshot.data,
+                    );
+                  },
+                )
+              ],
+            )
+          : Center(
+              child: Text(
+                'Proxy support is not available in the Web app yet. Please use your browser proxy settings.',
+              ),
+            ),
     );
   }
 }

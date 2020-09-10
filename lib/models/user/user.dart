@@ -16,5 +16,14 @@ class UserModel extends Model {
     user = null;
   }
 
+  bool ensureHasUser(BuildContext context) {
+    if (_user == null) {
+      Navigator.of(context).pushReplacementNamed('/');
+      return false;
+    } else {
+      return true;
+    }
+  }
+
   static UserModel of(BuildContext context) => ScopedModel.of<UserModel>(context);
 }

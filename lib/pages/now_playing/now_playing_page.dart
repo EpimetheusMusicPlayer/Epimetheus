@@ -1,7 +1,7 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:epimetheus/models/color/color_model.dart';
-import 'package:epimetheus/pages/navigation_drawer.dart';
 import 'package:epimetheus/pages/now_playing/now_playing_content.dart';
+import 'package:epimetheus/widgets/adaptive/adaptive_drawer_scaffold.dart';
 import 'package:flutter/material.dart';
 
 class NowPlayingPage extends StatefulWidget {
@@ -39,23 +39,24 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
 
     final model = ColorModel.of(context, rebuildOnChange: true);
 
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      drawer: const NavigationDrawer(
-        currentRouteName: '/now-playing',
-      ),
-      appBar: AppBar(
-        iconTheme: IconThemeData(color: model.readableForegroundColor ?? Colors.white),
-        title: Text(
-          'Now Playing',
-          style: TextStyle(
-            color: model.readableForegroundColor,
+    return AdaptiveScaffold(builder: (drawer, displayMobileLayout) {
+      return Scaffold(
+        extendBodyBehindAppBar: true,
+        drawer: drawer,
+        appBar: AppBar(
+          automaticallyImplyLeading: displayMobileLayout,
+          iconTheme: IconThemeData(color: model.readableForegroundColor ?? Colors.white),
+          title: Text(
+            'Now Playing',
+            style: TextStyle(
+              color: model.readableForegroundColor,
+            ),
           ),
+          backgroundColor: running ? Colors.transparent : null,
+          elevation: running ? 0 : null,
         ),
-        backgroundColor: running ? Colors.transparent : null,
-        elevation: running ? 0 : null,
-      ),
-      body: running ? NowPlayingContent() : _buildNothingPlayingIndicator(),
-    );
+        body: running ? NowPlayingContent() : _buildNothingPlayingIndicator(),
+      );
+    });
   }
 }

@@ -4,7 +4,7 @@ import 'package:epimetheus/pages/collection/playlists_tab.dart';
 import 'package:epimetheus/pages/collection/stations_tab.dart';
 import 'package:epimetheus/pages/collection/subsections/items_by_artist.dart';
 import 'package:epimetheus/pages/collection/tracks_tab.dart';
-import 'package:epimetheus/pages/navigation_drawer.dart';
+import 'package:epimetheus/widgets/adaptive/adaptive_drawer_scaffold.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:outline_material_icons/outline_material_icons.dart';
@@ -62,23 +62,23 @@ class _CollectionPageState extends State<CollectionPage> with SingleTickerProvid
             },
           );
 
-    return Scaffold(
-      drawer: const NavigationDrawer(
-        currentRouteName: '/collection',
-      ),
-      appBar: AppBar(
-        title: const Text('My Collection'),
-        bottom: TabBar(
-          controller: _tabController,
-          isScrollable: true,
-          tabs: const <Widget>[
-            const Tab(text: 'Stations', icon: const Icon(OMIcons.radio)),
-            const Tab(text: 'Playlists', icon: const Icon(OMIcons.playlistPlay)),
-            const Tab(text: 'Artists', icon: const Icon(OMIcons.person)),
-            const Tab(text: 'Albums', icon: const Icon(OMIcons.album)),
-            const Tab(text: 'Songs', icon: const Icon(OMIcons.audiotrack)),
-          ],
-        ),
+    return AdaptiveScaffold(builder: (drawer, displayMobileLayout) {
+      return Scaffold(
+        drawer: drawer,
+        appBar: AppBar(
+          automaticallyImplyLeading: displayMobileLayout,
+          title: const Text('My Collection'),
+          bottom: TabBar(
+            controller: _tabController,
+            isScrollable: true,
+            tabs: const <Widget>[
+              const Tab(text: 'Stations', icon: const Icon(OMIcons.radio)),
+              const Tab(text: 'Playlists', icon: const Icon(OMIcons.playlistPlay)),
+              const Tab(text: 'Artists', icon: const Icon(OMIcons.person)),
+              const Tab(text: 'Albums', icon: const Icon(OMIcons.album)),
+              const Tab(text: 'Songs', icon: const Icon(OMIcons.audiotrack)),
+            ],
+          ),
 //        actions: kDebugMode
 //            ? [
 //                IconButton(
@@ -97,19 +97,20 @@ class _CollectionPageState extends State<CollectionPage> with SingleTickerProvid
 //                ),
 //              ]
 //            : null,
-      ),
-      floatingActionButton: fab,
-      body: TabBarView(
-        controller: _tabController,
-        children: <Widget>[
-          StationsTab(),
-          const PlaylistsTab(),
-          const ArtistsTab(),
-          const AlbumsTab(),
-          const TracksTab(),
-        ],
-      ),
-    );
+        ),
+        floatingActionButton: fab,
+        body: TabBarView(
+          controller: _tabController,
+          children: <Widget>[
+            StationsTab(),
+            const PlaylistsTab(),
+            const ArtistsTab(),
+            const AlbumsTab(),
+            const TracksTab(),
+          ],
+        ),
+      );
+    });
   }
 }
 

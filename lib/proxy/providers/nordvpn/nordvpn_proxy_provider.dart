@@ -1,16 +1,16 @@
-import 'dart:convert';
-
+import 'package:dio/dio.dart';
 import 'package:epimetheus/libepimetheus/networking.dart';
 import 'package:epimetheus/proxy/providers/nordvpn/nordvpn_proxy_provider_ui.dart';
 import 'package:epimetheus/proxy/proxy_provider.dart';
 import 'package:epimetheus/storage/secure_storage_manager.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// A provider to use proxies from NordVPN's API.
 class NordVPNProxyProvider extends ProxyProvider {
+  static const _host = !kIsWeb ? 'api.nordvpn.com' : 'nordvpn.pandoracorsstrip.workers.dev';
+
   static const id = 'nordvpn';
   static const _localStorageKeyPrefix = ProxyProvider.storageKeyPrefix + id + '_';
 
@@ -75,7 +75,7 @@ class NordVPNProxyProvider extends ProxyProvider {
   Future<List<dynamic>> getServers() async {
     final requestURI = Uri(
       scheme: 'https',
-      host: 'api.nordvpn.com',
+      host: _host,
       path: '/v1/servers/recommendations',
       queryParameters: const {
         'limit': '1', // The official chrome extension limits to 1. We do the same.
@@ -88,7 +88,7 @@ class NordVPNProxyProvider extends ProxyProvider {
       },
     );
 
-    return jsonDecode((await get(requestURI)).body);
+    return (await Dio().getUri<List<dynamic>>(requestURI)).data;
   }
 
   @override

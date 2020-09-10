@@ -52,7 +52,9 @@ class _PlaylistTracksPageState extends State<PlaylistTracksPage> {
   }
 
   Future<PlaylistTrackList> _getInitialData() async {
-    if (_initialData == null) _initialData = await _collectionProvider.getInitialData(UserModel.of(context).user);
+    final model = UserModel.of(context);
+    // if (!model.ensureHasUser(context)) return null;
+    if (_initialData == null) _initialData = await _collectionProvider.getInitialData(model.user);
     return _initialData;
   }
 

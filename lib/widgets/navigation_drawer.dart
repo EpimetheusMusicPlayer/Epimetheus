@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:epimetheus/models/user/user.dart';
 import 'package:epimetheus/pages/signin/signin_page.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 
@@ -17,9 +18,13 @@ class NavigationDrawerItem {
 }
 
 class NavigationDrawer extends StatelessWidget {
+  final bool displayMobileLayout;
   final String currentRouteName;
 
-  const NavigationDrawer({this.currentRouteName});
+  const NavigationDrawer({
+    this.currentRouteName,
+    @required this.displayMobileLayout,
+  });
 
   static const _navigationDrawItems = const <NavigationDrawerItem>[
     const NavigationDrawerItem(name: 'My Collection', routeName: '/collection', iconData: Icons.library_music),
@@ -60,9 +65,9 @@ class NavigationDrawer extends StatelessWidget {
                       selected: item.routeName == currentRouteName,
                       onTap: () {
                         if (item.routeName != currentRouteName) {
-                          Navigator.of(context)
-                            ..pop()
-                            ..pushReplacementNamed(item.routeName);
+                          final navigator = Navigator.of(context);
+                          if (displayMobileLayout) navigator.pop();
+                          navigator.pushReplacementNamed(item.routeName);
                         }
                       },
                     )

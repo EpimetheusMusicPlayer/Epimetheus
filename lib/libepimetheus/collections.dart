@@ -1,4 +1,3 @@
-import 'package:epimetheus/api.dart';
 import 'package:epimetheus/libepimetheus/authentication.dart';
 import 'package:epimetheus/libepimetheus/networking.dart';
 import 'package:epimetheus/libepimetheus/structures/collection/paged_collection_list.dart';

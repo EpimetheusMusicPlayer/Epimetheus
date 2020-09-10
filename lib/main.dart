@@ -11,16 +11,19 @@ import 'package:epimetheus/storage/secure_storage_manager.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
+import 'package:universal_html/html.dart' show window;
 import 'package:window_size/window_size.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // TODO save and restore the path after login
+  if (kIsWeb) window.history.pushState(null, '', '/');
+
   if (!kIsWeb && (Platform.isMacOS || Platform.isWindows)) {
     getWindowInfo().then((windowInfo) {
       setWindowFrame(Rect.fromLTWH(windowInfo.frame.left, windowInfo.frame.top, 300 * 1.25, 400 * 1.6));
       setWindowMinSize(const Size(300, 400));
-      setWindowMaxSize(const Size(600, 800));
     });
   }
 
@@ -28,11 +31,13 @@ void main() {
     Future.wait<String>([
       secureStorageManager.read('email'),
       secureStorageManager.read('password'),
+      if (kIsWeb) secureStorageManager.read('apiHost'),
     ]).then((creds) {
       runApp(
         Epimetheus(
           email: creds[0],
           password: creds[1],
+          apiHost: kIsWeb ? creds[2] : null,
         ),
       );
     });
@@ -42,10 +47,12 @@ void main() {
 class Epimetheus extends StatefulWidget {
   final String email;
   final String password;
+  final String apiHost;
 
   const Epimetheus({
     @required this.email,
     @required this.password,
+    @required this.apiHost,
   });
 
   @override
@@ -74,11 +81,16 @@ class _EpimetheusState extends State<Epimetheus> {
     Widget startingPage;
 
     if (widget.password == null) {
-      startingPage = SignInPage(email: widget.email, password: widget.password);
+      startingPage = SignInPage(
+        email: widget.email,
+        password: widget.password,
+        apiHost: widget.apiHost,
+      );
     } else {
       startingPage = AuthenticationPage(
         email: widget.email,
         password: widget.password,
+        apiHost: widget.apiHost,
       );
     }
 

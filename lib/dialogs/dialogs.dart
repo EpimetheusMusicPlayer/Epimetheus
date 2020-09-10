@@ -1,6 +1,7 @@
 import 'package:epimetheus/libepimetheus/authentication.dart';
 import 'package:epimetheus/libepimetheus/exceptions.dart';
 import 'package:epimetheus/models/user/user.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// A class defining properties common to all the various dialogs in the app.
@@ -151,4 +152,34 @@ class NeedsPremiumDialog extends EpimetheusDialog {
       return false;
     }
   }
+}
+
+class UnsupportedPlatformDialog extends EpimetheusDialog {
+  UnsupportedPlatformDialog({
+    @required BuildContext context,
+    String buttonLabel = 'Okay',
+    String action = 'this feature',
+  }) : super(
+          context: context,
+          title: '$action is unsupported on this platform.',
+          description: kIsWeb ? 'You can try a desktop/mobile version of Epimetheus.' : 'Hopefully, this will change in the future.',
+          buttonLabel: buttonLabel,
+          onClickButton: () {
+            Navigator.of(context).pop();
+          },
+        );
+}
+
+class CORSProxyErrorDialog extends EpimetheusDialog {
+  CORSProxyErrorDialog({
+    BuildContext context,
+    String buttonLabel = 'Okay',
+    @required VoidCallback onClickButton,
+  }) : super(
+          context: context,
+          title: 'CORS stripper cannot be resolved.',
+          description: 'Confirm that the specified hostname is correct.',
+          buttonLabel: buttonLabel,
+          onClickButton: onClickButton,
+        );
 }

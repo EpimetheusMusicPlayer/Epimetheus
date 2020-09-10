@@ -52,8 +52,10 @@ class _CollectedItemsByArtistPageState extends State<CollectedItemsByArtistPage>
   }
 
   Future<Artist> _getInitialData() async {
+    final model = UserModel.of(context);
+    // if (!model.ensureHasUser(context)) return null;
     if (_initialData == null) {
-      _initialData = (await _collectionProvider.newPage(UserModel.of(context).user, 0)).relatedItems.singleWhere(
+      _initialData = (await _collectionProvider.newPage(model.user, 0)).relatedItems.singleWhere(
             (item) => item.pandoraId == widget.pandoraId,
             orElse: () => null,
           );

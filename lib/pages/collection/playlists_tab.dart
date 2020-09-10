@@ -3,6 +3,7 @@ import 'package:epimetheus/dialogs/dialogs.dart';
 import 'package:epimetheus/libepimetheus/playlists.dart';
 import 'package:epimetheus/pages/collection/paged_collection_tab.dart';
 import 'package:epimetheus/widgets/playable/playlist.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class PlaylistsTab extends PagedCollectionTab<Playlist> {
@@ -28,7 +29,16 @@ class PlaylistsTab extends PagedCollectionTab<Playlist> {
             context: context,
             action: 'play playlists',
           )) {
-            launchMusicProviderFromId<Playlist>(context, playlist.pandoraId);
+            if (kIsWeb) {
+              showEpimetheusDialog(
+                dialog: UnsupportedPlatformDialog(
+                  context: context,
+                  action: 'Playing playlists',
+                ),
+              );
+            } else {
+              launchMusicProviderFromId<Playlist>(context, playlist.pandoraId);
+            }
           }
         },
       ),

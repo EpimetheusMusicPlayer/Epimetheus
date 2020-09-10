@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:epimetheus/libepimetheus/authentication.dart';
 import 'package:epimetheus/libepimetheus/stations.dart';
 import 'package:epimetheus/models/collection/static_collection_provider.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 class StationCollectionProvider extends StaticCollectionProvider<Station> {
@@ -31,6 +32,7 @@ class StationCollectionProvider extends StaticCollectionProvider<Station> {
   @override
   void cacheData(List<Station> stations, BaseCacheManager cacheManager) {
     for (Station station in stations) {
+      if (station.isShuffle) continue; // We don't use the shuffle image
       cacheManager
           .downloadFile(
             station.getArtUrl(500),
