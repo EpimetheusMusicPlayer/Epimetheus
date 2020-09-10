@@ -29,7 +29,7 @@ jobs:
           echo "epimetheus.tk" > CNAME
           git init
           git config user.name "Epimetheus CI"
-          git config user.email "hacker1024@users.sourceforge.net"
+          git config user.email "ci@epimetheus.tk"
           git remote add secure-origin https://${{ secrets.ACCESS_TOKEN }}@github.com/EpimetheusMusicPlayer/Epimetheus-Web.git
           git checkout -b gh-pages
           git add .
