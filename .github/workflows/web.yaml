@@ -37,7 +37,7 @@ jobs:
           git push --force secure-origin gh-pages
           cd -
 
-      - name: Purge CloudFlare caches
+      - name: Purge Cloudflare caches
         uses: jakejarvis/cloudflare-purge-action@master
         env:
           CLOUDFLARE_ZONE: ${{ secrets.CLOUDFLARE_ZONE }}
