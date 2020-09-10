@@ -26,7 +26,7 @@ jobs:
       - name: Publish web release
         run: |
           cd build/web
-          echo "epimethius.tk" > CNAME
+          echo "epimetheus.tk" > CNAME
           git init
           git config user.name "Epimetheus CI"
           git config user.email "hacker1024@users.sourceforge.net"
