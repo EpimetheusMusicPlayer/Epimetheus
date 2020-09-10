@@ -5,11 +5,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class AlbumArtDisplay extends StatefulWidget {
-  final void Function(int newPage) onPageChanged;
-  int initialPage;
+  final void Function(double page) onPositionChanged;
+  final int initialPage;
 
   AlbumArtDisplay({
-    @required this.onPageChanged,
+    @required this.onPositionChanged,
     this.initialPage = 0,
   });
 
@@ -34,11 +34,11 @@ class _AlbumArtDisplayState extends State<AlbumArtDisplay> {
       viewportFraction: 0.8,
     )..addListener(
         () {
-          final page = _controller.page.round();
-          if (_selected != page) {
-            widget.onPageChanged(page);
+          widget.onPositionChanged(_controller.page);
+          final rounded = _controller.page.round();
+          if (_selected != rounded) {
             setState(() {
-              _selected = page;
+              _selected = rounded;
             });
           }
         },
@@ -61,32 +61,25 @@ class _AlbumArtDisplayState extends State<AlbumArtDisplay> {
 
   @override
   Widget build(BuildContext context) {
-    final tiles = <Widget>[];
-
     return StreamBuilder<List<MediaItem>>(
       stream: AudioService.queueStream,
       initialData: AudioService.queue,
       builder: (context, snapshot) {
         if (!snapshot.hasData) return const SizedBox();
 
-        for (int i = 0; i < snapshot.data.length; ++i) {
-          tiles.add(
-            _SongTile(
-              mediaItem: snapshot.data[i],
-              selected: _selected == i,
-            ),
-          );
-        }
-
         return ScrollConfiguration(
           behavior: const NoGlowScrollBehaviour(),
-          child: SizedBox(
-            height: MediaQuery.of(context).size.width,
-            child: Center(
-              child: PageView(
-                controller: _controller,
-                children: tiles,
-              ),
+          child: Center(
+            child: PageView(
+              controller: _controller,
+              children: [
+                for (int i = 0; i < snapshot.data.length; ++i)
+                  _SongTile(
+                    mediaItem: snapshot.data[i],
+                    selected: _selected == i,
+                    // maxHeight: MediaQuery.of(context).size.height / 3,
+                  ),
+              ],
             ),
           ),
         );
@@ -98,11 +91,13 @@ class _AlbumArtDisplayState extends State<AlbumArtDisplay> {
 class _SongTile extends StatelessWidget {
   final MediaItem mediaItem;
   final bool selected;
+  final double maxHeight;
 
   _SongTile({
     @required this.mediaItem,
     @required this.selected,
-  });
+    this.maxHeight = 0,
+  }) : assert(maxHeight != null);
 
   @override
   Widget build(BuildContext context) {
@@ -112,13 +107,22 @@ class _SongTile extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 100),
         width: containerLength,
-        height: containerLength,
-        child: Material(
-          color: Colors.transparent,
-          elevation: selected ? 8 : 2,
-          child: CachedNetworkImage(
-            imageUrl: mediaItem.artUri,
-            fit: BoxFit.cover,
+        // height: containerLength,
+        // height: containerLength < maxHeight ? containerLength : maxHeight,
+        height: double.infinity,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: containerLength),
+          child: AnimatedPadding(
+            duration: const Duration(milliseconds: 100),
+            padding: EdgeInsets.symmetric(vertical: selected ? 32 : 32 * 1.06),
+            child: Material(
+              color: Colors.transparent,
+              elevation: selected ? 8 : 2,
+              child: CachedNetworkImage(
+                imageUrl: mediaItem.artUri,
+                fit: BoxFit.cover,
+              ),
+            ),
           ),
         ),
       ),

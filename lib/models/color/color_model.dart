@@ -84,7 +84,9 @@ class ColorModel extends Model {
       _dominantColor = null;
     } else {
       await _loadDominantColor(pandoraId);
-      _dominantColor = _dominantColors[pandoraId];
+      final dominantColor = _dominantColors[pandoraId];
+      print('SETTING COLOR: $dominantColor');
+      _dominantColor = dominantColor ?? const Color(0xAA111111);
     }
 
     _setReadableForegroundColor();

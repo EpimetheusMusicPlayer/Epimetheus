@@ -13,16 +13,21 @@ class NowPlayingContent extends StatefulWidget {
 }
 
 class _NowPlayingContentState extends State<NowPlayingContent> {
-  int page = AudioService.queue.indexOf(AudioService.currentMediaItem);
+  final int initialPage = AudioService.queue.indexOf(AudioService.currentMediaItem);
+  ValueNotifier<double> _pageNotifier;
+
+  @override
+  initState() {
+    super.initState();
+    _pageNotifier = ValueNotifier<double>(initialPage.toDouble());
+  }
 
   @override
   Widget build(BuildContext context) {
     final model = ColorModel.of(context, rebuildOnChange: true);
 
-    void onPageChanged(int newPage) {
-      setState(() {
-        page = newPage;
-      });
+    void onPositionChanged(double page) {
+      _pageNotifier.value = page;
     }
 
     return SizedBox.expand(
@@ -35,12 +40,18 @@ class _NowPlayingContentState extends State<NowPlayingContent> {
               Expanded(
                 child: Column(
                   children: <Widget>[
-                    AlbumArtDisplay(
-                      onPageChanged: onPageChanged,
-                      initialPage: page,
+                    Expanded(
+                      child: Align(
+                        alignment: Alignment.topCenter,
+                        child: AlbumArtDisplay(
+                          onPositionChanged: onPositionChanged,
+                          initialPage: initialPage,
+                        ),
+                      ),
                     ),
                     _SongInfoDisplay(
-                      page: page,
+                      initialPage: initialPage,
+                      pageNotifier: _pageNotifier,
                     ),
                   ],
                 ),
@@ -54,50 +65,25 @@ class _NowPlayingContentState extends State<NowPlayingContent> {
   }
 }
 
-class _SongInfoDisplay extends StatefulWidget {
-  final int page;
+class _SongInfoDisplay extends AnimatedWidget {
+  final int initialPage;
 
-  _SongInfoDisplay({
-    @required this.page,
-  });
+  const _SongInfoDisplay({
+    @required this.initialPage,
+    @required ValueNotifier<double> pageNotifier,
+  }) : super(listenable: pageNotifier);
 
-  @override
-  _SongInfoDisplayState createState() => _SongInfoDisplayState();
-}
-
-class _SongInfoDisplayState extends State<_SongInfoDisplay> with SingleTickerProviderStateMixin {
-  bool get _isCurrentMediaItem => widget.page == AudioService.queue.indexOf(AudioService.currentMediaItem);
-  AnimationController _fadeController;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _fadeController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 150),
-      value: 1,
-    );
-  }
-
-  @override
-  void dispose() {
-    _fadeController.dispose();
-    super.dispose();
-  }
-
-  @override
-  void didUpdateWidget(_SongInfoDisplay oldWidget) {
-    //Code
-    super.didUpdateWidget(oldWidget);
-  }
+  bool _isCurrentMediaItem(double page) => page.round() == AudioService.queue.indexOf(AudioService.currentMediaItem);
 
   @override
   Widget build(BuildContext context) {
     final model = ColorModel.of(context, rebuildOnChange: true);
 
-    return FadeTransition(
-      opacity: _fadeController,
+    final page = (listenable as ValueNotifier<double>).value;
+    final curvedScrollFraction = Curves.easeInOut.transform(page - page.truncateToDouble()).abs();
+
+    return Opacity(
+      opacity: curvedScrollFraction <= 0.5 ? -curvedScrollFraction * 2 + 1 : curvedScrollFraction * 2 - 1,
       child: StreamBuilder<List<MediaItem>>(
         stream: AudioService.queueStream,
         initialData: AudioService.queue,
@@ -106,13 +92,13 @@ class _SongInfoDisplayState extends State<_SongInfoDisplay> with SingleTickerPro
             return const SizedBox();
           }
 
-          return _isCurrentMediaItem
+          return _isCurrentMediaItem(page)
               ? _CurrentSongInfoDisplay(
                   mediaItem: AudioService.currentMediaItem,
                   color: model.readableForegroundColor,
                 )
               : _UpcomingSongInfoDisplay(
-                  mediaItem: snapshot.data[widget.page],
+                  mediaItem: snapshot.data[page.round()],
                   color: model.readableForegroundColor,
                 );
         },

@@ -44,6 +44,7 @@ dependencies:
   shared_preferences: ^0.5.7
   fast_marquee:
     path: './fast_marquee'
+  amseekbar: ^0.1.2
   window_size:
     git:
       url: git://github.com/google/flutter-desktop-embedding.git
