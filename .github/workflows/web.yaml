@@ -1,0 +1,44 @@
+name: Web CI
+
+on:
+  push:
+    branches: [ dev ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+      - uses: subosito/flutter-action@v1
+        with:
+          channel: 'dev'
+
+      - run: flutter config --no-analytics
+      - run: flutter config --enable-web
+      - run: flutter pub get
+
+      - name: Build web release
+        run: flutter build web --release
+
+      - name: Publish web release
+        run: |
+          cd build/web
+          echo "epimethius.tk" > CNAME
+          git init
+          git config user.name "Epimetheus CI"
+          git config user.email "hacker1024@users.sourceforge.net"
+          git remote add secure-origin https://${{ secrets.ACCESS_TOKEN }}@github.com/EpimetheusMusicPlayer/Epimetheus-Web.git
+          git checkout -b gh-pages
+          git add .
+          git commit -m "Built latest web release off the dev branch"
+          git push --force secure-origin gh-pages
+          cd -
+
+      - name: Purge CloudFlare caches
+        uses: jakejarvis/cloudflare-purge-action@master
+        env:
+          CLOUDFLARE_ZONE: ${{ secrets.CLOUDFLARE_ZONE }}
+          CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN }}

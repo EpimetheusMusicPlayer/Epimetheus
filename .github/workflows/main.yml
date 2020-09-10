@@ -32,25 +32,6 @@ jobs:
       - run: flutter config --enable-web
       - run: flutter pub get
 
-      - run: flutter build web --release
-
-      - run: |
-          cd build/web
-          git init
-          git config user.name "Epimetheus CI"
-          git config user.email "hacker1024@users.sourceforge.net"
-          git remote add secure-origin https://${{ secrets.ACCESS_TOKEN }}@github.com/EpimetheusMusicPlayer/Epimetheus.git
-          git checkout -b gh-pages
-          git add .
-          git commit -m "Built latest web release off the dev branch"
-          git push --force secure-origin gh-pages
-          cd -
-
-      - uses: jakejarvis/cloudflare-purge-action@master
-        env:
-          CLOUDFLARE_ZONE: ${{ secrets.CLOUDFLARE_ZONE }}
-          CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN }}
-
       - run: flutter build apk --release
 
       - uses: actions/upload-artifact@v2
