@@ -64,6 +64,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> with SingleTick
               return SignInPage(
                 email: widget.email,
                 password: widget.password,
+                apiHost: widget.apiHost,
               );
             },
           ),
