@@ -6,6 +6,7 @@ import 'package:epimetheus/libepimetheus/structures/collection/paged_collection_
 import 'package:epimetheus/libepimetheus/structures/pandora_entity.dart';
 import 'package:epimetheus/models/collection/collection_model.dart';
 import 'package:epimetheus/models/collection/collection_provider.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_cache_manager/src/cache_manager.dart';
 
 abstract class PagedCollectionProvider<T extends PandoraEntity> extends CollectionProvider<T> {
@@ -88,7 +89,8 @@ abstract class PagedCollectionProvider<T extends PandoraEntity> extends Collecti
           cachedCollection += newPage;
 
           // Cache the new page's art.
-          cachePageArt(newPage, _cacheManager);
+          // TODO implement precaching on web
+          if (!kIsWeb) cachePageArt(newPage, _cacheManager);
         }
       }
 

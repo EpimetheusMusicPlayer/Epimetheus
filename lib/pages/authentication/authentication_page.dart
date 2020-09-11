@@ -47,8 +47,8 @@ class _AuthenticationPageState extends State<AuthenticationPage> with SingleTick
 
   void cache(User user) {
     // Warm up the cache by downloading the profile picture in the background
-    // TODO fix CORS with the profile image URL
-    if (!(kIsWeb && user.profileImageUrl.contains('pandora.com'))) DefaultCacheManager().downloadFile(user.profileImageUrl);
+    // TODO implement precaching on web
+    if (!kIsWeb) DefaultCacheManager().downloadFile(user.profileImageUrl);
 
     // Download the collection
     CollectionModel.of(context).fetchAll(user);
