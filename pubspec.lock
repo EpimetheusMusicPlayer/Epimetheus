@@ -20,17 +20,17 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "75c9700088ced20be036cfdb255e1ff05f86ba79"
+      resolved-ref: "7b696eff435c65e926a71038a3c9ba1f5aff33ee"
       url: "git://github.com/ryanheise/audio_service.git"
     source: git
-    version: "0.14.1"
+    version: "0.15.0"
   audio_session:
     dependency: transitive
     description:
       name: audio_session
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.0.6"
+    version: "0.0.7"
   boolean_selector:
     dependency: transitive
     description:
@@ -44,7 +44,7 @@ packages:
       name: cached_network_image
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.3.1"
+    version: "2.3.2+1"
   carousel_slider:
     dependency: "direct main"
     description:
@@ -196,7 +196,7 @@ packages:
       name: flutter_cache_manager
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.4.1"
+    version: "1.4.2"
   flutter_isolate:
     dependency: transitive
     description:
@@ -231,7 +231,7 @@ packages:
       name: flutter_svg
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.18.1"
+    version: "0.19.0"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -304,7 +304,7 @@ packages:
       name: octo_image
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.2.1"
+    version: "0.3.0"
   outline_material_icons:
     dependency: "direct main"
     description:

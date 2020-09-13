@@ -34,7 +34,7 @@ dependencies:
     path: './flutter_autofill'
   carousel_slider: ^2.2.1
   outline_material_icons: ^0.1.0
-  flutter_svg: ^0.18.1
+  flutter_svg: ^0.19.0
   shared_preferences: ^0.5.7
   fast_marquee:
     path: './fast_marquee'
