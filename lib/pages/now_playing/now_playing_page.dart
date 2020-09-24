@@ -39,24 +39,30 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
 
     final model = ColorModel.of(context, rebuildOnChange: true);
 
-    return AdaptiveScaffold(builder: (drawer, displayMobileLayout) {
-      return Scaffold(
-        extendBodyBehindAppBar: true,
-        drawer: drawer,
-        appBar: AppBar(
-          automaticallyImplyLeading: displayMobileLayout,
-          iconTheme: IconThemeData(color: model.readableForegroundColor ?? Colors.white),
-          title: Text(
-            'Now Playing',
-            style: TextStyle(
-              color: model.readableForegroundColor,
+    return AdaptiveScaffold(
+      builder: (drawer, displayMobileLayout) {
+        return Scaffold(
+          extendBodyBehindAppBar: true,
+          drawer: drawer,
+          appBar: AppBar(
+            automaticallyImplyLeading: displayMobileLayout,
+            iconTheme: IconThemeData(color: model.readableForegroundColor ?? Colors.white),
+            title: Text(
+              'Now Playing',
+              style: TextStyle(
+                color: model.readableForegroundColor,
+              ),
             ),
+            backgroundColor: running ? Colors.transparent : null,
+            elevation: running ? 0 : null,
           ),
-          backgroundColor: running ? Colors.transparent : null,
-          elevation: running ? 0 : null,
-        ),
-        body: running ? NowPlayingContent() : _buildNothingPlayingIndicator(),
-      );
-    });
+          body: running
+              ? NowPlayingContent(
+                  displayMobileLayout: displayMobileLayout,
+                )
+              : _buildNothingPlayingIndicator(),
+        );
+      },
+    );
   }
 }

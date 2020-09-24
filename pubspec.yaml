@@ -9,13 +9,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  async: ^2.4.0
   scoped_model: ^1.0.1
   dio: 3.0.10
   http: ^0.12.0+2 # TODO remove HTTP usage entirely; use Dio everywhere
   connectivity: ^0.4.5+3
   flutter_secure_storage: ^3.3.3
-#  json_annotation: ^3.0.1
   audio_service:
     git:
       url: git://github.com/ryanheise/audio_service.git
@@ -38,19 +36,15 @@ dependencies:
   shared_preferences: ^0.5.7
   fast_marquee:
     path: './fast_marquee'
-  amseekbar: ^0.1.2
   window_size:
     git:
       url: git://github.com/google/flutter-desktop-embedding.git
       path: plugins/window_size
   universal_html: ^1.2.3
-#  flutter_stetho: ^0.5.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-#  build_runner: ^1.10.2
-#  json_serializable: ^3.4.1
 
 flutter:
   uses-material-design: true

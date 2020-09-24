@@ -32,7 +32,7 @@ class _EmbededMediaControlsState extends State<EmbeddedMediaControls> with Singl
     );
 
     _playbackStateListener = AudioService.playbackStateStream.listen((playbackState) {
-      if (playbackState.playing)
+      if (playbackState == null || playbackState.playing)
         _playPauseController.reverse();
       else
         _playPauseController.forward();
@@ -51,7 +51,7 @@ class _EmbededMediaControlsState extends State<EmbeddedMediaControls> with Singl
     final model = ColorModel.of(context, rebuildOnChange: true);
 
     final colorFilter = ColorFilter.mode(
-      model.readableForegroundColor,
+      model.readableForegroundColor ?? Colors.black38,
       BlendMode.srcIn,
     );
 

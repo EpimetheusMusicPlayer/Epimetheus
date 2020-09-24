@@ -8,6 +8,7 @@ import 'package:epimetheus/navigation/routing.dart';
 import 'package:epimetheus/pages/authentication/authentication_page.dart';
 import 'package:epimetheus/pages/signin/signin_page.dart';
 import 'package:epimetheus/storage/secure_storage_manager.dart';
+import 'package:epimetheus/widgets/adaptive/adaptive_page_transitions_builder.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
@@ -22,7 +23,7 @@ void main() {
 
   if (!kIsWeb && (Platform.isMacOS || Platform.isWindows)) {
     getWindowInfo().then((windowInfo) {
-      setWindowFrame(Rect.fromLTWH(windowInfo.frame.left, windowInfo.frame.top, 300 * 1.25, 400 * 1.6));
+      setWindowFrame(Rect.fromLTWH(windowInfo.frame.left, windowInfo.frame.top, 300 * 3.0, 400 * 1.6));
       setWindowMinSize(const Size(300, 400));
     });
   }
@@ -110,12 +111,12 @@ class _EpimetheusState extends State<Epimetheus> {
                 accentColor: const Color(0xFFb700c8),
                 pageTransitionsTheme: const PageTransitionsTheme(
                   builders: const {
-                    TargetPlatform.android: const ZoomPageTransitionsBuilder(),
-                    TargetPlatform.iOS: const ZoomPageTransitionsBuilder(),
-                    TargetPlatform.macOS: const ZoomPageTransitionsBuilder(),
-                    TargetPlatform.linux: const ZoomPageTransitionsBuilder(),
-                    TargetPlatform.windows: const ZoomPageTransitionsBuilder(),
-                    TargetPlatform.fuchsia: const ZoomPageTransitionsBuilder(),
+                    TargetPlatform.android: const AdaptivePageTransitionsBuilder(),
+                    TargetPlatform.iOS: const AdaptivePageTransitionsBuilder(),
+                    TargetPlatform.macOS: const AdaptivePageTransitionsBuilder(),
+                    TargetPlatform.linux: const AdaptivePageTransitionsBuilder(),
+                    TargetPlatform.windows: const AdaptivePageTransitionsBuilder(),
+                    TargetPlatform.fuchsia: const AdaptivePageTransitionsBuilder(),
                   },
                 ),
                 buttonTheme: const ButtonThemeData(

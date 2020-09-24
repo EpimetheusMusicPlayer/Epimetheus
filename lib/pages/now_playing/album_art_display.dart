@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 
 class AlbumArtDisplay extends StatefulWidget {
@@ -18,7 +19,7 @@ class AlbumArtDisplay extends StatefulWidget {
 }
 
 class _AlbumArtDisplayState extends State<AlbumArtDisplay> {
-  PageController _controller;
+  CarouselController _controller;
   int _selected;
 
   StreamSubscription<MediaItem> _currentMediaItemSubscription;
@@ -27,36 +28,37 @@ class _AlbumArtDisplayState extends State<AlbumArtDisplay> {
   void initState() {
     super.initState();
 
+    _controller = CarouselController();
     _selected = widget.initialPage;
 
-    _controller = PageController(
-      initialPage: widget.initialPage,
-      viewportFraction: 0.8,
-    )..addListener(
-        () {
-          widget.onPositionChanged(_controller.page);
-          final rounded = _controller.page.round();
-          if (_selected != rounded) {
-            setState(() {
-              _selected = rounded;
-            });
-          }
-        },
-      );
-
-    int oldIndex = widget.initialPage;
-    _currentMediaItemSubscription = AudioService.currentMediaItemStream.listen((mediaItem) async {
-      final newIndex = AudioService.queue.indexOf(mediaItem);
-      if (mounted) _controller.animateToPage(_controller.page.toInt() + (newIndex - oldIndex), duration: const Duration(milliseconds: 200), curve: Curves.decelerate);
-      oldIndex = newIndex;
-    });
+    _listenToPositionChanges();
   }
 
   @override
   void dispose() {
-    _currentMediaItemSubscription.cancel();
-    _controller.dispose();
+    _stopListeningToPositionChanges();
     super.dispose();
+  }
+
+  void _listenToPositionChanges() {
+    int oldIndex = widget.initialPage;
+    _currentMediaItemSubscription =
+        AudioService.currentMediaItemStream.listen((mediaItem) async {
+      final newIndex = AudioService.queue.indexOf(mediaItem);
+      if (oldIndex == newIndex) return;
+      if (mounted) {
+        _controller.animateToPage(
+          _selected + (newIndex - oldIndex),
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.decelerate,
+        );
+      }
+      oldIndex = newIndex;
+    });
+  }
+
+  void _stopListeningToPositionChanges() {
+    _currentMediaItemSubscription.cancel();
   }
 
   @override
@@ -66,21 +68,39 @@ class _AlbumArtDisplayState extends State<AlbumArtDisplay> {
       initialData: AudioService.queue,
       builder: (context, snapshot) {
         if (!snapshot.hasData) return const SizedBox();
-
         return ScrollConfiguration(
           behavior: const NoGlowScrollBehaviour(),
-          child: Center(
-            child: PageView(
-              controller: _controller,
-              children: [
-                for (int i = 0; i < snapshot.data.length; ++i)
-                  _SongTile(
-                    mediaItem: snapshot.data[i],
-                    selected: _selected == i,
-                    // maxHeight: MediaQuery.of(context).size.height / 3,
-                  ),
-              ],
+          // TODO sometimes an error can be thrown here upon switching between mobile and desktop layouts.
+          child: CarouselSlider.builder(
+            carouselController: _controller,
+            options: CarouselOptions(
+              initialPage: widget.initialPage,
+              height: double.infinity,
+              viewportFraction: 0.6,
+              enableInfiniteScroll: false,
+              enlargeCenterPage: true,
+              enlargeStrategy: CenterPageEnlargeStrategy.scale,
+              onScrolled: (position) {
+                widget.onPositionChanged(position);
+                final rounded = position.round();
+                if (_selected != rounded) {
+                  setState(() {
+                    _selected = rounded;
+                  });
+                }
+              },
             ),
+            itemCount: snapshot.data.length,
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 32),
+                child: _SongTile(
+                  mediaItem: snapshot.data[index],
+                  selected: _selected == index,
+                  // maxHeight: MediaQuery.of(context).size.height / 3,
+                ),
+              );
+            },
           ),
         );
       },
@@ -101,28 +121,15 @@ class _SongTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final containerLength = selected ? MediaQuery.of(context).size.width * 0.8 : MediaQuery.of(context).size.width * 0.75;
-
     return Center(
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 100),
-        width: containerLength,
-        // height: containerLength,
-        // height: containerLength < maxHeight ? containerLength : maxHeight,
-        height: double.infinity,
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: containerLength),
-          child: AnimatedPadding(
-            duration: const Duration(milliseconds: 100),
-            padding: EdgeInsets.symmetric(vertical: selected ? 32 : 32 * 1.06),
-            child: Material(
-              color: Colors.transparent,
-              elevation: selected ? 8 : 2,
-              child: CachedNetworkImage(
-                imageUrl: mediaItem.artUri,
-                fit: BoxFit.cover,
-              ),
-            ),
+      child: Material(
+        color: Colors.transparent,
+        elevation: selected ? 8 : 2,
+        child: AspectRatio(
+          aspectRatio: 1,
+          child: CachedNetworkImage(
+            imageUrl: mediaItem.artUri,
+            fit: BoxFit.cover,
           ),
         ),
       ),
@@ -134,5 +141,7 @@ class NoGlowScrollBehaviour extends ScrollBehavior {
   const NoGlowScrollBehaviour();
 
   @override
-  Widget buildViewportChrome(BuildContext context, Widget child, AxisDirection axisDirection) => child;
+  Widget buildViewportChrome(
+          BuildContext context, Widget child, AxisDirection axisDirection) =>
+      child;
 }

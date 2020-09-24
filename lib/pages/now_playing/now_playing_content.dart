@@ -8,11 +8,20 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class NowPlayingContent extends StatefulWidget {
+  final bool displayMobileLayout;
+
+  const NowPlayingContent({@required this.displayMobileLayout});
+
   @override
   _NowPlayingContentState createState() => _NowPlayingContentState();
 }
 
 class _NowPlayingContentState extends State<NowPlayingContent> {
+  static final _fadeGradient = LinearGradient(
+    colors: [Colors.black, Colors.transparent],
+    stops: [0.95, 1],
+  );
+
   final int initialPage = AudioService.queue.indexOf(AudioService.currentMediaItem);
   ValueNotifier<double> _pageNotifier;
 
@@ -30,6 +39,16 @@ class _NowPlayingContentState extends State<NowPlayingContent> {
       _pageNotifier.value = page;
     }
 
+    final albumArtDisplay = AlbumArtDisplay(
+      onPositionChanged: onPositionChanged,
+      initialPage: initialPage,
+    );
+
+    final songInfoDisplay = _SongInfoDisplay(
+      initialPage: initialPage,
+      pageNotifier: _pageNotifier,
+    );
+
     return SizedBox.expand(
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
@@ -38,23 +57,37 @@ class _NowPlayingContentState extends State<NowPlayingContent> {
           child: Column(
             children: <Widget>[
               Expanded(
-                child: Column(
-                  children: <Widget>[
-                    Expanded(
-                      child: Align(
-                        alignment: Alignment.topCenter,
-                        child: AlbumArtDisplay(
-                          onPositionChanged: onPositionChanged,
-                          initialPage: initialPage,
-                        ),
+                child: widget.displayMobileLayout
+                    ? Column(
+                        children: [
+                          Expanded(child: albumArtDisplay),
+                          Align(
+                            alignment: Alignment.topLeft,
+                            child: songInfoDisplay,
+                          ),
+                        ],
+                      )
+                    : Row(
+                        children: [
+                          Flexible(
+                            flex: 3,
+                            child: ShaderMask(
+                              shaderCallback: (rect) {
+                                return _fadeGradient.createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
+                              },
+                              blendMode: BlendMode.dstIn,
+                              child: albumArtDisplay,
+                            ),
+                          ),
+                          Flexible(
+                            flex: 2,
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: songInfoDisplay,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    _SongInfoDisplay(
-                      initialPage: initialPage,
-                      pageNotifier: _pageNotifier,
-                    ),
-                  ],
-                ),
               ),
               EmbeddedMediaControls(),
             ],
@@ -119,46 +152,50 @@ class _CurrentSongInfoDisplay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 48,
-        vertical: 32,
-      ),
-      child: Align(
-        alignment: Alignment.topLeft,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(
-              mediaItem.title,
-              textScaleFactor: 1.3,
-              style: TextStyle(
-                color: color,
-                fontWeight: FontWeight.bold,
-              ),
+      padding: const EdgeInsets.symmetric(vertical: 32),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 48),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  mediaItem.title,
+                  textScaleFactor: 1.3,
+                  style: TextStyle(
+                    color: color,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  mediaItem.artist,
+                  textScaleFactor: 1.2,
+                  style: TextStyle(
+                    color: color,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  mediaItem.album,
+                  textScaleFactor: 1.2,
+                  style: TextStyle(
+                    color: color,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 4),
-            Text(
-              mediaItem.artist,
-              textScaleFactor: 1.2,
-              style: TextStyle(
-                color: color,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              mediaItem.album,
-              textScaleFactor: 1.2,
-              style: TextStyle(
-                color: color,
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-            SeekBar(
-              mediaItem: mediaItem,
-              color: color,
-            ),
-          ],
-        ),
+          ),
+          NowPlayingSeekBar(
+            mediaItem: mediaItem,
+            color: color ?? Colors.black38,
+            horizontalPadding: 48,
+          ),
+        ],
       ),
     );
     ;
@@ -181,57 +218,58 @@ class _UpcomingSongInfoDisplay extends StatelessWidget {
         horizontal: 48,
         vertical: 32,
       ),
-      child: Align(
-        alignment: Alignment.topLeft,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(
-              mediaItem.title,
-              textScaleFactor: 1.3,
-              style: TextStyle(
-                color: color,
-                fontWeight: FontWeight.bold,
-              ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            mediaItem.title,
+            textScaleFactor: 1.3,
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.bold,
             ),
-            const SizedBox(height: 4),
-            Text(
-              mediaItem.artist,
-              textScaleFactor: 1.2,
-              style: TextStyle(
-                color: color,
-              ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            mediaItem.artist,
+            textScaleFactor: 1.2,
+            style: TextStyle(
+              color: color,
             ),
-            const SizedBox(height: 4),
-            Text(
-              mediaItem.album,
-              textScaleFactor: 1.2,
-              style: TextStyle(
-                color: color,
-                fontStyle: FontStyle.italic,
-              ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            mediaItem.album,
+            textScaleFactor: 1.2,
+            style: TextStyle(
+              color: color,
+              fontStyle: FontStyle.italic,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class SeekBar extends StatefulWidget {
+class NowPlayingSeekBar extends StatefulWidget {
   final MediaItem mediaItem;
   final Color color;
+  final double horizontalPadding;
 
-  SeekBar({
+  NowPlayingSeekBar({
     @required this.mediaItem,
     @required this.color,
+    this.horizontalPadding = 0,
   });
 
   @override
-  _SeekBarState createState() => _SeekBarState();
+  _NowPlayingSeekBarState createState() => _NowPlayingSeekBarState();
 }
 
-class _SeekBarState extends State<SeekBar> {
+// TODO animate seekbar
+class _NowPlayingSeekBarState extends State<NowPlayingSeekBar> {
   bool _useLocalSeekValue = false;
   double _localSeekValue;
 
@@ -255,7 +293,7 @@ class _SeekBarState extends State<SeekBar> {
       (_) {
         if (mounted) {
           setState(() {
-            _playerSeekValue = AudioService.playbackState.currentPosition?.inMilliseconds ?? 0;
+            _playerSeekValue = AudioService.playbackState?.currentPosition?.inMilliseconds ?? 0;
           });
         }
       },
@@ -273,59 +311,76 @@ class _SeekBarState extends State<SeekBar> {
     final max = (widget.mediaItem.duration?.inMilliseconds ?? 0).toDouble();
     final position = (_useLocalSeekValue ? _localSeekValue : (_playerSeekValue > max ? max : _playerSeekValue)).toDouble();
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        Text(
-          formatTime(position.truncate()),
-          style: TextStyle(
-            color: widget.color,
+    return Stack(
+      children: [
+        SliderTheme(
+          data: SliderThemeData(
+            valueIndicatorColor: widget.color,
+            activeTrackColor: widget.color,
+            inactiveTrackColor: widget.color,
+            thumbShape: SliderComponentShape.noThumb,
+            overlayColor: widget.color.withAlpha(31),
+            trackHeight: 0.5,
+            trackShape: _SeekBarTrackShape(widget.horizontalPadding),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-          child: SliderTheme(
-            data: SliderThemeData(
-              trackShape: const _SeekBarTrackShape(),
-              valueIndicatorColor: widget.color,
-              activeTrackColor: widget.color,
-              inactiveTrackColor: widget.color,
-            ),
-            child: Slider(
-              value: position,
-              max: max,
-              activeColor: widget.color,
-              onChangeStart: (value) {
+          child: Slider(
+            value: position,
+            max: max,
+            onChangeStart: (value) {
+              _localSeekValue = value;
+              _useLocalSeekValue = true;
+            },
+            onChanged: (value) {
+              print('onChanged, ${value}');
+              setState(() {
                 _localSeekValue = value;
-                _useLocalSeekValue = true;
-              },
-              onChanged: (value) {
-                print('onChanged, ${value}');
-                setState(() {
-                  _localSeekValue = value;
-                });
-              },
-              onChangeEnd: (value) async {
-                await AudioService.seekTo(Duration(milliseconds: value.toInt()));
+              });
+            },
+            onChangeEnd: (value) async {
+              await AudioService.seekTo(Duration(milliseconds: value.toInt()));
 
-                // Switch to the player position after it changes
-                Timer.periodic(
-                  const Duration(milliseconds: 200),
-                  (timer) {
-                    if (AudioService.playbackState.currentPosition != value.toInt()) {
-                      _useLocalSeekValue = false;
-                      timer.cancel();
-                    }
-                  },
-                );
-              },
-            ),
+              // Switch to the player position after it changes
+              Timer.periodic(
+                const Duration(milliseconds: 200),
+                (timer) {
+                  if (AudioService.playbackState.currentPosition != value.toInt()) {
+                    _useLocalSeekValue = false;
+                    timer.cancel();
+                  }
+                },
+              );
+            },
           ),
         ),
-        Text(
-          formatTime(widget.mediaItem.duration.inMilliseconds),
-          style: TextStyle(
-            color: widget.color,
+        Positioned.fill(
+          bottom: -32,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: widget.horizontalPadding),
+            child: ClipRect(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Expanded(
+                    child: Text(
+                      formatTime(position.truncate()),
+                      style: TextStyle(
+                        color: widget.color,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      formatTime(widget.mediaItem.duration.inMilliseconds),
+                      style: TextStyle(
+                        color: widget.color,
+                      ),
+                      textAlign: TextAlign.right,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ],
@@ -334,7 +389,9 @@ class _SeekBarState extends State<SeekBar> {
 }
 
 class _SeekBarTrackShape extends RoundedRectSliderTrackShape {
-  const _SeekBarTrackShape();
+  final double horizontalPadding;
+
+  const _SeekBarTrackShape(this.horizontalPadding);
 
   @override
   Rect getPreferredRect({
@@ -344,11 +401,12 @@ class _SeekBarTrackShape extends RoundedRectSliderTrackShape {
     bool isEnabled = false,
     bool isDiscrete = false,
   }) {
-    return Rect.fromLTWH(
-      offset.dx,
-      offset.dy,
-      parentBox.size.width,
-      sliderTheme.trackHeight,
+    final double trackTop = offset.dy + (parentBox.size.height - sliderTheme.trackHeight) / 2;
+    return Rect.fromLTRB(
+      horizontalPadding,
+      trackTop,
+      parentBox.size.width - horizontalPadding,
+      trackTop + sliderTheme.trackHeight,
     );
   }
 }
