@@ -195,7 +195,7 @@ class _AudioTask extends BackgroundAudioTask {
         _musicProvider.dispose();
 
         // Clear the queue
-        AudioServiceBackground.setQueue([], preloadArtwork: false);
+        await AudioServiceBackground.setQueue([], preloadArtwork: false);
       }
 
       // Set the new music provider
