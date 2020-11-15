@@ -110,6 +110,7 @@ class _AppState extends State<App> {
       child: MaterialApp(
         title: 'Epimetheus',
         theme: themeData,
+        darkTheme: darkThemeData,
         navigatorKey: _navigatorKey,
         routes: routes,
       ),

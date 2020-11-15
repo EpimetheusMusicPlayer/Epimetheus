@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 /// Colors
 const _primaryColor = 0xFF332B57;
 const _secondaryColor = 0xFF80008C;
-// const _secondaryColor = 0xFFb700c8;
 
 /// The page transition builder to use on all platforms.
 const _defaultPageTransitionsBuilder = OpenUpwardsPageTransitionsBuilder();
@@ -37,3 +36,7 @@ final themeData = ThemeData(
     },
   ),
 );
+
+ThemeData get darkThemeData => themeData.copyWith(
+      brightness: Brightness.dark,
+    );
