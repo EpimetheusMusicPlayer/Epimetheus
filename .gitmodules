@@ -1,0 +1,3 @@
+[submodule "packages/iapetus"]
+	path = packages/iapetus
+	url = https://github.com/EpimetheusMusicPlayer/Iapetus

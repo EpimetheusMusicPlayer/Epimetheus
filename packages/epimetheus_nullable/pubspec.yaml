@@ -1,0 +1,44 @@
+name: epimetheus_nullable
+description: Nullable epimetheus code.
+
+publish_to: 'none'
+
+version: 0.1.0+1
+
+environment:
+  sdk: ">=2.8.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Language
+  pedantic: ^1.9.2
+  async: ^2.4.2
+
+  # Main app code
+  epimetheus:
+    path: '../..'
+
+  # APIs
+  iapetus:
+    path: '../iapetus'
+
+  # State
+  mobx: ^1.2.1+4
+
+  # Storage
+  hive: ^1.4.4+1
+  hive_flutter: ^0.3.1
+
+  # Logging
+  logger: ^0.9.4
+
+  # Audio service
+  audio_service: ^0.15.3
+
+dev_dependencies:
+  #  flutter_test:
+  #    sdk: flutter
+  build_runner: ^1.10.4
+  mobx_codegen: ^1.1.1+3

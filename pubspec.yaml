@@ -1,0 +1,75 @@
+name: epimetheus
+description: A Pandora client, written in Flutter.
+
+publish_to: 'none'
+
+version: 0.1.0+1
+
+environment:
+  sdk: ">=2.11.0-260.0.dev <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Language
+  pedantic: ^1.10.0-nullsafety.2
+
+  # Nullable code
+  epimetheus_nullable:
+    path: 'packages/epimetheus_nullable'
+
+  # APIs
+  iapetus:
+    path: 'packages/iapetus'
+
+  # Services
+  get_it: ^5.0.1
+
+  # State
+  mobx: ^1.2.1+4
+  flutter_mobx: ^1.1.0+2
+
+  # Storage
+  flutter_cache_manager: ^1.4.0
+
+  # UI
+  infinite_scroll_pagination:
+    git:
+      url: 'git://github.com/EdsonBueno/infinite_scroll_pagination.git'
+      ref: 'f566f01cdc5a7a8916139b4ebfe6e08058edad75'
+  fast_marquee: ^0.1.1
+  esys_flutter_share:
+    git:
+      url: 'git://github.com/jawad12345A/esys-flutter-share.git'
+      ref: '148e664e0bff7c61266e74104950ae9abe3d1e61'
+  popup_menu_title: 1.0.0-nullsafety.2
+  prompt_dialog: ^0.1.1
+  cached_network_image: ^2.3.3
+  flare_flutter: ^2.0.6
+
+  # Logging
+  logger: ^0.9.4
+  logger_flutter:
+    git:
+      url: 'https://github.com/ewertonrp/logger_flutter'
+      ref: '3872e8d9261ec70663725aca24591ff9636a3861'
+
+  # Utilities
+  mime: 0.9.7
+
+  # Audio
+  audio_service: ^0.15.3
+  just_audio: ^0.5.6
+
+dependency_overrides:
+  sqflite: 1.3.1+2
+
+#dev_dependencies:
+#  flutter_test:
+#    sdk: flutter
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/
