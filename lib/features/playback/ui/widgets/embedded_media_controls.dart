@@ -70,7 +70,7 @@ class _EmbeddedMediaControlsState extends State<EmbeddedMediaControls>
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
                   const IconButton(
-                    icon: const Icon(Icons.stop),
+                    icon: Icon(Icons.stop),
                     iconSize: EmbeddedMediaControls.iconSize,
                     color: Colors.white,
                     tooltip: 'Stop',
