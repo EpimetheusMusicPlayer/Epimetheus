@@ -32,9 +32,11 @@ packages:
   audio_service:
     dependency: "direct main"
     description:
-      path: "../epimetheus_mobx/packages/audio_service"
-      relative: true
-    source: path
+      path: "."
+      ref: HEAD
+      resolved-ref: "8a9227d1bed183a7eaee3d9a8f0e25dffa2e7c23"
+      url: "https://github.com/hacker1024/audio_service"
+    source: git
     version: "0.15.3"
   audio_session:
     dependency: transitive
@@ -179,7 +181,7 @@ packages:
   epimetheus:
     dependency: "direct main"
     description:
-      path: "../epimetheus_mobx"
+      path: "../.."
       relative: true
     source: path
     version: "0.1.0+1"
