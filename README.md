@@ -13,7 +13,6 @@ This is a work-in-progress; read on for more information.
 - Playlist editing
 - On-demand song playback
 - Downloads
-
 - Proxy support to seamlessly access Pandora in unsupported countries
 
 ### Supported platforms
