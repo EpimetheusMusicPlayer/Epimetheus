@@ -1,16 +1,24 @@
-# epimetheus
+# Epimetheus Music Player
+The Epimethus app - an open source, cross platform Pandora client made with Flutter.
 
-A Pandora client, written in Flutter.
+This is a work-in-progress; read on for more information.
 
-## Getting Started
+### Implemented features
+- Play existing stations from your Pandora account (browsing support planed for future releases)
+- Rename and delete stations
+- View and modify your collection
 
-This project is a starting point for a Flutter application.
+### Planned features
+- Station creation
+- Playlist editing
+- On-demand song playback
+- Downloads
 
-A few resources to get you started if this is your first Flutter project:
+- Proxy support to seamlessly access Pandora in unsupported countries
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### Supported platforms
+- Android
+- iOS (theoretically)
+- macOS
+- Windows (partially; no audio playback)
+- Linux (partially; no audio playback)
