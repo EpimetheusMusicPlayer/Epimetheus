@@ -51,9 +51,10 @@ abstract class _PlaybackStore with Store implements DisposableStore {
   }
 
   void _onQueueChanged(List<MediaItem> queue) {
-    // If the queue has been destroyed, clear everything.
+    // If the queue has been destroyed, clear everything and return.
     if (queue == null) {
       _dominantColors.clear();
+      return;
     }
 
     // Scan the new queue and store the pandoraIds that haven't been handled
