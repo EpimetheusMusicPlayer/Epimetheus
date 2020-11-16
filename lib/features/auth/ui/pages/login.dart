@@ -1,4 +1,5 @@
 import 'package:epimetheus/features/auth/ui/widgets/login_form.dart';
+import 'package:epimetheus/features/proxy/ui/widgets/actions.dart';
 import 'package:epimetheus_nullable/mobx/auth/auth_store.dart';
 import 'package:epimetheus_nullable/mobx/auth/login_form_store.dart';
 import 'package:flutter/material.dart';
@@ -40,6 +41,7 @@ class _LoginPageState extends State<LoginPage> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Sign in'),
+          actions: const [ProxyPreferencesAction()],
         ),
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 48),

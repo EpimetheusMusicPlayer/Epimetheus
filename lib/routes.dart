@@ -3,6 +3,7 @@ import 'package:epimetheus/features/auth/ui/pages/login.dart';
 import 'package:epimetheus/features/auth/ui/pages/splash.dart';
 import 'package:epimetheus/features/collection/ui/pages/collection.dart';
 import 'package:epimetheus/features/playback/ui/pages/now_playing.dart';
+import 'package:epimetheus/features/proxy/pages/preferences.dart';
 import 'package:epimetheus/flags.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -18,6 +19,9 @@ class RouteNames {
   static const authenticating = '/authenticating';
   static const collection = '/collection';
   static const nowPlaying = '/now-playing';
+
+  static const _preferencesPrefix = '/preferences';
+  static const proxyPreferences = '$_preferencesPrefix/proxy';
 }
 
 /// These are mappings from route names to pages for the default UI.
@@ -27,6 +31,7 @@ Map<String, WidgetBuilder> get _standardRoutes => {
       RouteNames.authenticating: (_) => const SplashPage(),
       RouteNames.collection: (_) => CollectionPage(),
       RouteNames.nowPlaying: (_) => NowPlayingPage(),
+      RouteNames.proxyPreferences: (_) => const ProxyPreferencesPage(),
     };
 
 /// These routes will be used instead of [_standardRoutes] on Wear OS.
@@ -36,4 +41,5 @@ Map<String, WidgetBuilder> get _wearRoutes => <String, WidgetBuilder>{
       RouteNames.authenticating: (_) => const SplashPage(),
       RouteNames.collection: (_) => throw UnimplementedError(),
       RouteNames.nowPlaying: (_) => throw UnimplementedError(),
+      RouteNames.proxyPreferences: (_) => throw UnimplementedError(),
     };

@@ -23,6 +23,10 @@ dependencies:
   # APIs
   iapetus:
     path: '../iapetus'
+  proxies:
+    git:
+      url: 'https://github.com/hacker1024/proxies'
+      ref: '3201ba33bca036b157e40ee6db7c11c3eaed4eaa'
 
   # State
   mobx: ^1.2.1+4

@@ -12,6 +12,9 @@ PODS:
   - path_provider (0.0.1)
   - path_provider_macos (0.0.1):
     - FlutterMacOS
+  - shared_preferences (0.0.1)
+  - shared_preferences_macos (0.0.1):
+    - FlutterMacOS
   - sqflite (0.0.1):
     - FlutterMacOS
     - FMDB (~> 2.7.2)
@@ -23,6 +26,8 @@ DEPENDENCIES:
   - just_audio (from `Flutter/ephemeral/.symlinks/plugins/just_audio/macos`)
   - path_provider (from `Flutter/ephemeral/.symlinks/plugins/path_provider/macos`)
   - path_provider_macos (from `Flutter/ephemeral/.symlinks/plugins/path_provider_macos/macos`)
+  - shared_preferences (from `Flutter/ephemeral/.symlinks/plugins/shared_preferences/macos`)
+  - shared_preferences_macos (from `Flutter/ephemeral/.symlinks/plugins/shared_preferences_macos/macos`)
   - sqflite (from `Flutter/ephemeral/.symlinks/plugins/sqflite/macos`)
 
 SPEC REPOS:
@@ -42,6 +47,10 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/path_provider/macos
   path_provider_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/path_provider_macos/macos
+  shared_preferences:
+    :path: Flutter/ephemeral/.symlinks/plugins/shared_preferences/macos
+  shared_preferences_macos:
+    :path: Flutter/ephemeral/.symlinks/plugins/shared_preferences_macos/macos
   sqflite:
     :path: Flutter/ephemeral/.symlinks/plugins/sqflite/macos
 
@@ -53,6 +62,8 @@ SPEC CHECKSUMS:
   just_audio: 1a11463e7e522bd4e8caa925b4247f1360cbe5a2
   path_provider: e0848572d1d38b9a7dd099e79cf83f5b7e2cde9f
   path_provider_macos: a0a3fd666cb7cd0448e936fb4abad4052961002b
+  shared_preferences: 9fec34d1bd906196a4da48fcf6c3ad521cc00b8d
+  shared_preferences_macos: 480ce071d0666e37cef23fe6c702293a3d21799e
   sqflite: 6c1f07e1d4399d619ea619fea9171251dd24d058
 
 PODFILE CHECKSUM: 63c650af922428cf4112e5df20f0106bea441e53

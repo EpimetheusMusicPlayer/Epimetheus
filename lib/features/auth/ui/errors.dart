@@ -48,7 +48,8 @@ bool handleAuthErrors({
     showErrorMessage(
       context: context,
       errorTitle: 'Can\'t connect to Pandora.',
-      errorMessage: 'Are you connected to the Internet?',
+      errorMessage:
+          'Are you connected to the Internet? Are your proxy settings correct?',
       actionLabels: const ['Back'],
       actions: [
         ({required closeErrorWindow}) {

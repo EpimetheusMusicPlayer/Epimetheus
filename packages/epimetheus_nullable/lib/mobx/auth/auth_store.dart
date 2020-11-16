@@ -90,6 +90,8 @@ abstract class _AuthStore with Store {
     assert(password != null);
     _doLogin(
       () async {
+        // TODO catch proxy errors
+        await apiStore.configureProxy();
         final api = apiStore.api;
         await api.login(
           email: email,

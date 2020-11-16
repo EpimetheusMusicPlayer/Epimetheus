@@ -1,4 +1,5 @@
 import 'package:epimetheus/logging.dart';
+import 'package:epimetheus_nullable/mobx/proxy/proxy_store.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -11,6 +12,10 @@ class ApiStore = _ApiStore with _$ApiStore;
 
 abstract class _ApiStore with Store {
   static const _logTag = '[API (MAIN)]';
+
+  final ProxyStore _proxyStore;
+
+  _ApiStore({@required ProxyStore proxyStore}) : _proxyStore = proxyStore;
 
   final logger = createLogger(_logTag);
 
@@ -28,7 +33,6 @@ abstract class _ApiStore with Store {
     await (api?.storage as HiveIapetusStorage).close();
   }
 
-  // TODO allow proxy configuration, use secure storage on mobile
   @action
   Future<void> initializeApi() async {
     final storage = HiveIapetusStorage(hiveInit: Hive.initFlutter);
@@ -39,5 +43,12 @@ abstract class _ApiStore with Store {
           ? (level, messageBuilder) => logger.log(level, messageBuilder())
           : null,
     );
+  }
+
+  Future<void> configureProxy() async {
+    assert(apiInitialized, 'Cannot set a proxy - API not initialized!');
+    if (!_proxyStore.loaded) await _proxyStore.load();
+    final proxy = await _proxyStore.proxyProvider?.getProxy();
+    api.proxyConfiguration = proxy?.configuration ?? 'DIRECT';
   }
 }
