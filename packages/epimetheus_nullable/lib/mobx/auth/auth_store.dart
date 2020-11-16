@@ -60,6 +60,8 @@ abstract class _AuthStore with Store {
     error = null;
     _loggingIn = true;
     try {
+      // TODO catch proxy errors
+      await apiStore.configureProxy();
       listener = await login();
     } on IapetusNetworkException catch (e) {
       _loggingIn = false;
@@ -90,8 +92,6 @@ abstract class _AuthStore with Store {
     assert(password != null);
     _doLogin(
       () async {
-        // TODO catch proxy errors
-        await apiStore.configureProxy();
         final api = apiStore.api;
         await api.login(
           email: email,
