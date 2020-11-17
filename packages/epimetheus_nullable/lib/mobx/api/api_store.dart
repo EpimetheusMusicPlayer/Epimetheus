@@ -19,10 +19,8 @@ abstract class _ApiStore with Store {
 
   final logger = createLogger(_logTag);
 
-  @observable
   Iapetus api;
 
-  @computed
   bool get apiInitialized => api != null;
 
   bool get loggedIn => api.isAuthenticated;
@@ -33,7 +31,6 @@ abstract class _ApiStore with Store {
     await (api?.storage as HiveIapetusStorage).close();
   }
 
-  @action
   Future<void> initializeApi() async {
     final storage = HiveIapetusStorage(hiveInit: Hive.initFlutter);
     await storage.open();
@@ -48,7 +45,7 @@ abstract class _ApiStore with Store {
   Future<void> configureProxy() async {
     assert(apiInitialized, 'Cannot set a proxy - API not initialized!');
     if (!_proxyStore.loaded) await _proxyStore.load();
-    final proxy = await _proxyStore.proxyProvider?.getProxy();
+    final proxy = await _proxyStore.getProxy();
     api.proxyConfiguration = proxy?.configuration ?? 'DIRECT';
   }
 }

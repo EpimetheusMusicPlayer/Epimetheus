@@ -3,7 +3,7 @@ import 'package:epimetheus_nullable/mobx/proxy/proxy_store.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class ManualProviderUI extends StatefulWidget {
+class ManualProviderUI extends StatelessWidget {
   final ProxyStore proxyStore;
   final GlobalKey<FormState> formKey;
 
@@ -13,39 +13,25 @@ class ManualProviderUI extends StatefulWidget {
     required this.formKey,
   }) : super(key: key);
 
-  @override
-  _ManualProviderUIState createState() => _ManualProviderUIState();
-}
-
-class _ManualProviderUIState extends State<ManualProviderUI> {
-  late final TextEditingController _usernameController =
-      TextEditingController(text: widget.proxyStore.username);
-  late final TextEditingController _passwordController =
-      TextEditingController(text: widget.proxyStore.password);
-  late final TextEditingController _hostController =
-      TextEditingController(text: widget.proxyStore.host);
-  late final TextEditingController _portController =
-      TextEditingController(text: widget.proxyStore.port?.toString());
-
-  String? _validateHost(String? host) {
+  static String? _validateHost(String? host) {
     if (host == null || host.isEmpty) return 'Host cannot be empty.';
   }
 
-  String? _validatePort(String? port) {
+  static String? _validatePort(String? port) {
     if (port == null || port.isEmpty) return 'Port cannot be empty.';
     if (int.tryParse(port) == null) return 'Port must be a number.';
   }
 
-  String? _validateUsername(String? username) {}
+  static String? _validateUsername(String? username) {}
 
-  String? _validatePassword(String? password) {}
+  static String? _validatePassword(String? password) {}
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: AutofillGroup(
         child: Form(
-          key: widget.formKey,
+          key: formKey,
           child: Column(
             children: [
               const PreferenceHeader(
@@ -57,7 +43,7 @@ class _ManualProviderUIState extends State<ManualProviderUI> {
                   Flexible(
                     flex: 7,
                     child: TextFormField(
-                      controller: _hostController,
+                      initialValue: proxyStore.host,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
                         labelText: 'Host',
@@ -65,14 +51,14 @@ class _ManualProviderUIState extends State<ManualProviderUI> {
                       keyboardType: TextInputType.url,
                       autofillHints: const [AutofillHints.url],
                       validator: _validateHost,
-                      onSaved: (host) => widget.proxyStore.host = host,
+                      onSaved: (host) => proxyStore.host = host,
                     ),
                   ),
                   const SizedBox(width: 8),
                   Flexible(
                     flex: 3,
                     child: TextFormField(
-                      controller: _portController,
+                      initialValue: proxyStore.port.toString(),
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
                         labelText: 'Port',
@@ -80,7 +66,7 @@ class _ManualProviderUIState extends State<ManualProviderUI> {
                       keyboardType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       validator: _validatePort,
-                      onSaved: (port) => widget.proxyStore.port =
+                      onSaved: (port) => proxyStore.port =
                           port == null ? null : int.parse(port),
                     ),
                   ),
@@ -92,7 +78,7 @@ class _ManualProviderUIState extends State<ManualProviderUI> {
                 padding: EdgeInsets.only(bottom: 4),
               ),
               TextFormField(
-                controller: _usernameController,
+                initialValue: proxyStore.username,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Username',
@@ -100,11 +86,11 @@ class _ManualProviderUIState extends State<ManualProviderUI> {
                 keyboardType: TextInputType.text,
                 autofillHints: const [AutofillHints.username],
                 validator: _validateUsername,
-                onSaved: (username) => widget.proxyStore.username = username,
+                onSaved: (username) => proxyStore.username = username,
               ),
               const SizedBox(height: 8),
               TextFormField(
-                controller: _passwordController,
+                initialValue: proxyStore.password,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Password',
@@ -112,7 +98,7 @@ class _ManualProviderUIState extends State<ManualProviderUI> {
                 obscureText: true,
                 autofillHints: const [AutofillHints.password],
                 validator: _validatePassword,
-                onSaved: (password) => widget.proxyStore.password = password,
+                onSaved: (password) => proxyStore.password = password,
               ),
             ],
           ),

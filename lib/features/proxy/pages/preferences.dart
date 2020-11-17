@@ -1,3 +1,4 @@
+import 'package:epimetheus/features/proxy/ui/widgets/provider_uis/apikey.dart';
 import 'package:epimetheus/features/proxy/ui/widgets/provider_uis/authonly.dart';
 import 'package:epimetheus/features/proxy/ui/widgets/provider_uis/manual.dart';
 import 'package:epimetheus/features/proxy/ui/widgets/proxy_info_list_tile.dart';
@@ -17,7 +18,7 @@ class ProxyPreferencesPage extends StatefulWidget {
 
 class _ProxyPreferencesPageState extends State<ProxyPreferencesPage> {
   final _proxyStore = GetIt.instance<ProxyStore>();
-  final _formKey = GlobalKey<FormState>();
+  GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -41,22 +42,22 @@ class _ProxyPreferencesPageState extends State<ProxyPreferencesPage> {
       },
       child: GestureDetector(
         onTap: FocusScope.of(context).unfocus,
-        child: Scaffold(
-          appBar: AppBar(
-            title: const Text('Proxy preferences'),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.refresh),
-                onPressed: _proxyStore.refresh,
-              ),
-            ],
-          ),
-          body: Observer(
-            builder: (context) {
-              if (_proxyStore.loading) return const SizedBox();
+        child: Observer(
+          builder: (context) {
+            if (_proxyStore.loading) return const SizedBox();
 
-              final Type? selectedProvider = _proxyStore.selectedProvider;
-              return Column(
+            final Type? selectedProvider = _proxyStore.selectedProvider;
+            return Scaffold(
+              appBar: AppBar(
+                title: const Text('Proxy preferences'),
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.refresh),
+                    onPressed: _formKey.currentState?.reset,
+                  ),
+                ],
+              ),
+              body: Column(
                 children: [
                   const ProxyInfoListTile(),
                   const SizedBox(height: 16),
@@ -65,7 +66,7 @@ class _ProxyPreferencesPageState extends State<ProxyPreferencesPage> {
                     child: InputDecorator(
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
-                        labelText: 'Proxy type',
+                        labelText: 'Proxy service',
                       ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<Type>(
@@ -76,16 +77,21 @@ class _ProxyPreferencesPageState extends State<ProxyPreferencesPage> {
                             ),
                             DropdownMenuItem(
                               value: SimpleProxyProvider,
-                              child: Text('Manual'),
+                              child: Text('Custom'),
                             ),
                             DropdownMenuItem(
                               value: NordVPNProxyProvider,
                               child: Text('NordVPN'),
                             ),
+                            DropdownMenuItem(
+                              value: WebshareProxyProvider,
+                              child: Text('Webshare'),
+                            )
                           ],
                           value: selectedProvider,
                           isDense: true,
                           onChanged: (providerType) {
+                            _formKey = GlobalKey<FormState>();
                             _proxyStore.changeProvider(providerType);
                           },
                         ),
@@ -110,6 +116,11 @@ class _ProxyPreferencesPageState extends State<ProxyPreferencesPage> {
                               proxyStore: _proxyStore,
                               formKey: _formKey,
                             );
+                          case WebshareProxyProvider:
+                            return ApiKeyProviderUI(
+                              proxyStore: _proxyStore,
+                              formKey: _formKey,
+                            );
                           default:
                             throw UnimplementedError(
                               'Selected proxy provider ($selectedProvider) is unimplemented!',
@@ -119,9 +130,9 @@ class _ProxyPreferencesPageState extends State<ProxyPreferencesPage> {
                     ),
                   ),
                 ],
-              );
-            },
-          ),
+              ),
+            );
+          },
         ),
       ),
     );

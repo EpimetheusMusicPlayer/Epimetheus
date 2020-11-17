@@ -178,6 +178,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.3.9"
+  email_validator:
+    dependency: transitive
+    description:
+      name: email_validator
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.6"
   epimetheus:
     dependency: "direct main"
     description:
@@ -557,7 +564,7 @@ packages:
       name: plugin_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.3"
+    version: "1.1.0-nullsafety"
   pool:
     dependency: transitive
     description:
@@ -590,11 +597,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "3201ba33bca036b157e40ee6db7c11c3eaed4eaa"
-      resolved-ref: "3201ba33bca036b157e40ee6db7c11c3eaed4eaa"
+      ref: "8aa79d18e5cf9548d83a985a885a1ae6937f75ad"
+      resolved-ref: "8aa79d18e5cf9548d83a985a885a1ae6937f75ad"
       url: "https://github.com/hacker1024/proxies"
     source: git
-    version: "0.1.2"
+    version: "0.2.0"
   pub_semver:
     dependency: transitive
     description:
@@ -782,6 +789,41 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.3.0-nullsafety.4"
+  url_launcher:
+    dependency: transitive
+    description:
+      name: url_launcher
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "6.0.0-nullsafety"
+  url_launcher_linux:
+    dependency: transitive
+    description:
+      name: url_launcher_linux
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.0-nullsafety"
+  url_launcher_macos:
+    dependency: transitive
+    description:
+      name: url_launcher_macos
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.0-nullsafety"
+  url_launcher_platform_interface:
+    dependency: transitive
+    description:
+      name: url_launcher_platform_interface
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.0-nullsafety"
+  url_launcher_windows:
+    dependency: transitive
+    description:
+      name: url_launcher_windows
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.0-nullsafety"
   uuid:
     dependency: transitive
     description:

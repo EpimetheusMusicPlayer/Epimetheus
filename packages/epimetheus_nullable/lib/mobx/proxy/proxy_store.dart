@@ -1,4 +1,5 @@
 import 'package:epimetheus/features/proxy/data/secure_storage.dart';
+import 'package:epimetheus/features/proxy/entities/exceptions.dart';
 import 'package:mobx/mobx.dart';
 import 'package:proxies/proxies.dart';
 
@@ -35,12 +36,6 @@ abstract class _ProxyStore with Store {
     await load();
   }
 
-  // TODO refreshing is currently ineffective
-  // https://github.com/mobxjs/mobx.dart/issues/597
-  Future<void> refresh() async {
-    await load();
-  }
-
   @action
   Future<void> load() async {
     loading = true;
@@ -59,11 +54,11 @@ abstract class _ProxyStore with Store {
         _storage.read('${name}_host'),
         _storage.read('${name}_port'),
       ]);
-      selectedProvider = _providers[name];
       username = creds[0];
       password = creds[1];
       host = creds[2];
       port = creds[3] == null ? null : int.parse(creds[3], radix: 36);
+      selectedProvider = _providers[name];
     }
     loading = false;
     loaded = true;
@@ -83,7 +78,21 @@ abstract class _ProxyStore with Store {
     saving = false;
   }
 
-  ProxyProvider get proxyProvider {
+  Future<Proxy> getProxy() async {
+    try {
+      return await _proxyProvider?.getProxy();
+    } on ProxyProviderNetworkException {
+      throw const ProxyNetworkException();
+    } on ProxyProviderAuthenticationException {
+      throw const ProxyAuthException();
+    } on ProxyProviderNoProxiesFoundException {
+      throw const ProxyNoneFoundException();
+    } on ProxyProviderSpecificException {
+      throw const ProxyUnknownException();
+    }
+  }
+
+  ProxyProvider get _proxyProvider {
     if (selectedProvider == null) return null;
     switch (selectedProvider) {
       case SimpleProxyProvider:
@@ -93,6 +102,12 @@ abstract class _ProxyStore with Store {
           username: username,
           password: password,
           countryCode: 'US',
+        );
+      case WebshareProxyProvider:
+        return WebshareProxyProvider(
+          apiKey: username,
+          countryCode: 'US',
+          prioritization: WebshareProxyPrioritization.mostRecentVerification,
         );
       default:
         throw UnimplementedError(
@@ -104,10 +119,12 @@ abstract class _ProxyStore with Store {
   static const _providerIds = {
     SimpleProxyProvider: 'simple',
     NordVPNProxyProvider: 'nordvpn',
+    WebshareProxyProvider: 'webshare',
   };
 
   static const _providers = {
     'simple': SimpleProxyProvider,
     'nordvpn': NordVPNProxyProvider,
+    'webshare': WebshareProxyProvider,
   };
 }

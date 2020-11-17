@@ -4,12 +4,12 @@ import 'package:epimetheus/features/collection/ui/tabs/categories/playlist.dart'
 import 'package:epimetheus/features/collection/ui/tabs/categories/song.dart';
 import 'package:epimetheus/features/collection/ui/tabs/station.dart';
 import 'package:epimetheus/features/navigation/ui/widgets/navigation_drawer.dart';
+import 'package:epimetheus/logging.dart';
 import 'package:epimetheus/routes.dart';
 import 'package:epimetheus_nullable/mobx/collection/collection_store.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:logger_flutter/logger_flutter.dart';
 
 class CollectionPage extends StatelessWidget {
   final collectionStore = GetIt.instance<CollectionStore>();
@@ -32,15 +32,7 @@ class CollectionPage extends StatelessWidget {
               Tab(text: 'Songs', icon: Icon(Icons.audiotrack_outlined)),
             ],
           ),
-          actions: kDebugMode
-              ? [
-                  IconButton(
-                    icon: const Icon(Icons.bug_report_outlined),
-                    tooltip: 'Debug log',
-                    onPressed: () => LogConsole.open(context),
-                  )
-                ]
-              : null,
+          actions: kDebugMode ? [buildLogScreenAction(context)] : null,
         ),
         body: TabBarView(
           children: [

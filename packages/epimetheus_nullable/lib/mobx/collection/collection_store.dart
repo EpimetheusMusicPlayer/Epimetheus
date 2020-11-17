@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:async/async.dart';
-import 'package:epimetheus/features/auth/entities/auth_entities.dart';
+import 'package:epimetheus/features/auth/entities/auth_status.dart';
 import 'package:epimetheus/features/collection/entities/collected_item.dart';
 import 'package:epimetheus/features/playback/services/audio_task/audio_task.dart';
 import 'package:epimetheus/features/playback/services/audio_task/media_sources/station/station_media_source.dart';
@@ -80,7 +80,7 @@ abstract class _CollectionStore extends ReactiveStore with Store {
   List<ReactionDisposer> initReactions() {
     return [
       autorun((_) async {
-        switch (_authStore.authStatus) {
+        switch (_authStore.authState.status) {
           case AuthStatus.loggedIn:
             unawaited(stations.loadStations());
             for (final category in _categories.values) {

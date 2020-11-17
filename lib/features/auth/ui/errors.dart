@@ -1,51 +1,25 @@
-import 'package:epimetheus/core/ui/error.dart';
-import 'package:epimetheus/features/auth/entities/auth_entities.dart';
-import 'package:epimetheus/routes.dart';
-import 'package:epimetheus_nullable/mobx/auth/auth_store.dart';
-import 'package:flutter/widgets.dart';
-import 'package:get_it/get_it.dart';
+import 'package:epimetheus/core/ui/widgets/error.dart';
+import 'package:epimetheus/features/navigation/launchers/github.dart';
+import 'package:epimetheus/features/proxy/entities/exceptions.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:iapetus/iapetus.dart';
-import 'package:mobx/mobx.dart';
 
-/// Watches for authentication errors,
-ReactionDisposer watchAuthErrors(
-  void Function(Object error) handleUIError,
-) {
-  final authStore = GetIt.instance<AuthStore>();
-  return reaction<AuthStatus>(
-    (_) => authStore.authStatus,
-    (authStatus) {
-      if (authStatus == AuthStatus.error) {
-        handleUIError(authStore.error);
-      }
-    },
-  );
-}
-
-// TODO add retry, and also supply credentials back to login screen
-/// Handles authentication errors. Returns true if the error is dealt with.
-bool handleAuthErrors({
-  required BuildContext context,
-  required Object error,
-  required UIErrorMessageCallback showErrorMessage,
-  required void Function(String routeName) navigateTo,
-}) {
+void showAuthErrorDialog(BuildContext context, dynamic error) {
   if (error is InvalidAuthException) {
-    showErrorMessage(
+    showErrorDialog(
       context: context,
       errorTitle: 'Incorrect email or password.',
       errorMessage: 'Please try again, or reset your password at pandora.com.',
-      actionLabels: const ['Back'],
+      actionLabels: const ['Okay'],
       actions: [
         ({required closeErrorWindow}) {
           closeErrorWindow();
-          navigateTo(RouteNames.login);
         },
       ],
     );
-    return true;
-  } else if (error is IapetusNetworkException) {
-    showErrorMessage(
+  } else if (error is IapetusNetworkException ||
+      error is ProxyNetworkException) {
+    showErrorDialog(
       context: context,
       errorTitle: 'Can\'t connect to Pandora.',
       errorMessage:
@@ -54,40 +28,87 @@ bool handleAuthErrors({
       actions: [
         ({required closeErrorWindow}) {
           closeErrorWindow();
-          navigateTo(RouteNames.login);
         },
       ],
     );
-    return true;
   } else if (error is LocationException) {
-    showErrorMessage(
+    showErrorDialog(
       context: context,
       errorTitle: 'You\'re outside the USA.',
-      errorMessage: 'Use a VPN or proxy, or book a flight to use the app.',
-      actionLabels: const ['Back'],
+      errorMessage: 'Use a VPN, proxy, or airplane to use the app.',
+      actionLabels: const ['Okay'],
       actions: [
         ({required closeErrorWindow}) {
           closeErrorWindow();
-          navigateTo(RouteNames.login);
         },
       ],
     );
-    return true;
   } else if (error is UnknownPandoraErrorException) {
-    showErrorMessage(
+    showErrorDialog(
       context: context,
       errorTitle: 'An unknown API error occurred.',
       errorMessage: error.toString(),
+      actionLabels: const ['Back', 'Report'],
+      actions: [
+        ({required closeErrorWindow}) {
+          closeErrorWindow();
+        },
+        ({required closeErrorWindow}) {
+          launchApiGithubIssue(error);
+          closeErrorWindow();
+        },
+      ],
+    );
+  } else if (error is ProxyAuthException) {
+    showErrorDialog(
+      context: context,
+      errorTitle: 'Could not authenticate with the proxy service.',
+      errorMessage: 'Verify that your proxy service credentials are correct.',
       actionLabels: const ['Back'],
       actions: [
         ({required closeErrorWindow}) {
           closeErrorWindow();
-          navigateTo(RouteNames.login);
         },
       ],
     );
-    return true;
+  } else if (error is ProxyNoneFoundException) {
+    showErrorDialog(
+      context: context,
+      errorTitle: 'No proxy servers could be found.',
+      errorMessage:
+          'This may be caused by server issues, or you may not own a US proxy with the selected service.',
+      actionLabels: const ['Back'],
+      actions: [
+        ({required closeErrorWindow}) {
+          closeErrorWindow();
+        },
+      ],
+    );
+  } else if (error is ProxyUnknownException) {
+    showErrorDialog(
+      context: context,
+      errorTitle: 'A proxy error has occurred.',
+      errorMessage:
+          'This can be caused by a bug in the proxy code, or by server issues.',
+      actionLabels: const ['Back'],
+      actions: [
+        ({required closeErrorWindow}) {
+          closeErrorWindow();
+        },
+      ],
+    );
+  } else {
+    showErrorDialog(
+      context: context,
+      errorTitle: 'A critical application error has occurred.',
+      errorMessage:
+          'If this keeps happening, please report the issue on GitHub.\n\n${error}',
+      actionLabels: const ['Back'],
+      actions: [
+        ({required closeErrorWindow}) {
+          closeErrorWindow();
+        },
+      ],
+    );
   }
-
-  return false;
 }

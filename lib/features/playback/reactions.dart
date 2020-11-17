@@ -1,5 +1,5 @@
 import 'package:audio_service/audio_service.dart';
-import 'package:epimetheus/features/auth/entities/auth_entities.dart';
+import 'package:epimetheus/features/auth/entities/auth_status.dart';
 import 'package:epimetheus_nullable/mobx/auth/auth_store.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobx/mobx.dart';
@@ -8,7 +8,7 @@ List<ReactionDisposer> setupPlaybackReactions() {
   final authStore = GetIt.instance<AuthStore>();
   return [
     reaction<AuthStatus>(
-      (_) => authStore.authStatus,
+      (_) => authStore.authState.status,
       _handleAuthStatusChanges,
     ),
   ];

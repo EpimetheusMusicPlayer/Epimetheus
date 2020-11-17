@@ -1,6 +1,4 @@
 import 'package:audio_service/audio_service.dart';
-import 'package:epimetheus/core/ui/error.dart';
-import 'package:epimetheus/features/auth/ui/errors.dart';
 import 'package:epimetheus/features/navigation/reactions.dart';
 import 'package:epimetheus/features/playback/reactions.dart';
 import 'package:epimetheus/injection_container.dart';
@@ -22,7 +20,6 @@ void main() async {
   initStores();
 
   // Initialize the [Iapetus] library.
-  // TODO initialize with proxy information
   await GetIt.instance<ApiStore>().initializeApi();
 
   // Attempt to log in from storage before launching the UI.
@@ -41,23 +38,14 @@ class App extends StatefulWidget {
 
 class _AppState extends State<App> {
   late final _navigatorKey = GlobalKey<NavigatorState>();
-  late final List<ReactionDisposer> _errorWatcherDisposers;
   late final List<ReactionDisposer> _reactionDisposers;
 
-  // Handles an error to be displayed in the UI
-  void _handleUIError(Object e) {
-    handleUIError(
-      context: _navigatorKey.currentContext!,
-      error: e,
-      navigateTo: _navigateBackTo,
-    );
-  }
-
   /// Pop the entire stack and navigates to the given route name.
-  void _navigateBackTo(String routeName) {
+  void _navigateBackTo(String routeName, [Object? arguments]) {
     _navigatorKey.currentState!.pushNamedAndRemoveUntil(
       routeName,
       (_) => false,
+      arguments: arguments,
     );
   }
 
@@ -65,19 +53,13 @@ class _AppState extends State<App> {
   void initState() {
     super.initState();
 
-    // MobX reaction error handling.
-    mainContext.onReactionError((error, reaction) {
-      _handleUIError(error);
-    });
-
-    // Specific feature error handling.
-    _errorWatcherDisposers = [
-      watchAuthErrors(_handleUIError),
-    ];
-
     SchedulerBinding.instance!.addPostFrameCallback((_) {
+      // UI reactions.
       _reactionDisposers = [
-        ...setupNavigationReactions(_navigateBackTo),
+        ...setupNavigationReactions(
+          _navigatorKey.currentContext!,
+          _navigateBackTo,
+        ),
         ...setupPlaybackReactions(),
       ];
     });
@@ -85,11 +67,6 @@ class _AppState extends State<App> {
 
   @override
   void dispose() {
-    // Dispose of feature error handlers
-    for (final d in _errorWatcherDisposers) {
-      d();
-    }
-
     // Dispose of reactions.
     for (final d in _reactionDisposers) {
       d();

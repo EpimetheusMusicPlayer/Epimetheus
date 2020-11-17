@@ -25,7 +25,7 @@ dependencies:
   proxies:
     git:
       url: 'https://github.com/hacker1024/proxies'
-      ref: '3201ba33bca036b157e40ee6db7c11c3eaed4eaa'
+      ref: '8aa79d18e5cf9548d83a985a885a1ae6937f75ad'
 
   # Services
   get_it: ^5.0.1
@@ -53,6 +53,7 @@ dependencies:
   prompt_dialog: ^0.1.1
   cached_network_image: ^2.3.3
   flare_flutter: ^2.0.6
+  url_launcher: ^6.0.0-nullsafety
 
   # Logging
   logger: ^0.9.4
@@ -63,6 +64,7 @@ dependencies:
 
   # Utilities
   mime: 0.9.7
+  email_validator: ^1.0.6
 
   # Audio
   audio_service:

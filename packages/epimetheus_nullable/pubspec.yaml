@@ -26,7 +26,7 @@ dependencies:
   proxies:
     git:
       url: 'https://github.com/hacker1024/proxies'
-      ref: '3201ba33bca036b157e40ee6db7c11c3eaed4eaa'
+      ref: '8aa79d18e5cf9548d83a985a885a1ae6937f75ad'
 
   # State
   mobx: ^1.2.1+4

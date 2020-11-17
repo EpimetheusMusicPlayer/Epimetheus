@@ -1,17 +1,26 @@
-import 'package:epimetheus/features/auth/entities/auth_entities.dart';
+import 'package:epimetheus/features/auth/entities/auth_status.dart';
+import 'package:epimetheus/features/auth/ui/errors.dart';
 import 'package:epimetheus/routes.dart';
 import 'package:epimetheus_nullable/mobx/auth/auth_store.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mobx/mobx.dart';
 
 List<ReactionDisposer> setupNavigationReactions(
-  void Function(String routeName) navigateBackTo,
+  BuildContext navigatorContext,
+  void Function(String routeName, [Object? arguments]) navigateBackTo,
 ) {
   final authStore = GetIt.instance<AuthStore>();
   return [
     autorun((_) {
-      _handleAuthNavigation(authStore.authStatus, navigateBackTo);
+      _handleAuthNavigation(
+        authStore.authState,
+        navigatorContext,
+        navigateBackTo,
+      );
+    }),
+    autorun((_) {
       _handleListenerPrecaching(authStore);
     }),
   ];
@@ -19,10 +28,11 @@ List<ReactionDisposer> setupNavigationReactions(
 
 /// Navigates based on the authentication status.
 void _handleAuthNavigation(
-  AuthStatus status,
-  void Function(String routeName) navigateTo,
+  AuthState state,
+  BuildContext navigatorContext,
+  void Function(String routeName, [Object? arguments]) navigateTo,
 ) {
-  switch (status) {
+  switch (state.status) {
     case AuthStatus.loggingIn:
       navigateTo(RouteNames.authenticating);
       return;
@@ -32,6 +42,10 @@ void _handleAuthNavigation(
     case AuthStatus.loggedOut:
       navigateTo(RouteNames.login);
       return;
+    case AuthStatus.error:
+      navigateTo(RouteNames.login, state.creds);
+      showAuthErrorDialog(navigatorContext, state.error);
+      return;
     default:
       return;
   }
@@ -39,7 +53,7 @@ void _handleAuthNavigation(
 
 /// Pre-caches listener assets.
 void _handleListenerPrecaching(AuthStore authStore) {
-  if (authStore.authStatus == AuthStatus.loggedIn) {
+  if (authStore.authState.status == AuthStatus.loggedIn) {
     DefaultCacheManager().downloadFile(authStore.listener!.profileImageUrl);
   }
 }

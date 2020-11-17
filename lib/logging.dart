@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:logger_flutter/logger_flutter.dart';
 
@@ -20,6 +21,12 @@ Logger createLogger(String tag) {
     ),
   );
 }
+
+Widget buildLogScreenAction(BuildContext context) => IconButton(
+      icon: const Icon(Icons.bug_report_outlined),
+      tooltip: 'Debug log',
+      onPressed: () => LogConsole.open(context),
+    );
 
 class AppOutput implements LogOutput {
   final Level consoleOutputLevel;

@@ -2,25 +2,19 @@ import 'package:epimetheus/core/ui/widgets/preference_header.dart';
 import 'package:epimetheus_nullable/mobx/proxy/proxy_store.dart';
 import 'package:flutter/material.dart';
 
-class AuthOnlyProviderUI extends StatelessWidget {
+class ApiKeyProviderUI extends StatelessWidget {
   final ProxyStore proxyStore;
   final GlobalKey<FormState> formKey;
 
-  const AuthOnlyProviderUI({
+  const ApiKeyProviderUI({
     Key? key,
     required this.proxyStore,
     required this.formKey,
   }) : super(key: key);
 
-  static String? _validateUsername(String? username) {
-    if (username == null || username.isEmpty) {
-      return 'Username cannot be empty.';
-    }
-  }
-
-  static String? _validatePassword(String? password) {
-    if (password == null || password.isEmpty) {
-      return 'Password cannot be empty.';
+  static String? _validateApiKey(String? apiKey) {
+    if (apiKey == null || apiKey.isEmpty) {
+      return 'API key cannot be empty.';
     }
   }
 
@@ -33,31 +27,19 @@ class AuthOnlyProviderUI extends StatelessWidget {
           child: Column(
             children: [
               PreferenceHeader(
-                'Authentication',
+                'API details',
                 padding: EdgeInsets.only(bottom: 4),
               ),
               TextFormField(
                 initialValue: proxyStore.username,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
-                  labelText: 'Username',
+                  labelText: 'API key',
                 ),
                 keyboardType: TextInputType.text,
-                autofillHints: const [AutofillHints.username],
-                validator: _validateUsername,
-                onSaved: (username) => proxyStore.username = username,
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
-                initialValue: proxyStore.password,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Password',
-                ),
-                obscureText: true,
                 autofillHints: const [AutofillHints.password],
-                validator: _validatePassword,
-                onSaved: (password) => proxyStore.password = password,
+                validator: _validateApiKey,
+                onSaved: (username) => proxyStore.username = username,
               ),
               const SizedBox(height: 8),
             ],
