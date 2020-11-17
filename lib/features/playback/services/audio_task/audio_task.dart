@@ -6,9 +6,10 @@ import 'package:epimetheus/features/playback/services/audio_task/media_sources/m
 import 'package:epimetheus/logging.dart';
 import 'package:iapetus/iapetus.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:logger/logger.dart';
 import 'package:pedantic/pedantic.dart';
 
-/// This payload contains information required by the audio task to begin
+/// This payload contains information required by the [AudioTask] to begin
 /// playback.
 ///
 /// It must be compatible with the [SendPort.send] requirements.
@@ -16,6 +17,10 @@ class _AudioTaskPayload {
   final MediaSource mediaSource;
   final Iapetus iapetus;
 
+  /// Constructs the payload.
+  ///
+  /// The given [iapetus] should be a copy of the original, as properties are
+  /// changed by the [AudioTask].
   _AudioTaskPayload({
     required this.mediaSource,
     required this.iapetus,
@@ -142,8 +147,12 @@ class AudioTask extends BackgroundAudioTask {
   Future<void> _launchPayload(_AudioTaskPayload payload) async {
     // Set the Iapetus, to be used for API calls.
     // Recreate the logger, as it would have been discarded before sending.
+    // Disables reauthentication; the task will stop itself instead, or else the
+    // new session will differ from the UI's new session.
     _iapetus = payload.iapetus
-      ..logger = (level, messageBuilder) => logger.log(level, messageBuilder());
+      ..logger =
+          ((level, messageBuilder) => logger.log(level, messageBuilder()))
+      ..reauthenticate = false;
 
     // Detect if an old media source exists - is this the first launch?
     final hasOldMediaSource = _mediaSource != null;
@@ -205,35 +214,44 @@ class AudioTask extends BackgroundAudioTask {
 
   /// Loads the next page of media, provided by the media source.
   Future<void> _loadNextPage([bool initialLoad = false]) async {
-    // Record the existing audio service queue size, used later in calculations.
-    final oldQueueSize = AudioServiceBackground.queue.length;
+    try {
+      // Record the existing audio service queue size, used later in calculations.
+      final oldQueueSize = AudioServiceBackground.queue.length;
 
-    // Load the next page of media from the source.
-    // TODO background task load error handling?
-    final nextPage = await _mediaSource!.load(_iapetus, initialLoad);
+      // Load the next page of media from the source.
+      // TODO background task load error handling?
+      final nextPage = await _mediaSource!.load(_iapetus, initialLoad);
 
-    // Set the audio service queue.
-    await AudioServiceBackground.setQueue(
-      AudioServiceBackground.queue + nextPage,
-      preloadArtwork: true,
-    );
+      // Set the audio service queue.
+      await AudioServiceBackground.setQueue(
+        AudioServiceBackground.queue + nextPage,
+        preloadArtwork: true,
+      );
 
-    // Add the new URLs to the player.
-    // Create a list of player audio sources with URIs provided by the media
-    // source.
-    final newAudioSources = [
-      for (var i = oldQueueSize; i < AudioServiceBackground.queue.length; ++i)
-        ProgressiveAudioSource(_mediaSource!.getAudioUri(i)),
-    ];
+      // Add the new URLs to the player.
+      // Create a list of player audio sources with URIs provided by the media
+      // source.
+      final newAudioSources = [
+        for (var i = oldQueueSize; i < AudioServiceBackground.queue.length; ++i)
+          ProgressiveAudioSource(_mediaSource!.getAudioUri(i)),
+      ];
 
-    // Add the new player sources to the player.
-    // Normally, the player would never be null, and just be empty at times.
-    // This cannot be done, however, due to this bug:
-    // https://github.com/ryanheise/just_audio/issues/177
-    if (_playerQueue == null) {
-      _playerQueue = ConcatenatingAudioSource(children: newAudioSources);
-    } else {
-      await _playerQueue!.addAll(newAudioSources);
+      // Add the new player sources to the player.
+      // Normally, the player would never be null, and just be empty at times.
+      // This cannot be done, however, due to this bug:
+      // https://github.com/ryanheise/just_audio/issues/177
+      if (_playerQueue == null) {
+        _playerQueue = ConcatenatingAudioSource(children: newAudioSources);
+      } else {
+        await _playerQueue!.addAll(newAudioSources);
+      }
+    } on MediaSourceLoadException catch (e) {
+      logger.log(
+          Level.warning, 'Stopping audio task; load error: (${e.inner}.');
+      await AudioService.stop();
+    } on InvalidatedMediaSourceSessionException {
+      logger.log(Level.warning, 'Stopping audio task; session invalidated.');
+      await AudioService.stop();
     }
   }
 

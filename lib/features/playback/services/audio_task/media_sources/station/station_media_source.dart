@@ -54,19 +54,25 @@ class StationMediaSource implements MediaSource {
     Iapetus iapetus, [
     bool initialLoad = false,
   ]) async {
-    // Load the new songs, ignoring anything other than real tracks (things like
-    // artist messages have slightly different properties and need special
-    // treatment, and they're basically ads anyway).
-    final newSongs = (await _station.getFragment(
-      iapetus: iapetus,
-      isStationStart: initialLoad,
-      audioQuality: AudioQuality.high,
-    ))
-        .where((song) => song.trackType == TrackType.track);
+    try {
+      // Load the new songs, ignoring anything other than real tracks (things like
+      // artist messages have slightly different properties and need special
+      // treatment, and they're basically ads anyway).
+      final newSongs = (await _station.getFragment(
+        iapetus: iapetus,
+        isStationStart: initialLoad,
+        audioQuality: AudioQuality.high,
+      ))
+          .where((song) => song.trackType == TrackType.track);
 
-    _songs.addAll(newSongs);
+      _songs.addAll(newSongs);
 
-    return [for (final song in newSongs) song.asMediaItem];
+      return [for (final song in newSongs) song.asMediaItem];
+    } on IapetusNetworkException catch (e) {
+      throw MediaSourceLoadException(e);
+    } on InvalidatedSessionException {
+      throw const InvalidatedMediaSourceSessionException();
+    }
   }
 
   @override

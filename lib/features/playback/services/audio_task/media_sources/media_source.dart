@@ -75,3 +75,18 @@ abstract class MediaSource {
     }
   }
 }
+
+abstract class MediaSourceException implements Exception {
+  const MediaSourceException();
+}
+
+class InvalidatedMediaSourceSessionException extends MediaSourceException {
+  const InvalidatedMediaSourceSessionException();
+}
+
+class MediaSourceLoadException extends MediaSourceException {
+  /// The implementation-specific caught object.
+  final dynamic inner;
+
+  const MediaSourceLoadException(this.inner);
+}
