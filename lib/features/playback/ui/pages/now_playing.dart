@@ -81,6 +81,8 @@ class NowPlayingContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final MediaItem? mediaItem = AudioService.currentMediaItem;
+
     return SizedBox.expand(
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
@@ -89,14 +91,14 @@ class NowPlayingContent extends StatelessWidget {
           child: Column(
             children: [
               Expanded(
-                child: AudioService.currentMediaItem == null
+                child: mediaItem?.artUri == null
                     ? const SizedBox()
                     : CachedNetworkImage(
-                        imageUrl: AudioService.currentMediaItem.artUri,
+                        imageUrl: mediaItem!.artUri,
                         fadeInDuration: Duration.zero,
                       ),
               ),
-              EmbeddedMediaControls(),
+              const EmbeddedMediaControls(dynamicColors: true),
             ],
           ),
         ),

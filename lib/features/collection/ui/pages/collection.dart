@@ -4,6 +4,7 @@ import 'package:epimetheus/features/collection/ui/tabs/categories/playlist.dart'
 import 'package:epimetheus/features/collection/ui/tabs/categories/song.dart';
 import 'package:epimetheus/features/collection/ui/tabs/station.dart';
 import 'package:epimetheus/features/navigation/ui/widgets/navigation_drawer.dart';
+import 'package:epimetheus/features/playback/ui/widgets/media_control_container.dart';
 import 'package:epimetheus/logging.dart';
 import 'package:epimetheus/routes.dart';
 import 'package:epimetheus_nullable/mobx/collection/collection_store.dart';
@@ -25,23 +26,40 @@ class CollectionPage extends StatelessWidget {
           title: const Text('My Collection'),
           bottom: TabBar(
             tabs: const [
-              Tab(text: 'Stations', icon: Icon(Icons.radio_outlined)),
-              Tab(text: 'Playlists', icon: Icon(Icons.playlist_play_outlined)),
-              Tab(text: 'Artists', icon: Icon(Icons.person_outline_outlined)),
-              Tab(text: 'Albums', icon: Icon(Icons.album_outlined)),
-              Tab(text: 'Songs', icon: Icon(Icons.audiotrack_outlined)),
+              Tab(
+                text: 'Stations',
+                icon: Icon(Icons.radio_outlined),
+              ),
+              Tab(
+                text: 'Playlists',
+                icon: Icon(Icons.playlist_play_outlined),
+              ),
+              Tab(
+                text: 'Artists',
+                icon: Icon(Icons.person_outline_outlined),
+              ),
+              Tab(
+                text: 'Albums',
+                icon: Icon(Icons.album_outlined),
+              ),
+              Tab(
+                text: 'Songs',
+                icon: Icon(Icons.audiotrack_outlined),
+              ),
             ],
           ),
           actions: kDebugMode ? [buildLogScreenAction(context)] : null,
         ),
-        body: TabBarView(
-          children: [
-            StationTab(collectionStore: collectionStore),
-            PlaylistCategoryTab(collectionStore: collectionStore),
-            ArtistCategoryTab(collectionStore: collectionStore),
-            AlbumCategoryTab(collectionStore: collectionStore),
-            SongCategoryTab(collectionStore: collectionStore),
-          ],
+        body: MediaControlContainer(
+          child: TabBarView(
+            children: [
+              StationTab(collectionStore: collectionStore),
+              PlaylistCategoryTab(collectionStore: collectionStore),
+              ArtistCategoryTab(collectionStore: collectionStore),
+              AlbumCategoryTab(collectionStore: collectionStore),
+              SongCategoryTab(collectionStore: collectionStore),
+            ],
+          ),
         ),
       ),
     );
