@@ -1,18 +1,15 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:epimetheus/features/playback/ui/widgets/embedded_media_controls.dart';
-import 'package:epimetheus_nullable/mobx/playback/playback_store.dart';
+import 'package:epimetheus/routes.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 
 /// Displays the given [child] with media controls below (when the audio
 /// service is running).
 class MediaControlContainer extends StatelessWidget {
   final Widget child;
 
-  final _playbackStore = GetIt.instance<PlaybackStore>();
-
-  MediaControlContainer({
+  const MediaControlContainer({
     Key? key,
     required this.child,
   }) : super(key: key);
@@ -43,7 +40,7 @@ class MediaControlContainer extends StatelessWidget {
 }
 
 class _MediaControlBar extends StatelessWidget {
-  MediaItem _mediaItem;
+  final MediaItem _mediaItem;
 
   _MediaControlBar(this._mediaItem);
 
@@ -107,7 +104,13 @@ class _MediaControlBar extends StatelessWidget {
       decoration: BoxDecoration(color: Theme.of(context)!.primaryColor),
       child: Column(
         children: [
-          _buildMetadataDisplay(),
+          GestureDetector(
+            onTap: () {
+              Navigator.of(context)!
+                  .pushReplacementNamed(RouteNames.nowPlaying);
+            },
+            child: _buildMetadataDisplay(),
+          ),
           const EmbeddedMediaControls(),
         ],
       ),

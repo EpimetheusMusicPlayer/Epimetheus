@@ -1,8 +1,8 @@
 import 'package:audio_service/audio_service.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:epimetheus/features/navigation/ui/widgets/navigation_drawer.dart';
 import 'package:epimetheus/features/playback/ui/widgets/embedded_media_controls.dart';
 import 'package:epimetheus/features/playback/ui/widgets/nothing_playing_display.dart';
+import 'package:epimetheus/features/playback/ui/widgets/queue_carousel.dart';
 import 'package:epimetheus/routes.dart';
 import 'package:epimetheus_nullable/mobx/playback/playback_store.dart';
 import 'package:flutter/material.dart';
@@ -81,8 +81,6 @@ class NowPlayingContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final MediaItem? mediaItem = AudioService.currentMediaItem;
-
     return SizedBox.expand(
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
@@ -91,12 +89,7 @@ class NowPlayingContent extends StatelessWidget {
           child: Column(
             children: [
               Expanded(
-                child: mediaItem?.artUri == null
-                    ? const SizedBox()
-                    : CachedNetworkImage(
-                        imageUrl: mediaItem!.artUri,
-                        fadeInDuration: Duration.zero,
-                      ),
+                child: QueueCarousel(isDominantColorDark: isDominantColorDark),
               ),
               const EmbeddedMediaControls(dynamicColors: true),
             ],

@@ -54,6 +54,7 @@ dependencies:
   cached_network_image: ^2.3.3
   flare_flutter: ^2.0.6
   url_launcher: ^6.0.0-nullsafety
+  scroll_snap_list: ^0.5.1
 
   # Logging
   logger: ^0.9.4

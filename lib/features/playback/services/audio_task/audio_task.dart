@@ -37,6 +37,10 @@ class AudioTask extends BackgroundAudioTask {
   /// ID.
   static const loadingMediaItemId = 'loading';
 
+  /// The [AudioService.currentMediaItem]'s extras will always contain the
+  /// item's index in the queue, assigned to this key.
+  static const mediaItemIndexKey = 'index';
+
   // * Media source
   late Iapetus _iapetus;
   MediaSource? _mediaSource;
@@ -44,9 +48,9 @@ class AudioTask extends BackgroundAudioTask {
   // * Audio player
   final _player = AudioPlayer();
   ConcatenatingAudioSource? _playerQueue;
-  late StreamSubscription<int> _playerCurrentIndexSubscription;
-  late StreamSubscription<bool> _playerPlayingSubscription;
-  late StreamSubscription<ProcessingState> _playerProcessingStateSubscription;
+  StreamSubscription<int>? _playerCurrentIndexSubscription;
+  StreamSubscription<bool>? _playerPlayingSubscription;
+  StreamSubscription<ProcessingState>? _playerProcessingStateSubscription;
 
   // * Communication
   late StreamSubscription<dynamic> _communicatorSubscription;
@@ -63,6 +67,7 @@ class AudioTask extends BackgroundAudioTask {
         displaySubtitle: 'Loading...',
         displayDescription: '',
         playable: false,
+        extras: {mediaItemIndexKey: 0},
       );
 
   // Notification media control properties.
@@ -90,10 +95,6 @@ class AudioTask extends BackgroundAudioTask {
       action: MediaAction.skipToNext,
     ),
   ];
-
-  // Convenience getters
-  MediaItem get currentlyPlayingQueueItem =>
-      AudioServiceBackground.queue[_mediaSource!.currentQueueIndex];
 
   AudioTask._() {
     // Listen to payloads sent via the communicator.
@@ -257,8 +258,14 @@ class AudioTask extends BackgroundAudioTask {
 
   /// Synchronises the audio service metadata with the currently playing
   /// queue item.
-  void _updateMetadata() =>
-      AudioServiceBackground.setMediaItem(currentlyPlayingQueueItem);
+  void _updateMetadata() {
+    final index = _mediaSource!.currentQueueIndex;
+    AudioServiceBackground.setMediaItem(
+      AudioServiceBackground.queue[index].copyWith(
+        extras: {mediaItemIndexKey: index},
+      ),
+    );
+  }
 
   /// Updates the play or pause control in the media control list.
   /// Does not notify the service of the change; this must be done manually.
@@ -355,9 +362,9 @@ class AudioTask extends BackgroundAudioTask {
   }
 
   void _cancelPlayerEventSubscriptions() {
-    _playerCurrentIndexSubscription.cancel();
-    _playerPlayingSubscription.cancel();
-    _playerProcessingStateSubscription.cancel();
+    _playerCurrentIndexSubscription?.cancel();
+    _playerPlayingSubscription?.cancel();
+    _playerProcessingStateSubscription?.cancel();
   }
 
   @override
