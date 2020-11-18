@@ -25,7 +25,8 @@ abstract class _AuthStore with Store {
 
   /// The currently logged in [Listener]. May be null if no listener is logged
   /// in; check [authStatus] first.
-  Listener get listener => apiStore.api.listener;
+  @observable
+  Listener listener;
 
   @observable
   AuthState authState = const AuthState.loggedOut();
@@ -61,6 +62,7 @@ abstract class _AuthStore with Store {
 
       // Do the login.
       await api.login(creds);
+      listener = api.listener;
 
       // Assert that a listener is now set, and set the state to logged in.
       assert(listener != null, 'Login finished, but listener is null!');
@@ -92,6 +94,7 @@ abstract class _AuthStore with Store {
   @action
   Future<void> logout() async {
     await apiStore.api.logout();
+    listener = null;
     authState = const AuthState.loggedOut();
   }
 }
