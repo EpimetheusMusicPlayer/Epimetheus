@@ -1,6 +1,6 @@
-import 'package:audio_service/audio_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:epimetheus/features/playback/entities/queue_display_item.dart';
 import 'package:flutter/material.dart';
 
 class QueueCarousel extends StatelessWidget {
@@ -12,7 +12,7 @@ class QueueCarousel extends StatelessWidget {
   final CarouselController? carouselController;
 
   /// The queue to use.
-  final List<MediaItem> queue;
+  final List<QueueDisplayItem> queue;
 
   /// The height of the images shown.
   final double imageHeight;
@@ -131,7 +131,7 @@ class QueueCarousel extends StatelessWidget {
       ),
       itemCount: queue.length,
       itemBuilder: (context, index) {
-        final String? imageUrl = queue[index].artUri;
+        final String? imageUrl = queue[index].mediaItem.artUri;
         return Material(
           elevation: _calculateElevation(
             index: index,

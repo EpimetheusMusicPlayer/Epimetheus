@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:audio_service/audio_service.dart';
 import 'package:epimetheus/features/playback/entities/audio_task_actions.dart';
 import 'package:epimetheus/features/playback/entities/audio_task_events.dart';
+import 'package:epimetheus/features/playback/entities/audio_task_keys.dart';
 import 'package:epimetheus/features/playback/services/audio_task/audio_task_communicator.dart';
 import 'package:epimetheus/features/playback/services/audio_task/media_sources/media_source.dart';
 import 'package:epimetheus/logging.dart';
@@ -41,10 +42,6 @@ class AudioTask extends BackgroundAudioTask {
   /// ID.
   static const loadingMediaItemId = 'loading';
 
-  /// The [AudioService.currentMediaItem]'s extras will always contain the
-  /// item's index in the queue, assigned to this key.
-  static const mediaItemIndexKey = 'index';
-
   // * Media source
   late Iapetus _iapetus;
   MediaSource? _mediaSource;
@@ -76,7 +73,7 @@ class AudioTask extends BackgroundAudioTask {
         displaySubtitle: 'Loading...',
         displayDescription: '',
         playable: false,
-        extras: {mediaItemIndexKey: 0},
+        extras: {AudioTaskKeys.mediaItemIndex: 0},
       );
 
   // Notification media control properties.
@@ -301,7 +298,7 @@ class AudioTask extends BackgroundAudioTask {
     final index = _mediaSource!.currentQueueIndex;
     AudioServiceBackground.setMediaItem(
       AudioServiceBackground.queue[index].copyWith(
-        extras: {mediaItemIndexKey: index},
+        extras: {AudioTaskKeys.mediaItemIndex: index},
       ),
     );
   }

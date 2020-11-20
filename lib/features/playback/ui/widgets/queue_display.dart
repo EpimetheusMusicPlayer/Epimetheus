@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:epimetheus/features/playback/services/audio_task/audio_task.dart';
+import 'package:epimetheus/features/playback/entities/audio_task_keys.dart';
+import 'package:epimetheus/features/playback/entities/queue_display_item.dart';
 import 'package:epimetheus/features/playback/ui/widgets/queue_carousel.dart';
 import 'package:epimetheus/features/playback/ui/widgets/queue_display_song_controls.dart';
 import 'package:epimetheus/features/playback/ui/widgets/queue_display_song_info.dart';
@@ -21,6 +22,8 @@ class QueueDisplay extends StatefulWidget {
 }
 
 class _QueueDisplayState extends State<QueueDisplay> {
+  final _queueStream = AudioService.queueStream
+      .map<List<QueueDisplayItem>?>(QueueDisplayItem.mapQueue);
   final _carouselController = CarouselController();
 
   late final _initialIndex = _currentlyPlayingQueueIndex;
@@ -33,7 +36,7 @@ class _QueueDisplayState extends State<QueueDisplay> {
   late final StreamSubscription<MediaItem> _subscription;
 
   static int get _currentlyPlayingQueueIndex =>
-      AudioService.currentMediaItem!.extras[AudioTask.mediaItemIndexKey];
+      AudioService.currentMediaItem!.extras[AudioTaskKeys.mediaItemIndex];
 
   /// Starts listening to changes in the currently playing index.
   void _startListening() {
@@ -47,7 +50,7 @@ class _QueueDisplayState extends State<QueueDisplay> {
           return;
         }
 
-        final index = mediaItem.extras[AudioTask.mediaItemIndexKey];
+        final index = mediaItem.extras[AudioTaskKeys.mediaItemIndex];
         if (index == _selectedIndex) return;
         _carouselController.animateToPage(
           index,
@@ -77,8 +80,8 @@ class _QueueDisplayState extends State<QueueDisplay> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<List<MediaItem>>(
-      stream: AudioService.queueStream,
+    return StreamBuilder<List<QueueDisplayItem>?>(
+      stream: _queueStream,
       builder: (context, snapshot) {
         if (snapshot.data == null || snapshot.data!.isEmpty) {
           return const SizedBox();
@@ -114,11 +117,11 @@ class _QueueDisplayState extends State<QueueDisplay> {
                 opacity: Curves.easeOut.transform(1 - _changeFraction.abs()),
                 child: _selectedIndex == _currentlyPlayingQueueIndex
                     ? QueueDisplaySongControls(
-                        mediaItem: snapshot.data![_selectedIndex],
+                        queueItem: snapshot.data![_selectedIndex],
                         isDominantColorDark: widget.isDominantColorDark,
                       )
                     : QueueDisplaySongInfo(
-                        mediaItem: snapshot.data![_selectedIndex],
+                        queueItem: snapshot.data![_selectedIndex],
                         isDominantColorDark: widget.isDominantColorDark,
                       ),
               ),

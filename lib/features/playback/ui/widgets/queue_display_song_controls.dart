@@ -1,15 +1,15 @@
-import 'package:audio_service/audio_service.dart';
+import 'package:epimetheus/features/playback/entities/queue_display_item.dart';
 import 'package:epimetheus/features/playback/ui/widgets/queue_display_song_info.dart';
 import 'package:epimetheus/features/playback/ui/widgets/seekbar.dart';
 import 'package:flutter/material.dart';
 
 class QueueDisplaySongControls extends StatelessWidget {
-  final MediaItem mediaItem;
+  final QueueDisplayItem queueItem;
   final bool isDominantColorDark;
 
   const QueueDisplaySongControls({
     Key? key,
-    required this.mediaItem,
+    required this.queueItem,
     required this.isDominantColorDark,
   }) : super(key: key);
 
@@ -18,7 +18,7 @@ class QueueDisplaySongControls extends StatelessWidget {
     return Column(
       children: [
         QueueDisplaySongInfo(
-          mediaItem: mediaItem,
+          queueItem: queueItem,
           isDominantColorDark: isDominantColorDark,
         ),
         Expanded(
@@ -27,7 +27,7 @@ class QueueDisplaySongControls extends StatelessWidget {
             child: SizedBox(
               width: MediaQuery.of(context).size.width - 32,
               child: Seekbar(
-                mediaItem: mediaItem,
+                mediaItem: queueItem.mediaItem,
                 isDominantColorDark: isDominantColorDark,
               ),
             ),

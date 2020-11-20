@@ -1,4 +1,6 @@
 import 'package:audio_service/audio_service.dart';
+import 'package:epimetheus/features/playback/entities/audio_task_keys.dart';
+import 'package:epimetheus/features/playback/entities/audio_task_lyric_snippet.dart';
 import 'package:epimetheus/features/playback/services/audio_task/media_sources/media_source.dart';
 import 'package:iapetus/iapetus.dart';
 
@@ -100,5 +102,8 @@ extension _StationSongConvertions on StationSong {
         playable: true,
         displayDescription: '$artistName - $albumTitle',
         // TODO rating
+        extras: {
+          AudioTaskKeys.lyricSnippet: lyricSnippet?.toMap(),
+        },
       );
 }

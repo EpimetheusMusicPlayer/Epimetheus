@@ -1,13 +1,14 @@
-import 'package:audio_service/audio_service.dart';
+import 'package:epimetheus/features/playback/entities/queue_display_item.dart';
+import 'package:epimetheus/features/playback/ui/widgets/lyric_card.dart';
 import 'package:flutter/material.dart';
 
 class QueueDisplaySongInfo extends StatelessWidget {
-  final MediaItem mediaItem;
+  final QueueDisplayItem queueItem;
   final bool isDominantColorDark;
 
   const QueueDisplaySongInfo({
     Key? key,
-    required this.mediaItem,
+    required this.queueItem,
     required this.isDominantColorDark,
   }) : super(key: key);
 
@@ -19,11 +20,11 @@ class QueueDisplaySongInfo extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          // mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              mediaItem.title,
+              queueItem.mediaItem.title,
               textScaleFactor: 1.3,
               style: TextStyle(
                 color: foregroundColor,
@@ -32,7 +33,7 @@ class QueueDisplaySongInfo extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              mediaItem.artist,
+              queueItem.mediaItem.artist,
               textScaleFactor: 1.2,
               style: TextStyle(
                 color: foregroundColor,
@@ -40,13 +41,23 @@ class QueueDisplaySongInfo extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              mediaItem.album,
+              queueItem.mediaItem.album,
               textScaleFactor: 1.2,
               style: TextStyle(
                 color: foregroundColor,
                 fontStyle: FontStyle.italic,
               ),
             ),
+            const SizedBox(height: 24),
+            if (queueItem.lyricSnippet != null)
+              SizedBox(
+                width: MediaQuery.of(context).size.width - 72,
+                child: LyricCard(
+                  lyricSnippet: queueItem.lyricSnippet!,
+                  isDominantColorDark: isDominantColorDark,
+                  foregroundColor: foregroundColor,
+                ),
+              )
           ],
         ),
       ),
