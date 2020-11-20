@@ -96,14 +96,25 @@ abstract class _ProxyStore with Store {
     if (selectedProvider == null) return null;
     switch (selectedProvider) {
       case SimpleProxyProvider:
+        if (host == null || port == null) {
+          throw const ProxyNoneFoundException();
+        }
         return SimpleProxyProvider(host, port, username, password);
       case NordVPNProxyProvider:
+        if (username == null || password == null) {
+          throw const ProxyAuthException();
+        }
+
         return NordVPNProxyProvider(
           username: username,
           password: password,
           countryCode: 'US',
         );
       case WebshareProxyProvider:
+        if (username == null) {
+          throw const ProxyAuthException();
+        }
+
         return WebshareProxyProvider(
           apiKey: username,
           countryCode: 'US',
