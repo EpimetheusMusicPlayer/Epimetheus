@@ -58,7 +58,7 @@ class ManualProviderUI extends StatelessWidget {
                   Flexible(
                     flex: 3,
                     child: TextFormField(
-                      initialValue: proxyStore.port.toString(),
+                      initialValue: proxyStore.port?.toString(),
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
                         labelText: 'Port',
