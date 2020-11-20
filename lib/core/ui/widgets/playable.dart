@@ -1,7 +1,6 @@
 import 'package:flutter/widgets.dart';
-import 'package:iapetus/iapetus.dart';
 
-abstract class Playable<T extends PandoraEntity> extends StatelessWidget {
+abstract class Playable<T> extends StatelessWidget {
   final T item;
   final VoidCallback? onPlayPress;
 

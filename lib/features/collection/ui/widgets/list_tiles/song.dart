@@ -1,50 +1,31 @@
-import 'package:epimetheus/core/ui/widgets/playable.dart';
-import 'package:epimetheus/features/collection/ui/widgets/list_tiles/three_line_list_tile.dart';
+import 'package:epimetheus/core/ui/widgets/track_list_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:iapetus/iapetus.dart';
 
-class SongListTile extends Playable<Song> {
+class SongListTile extends StatelessWidget {
+  final Song item;
   final SongAnnotation annotation;
+  final VoidCallback? onPlayPress;
 
   SongListTile(
-    Song item,
+    this.item,
     this.annotation, {
-    VoidCallback? onPlayPress,
-  }) : super(
-          item,
-          onPlayPress: onPlayPress,
-        );
+    this.onPlayPress,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return ThreeLineMediaListTile(
-      artUrl: annotation.art.recommendedUri?.toString(),
-      line1: Text(
-        item.name,
-        softWrap: false,
-        overflow: TextOverflow.ellipsis,
-        style: const TextStyle(
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      line2: Text(
-        annotation.artistName,
-        softWrap: false,
-        overflow: TextOverflow.ellipsis,
-      ),
-      line3: Text(
-        annotation.albumName,
-        softWrap: false,
-        overflow: TextOverflow.ellipsis,
-        style: const TextStyle(
-          fontStyle: FontStyle.italic,
-        ),
-      ),
+    return TrackListTile<Song>(
+      item,
+      name: annotation.name,
+      artistName: annotation.artistName,
+      albumName: annotation.albumName,
       duration: annotation.duration,
       isExplicit: annotation.isExplicit,
+      artUrl: annotation.art.recommendedUri?.toString(),
       onPlayPress: onPlayPress,
     );
   }
 
-  static const separator = ThreeLineListTile.separator;
+  static const separator = TrackListTile.separator;
 }

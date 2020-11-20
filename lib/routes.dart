@@ -3,6 +3,7 @@ import 'package:epimetheus/features/auth/ui/pages/login.dart';
 import 'package:epimetheus/features/auth/ui/pages/splash.dart';
 import 'package:epimetheus/features/collection/ui/pages/collection.dart';
 import 'package:epimetheus/features/playback/ui/pages/now_playing.dart';
+import 'package:epimetheus/features/playback/ui/pages/queue_list.dart';
 import 'package:epimetheus/features/proxy/ui/pages/preferences.dart';
 import 'package:epimetheus/flags.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +19,9 @@ class RouteNames {
   static const login = '/login';
   static const authenticating = '/authenticating';
   static const collection = '/collection';
+
   static const nowPlaying = '/now-playing';
+  static const nowPlayingQueue = '$nowPlaying/queue';
 
   static const _preferencesPrefix = '/preferences';
   static const proxyPreferences = '$_preferencesPrefix/proxy';
@@ -31,6 +34,7 @@ Map<String, WidgetBuilder> get _standardRoutes => {
       RouteNames.authenticating: (_) => const SplashPage(),
       RouteNames.collection: (_) => CollectionPage(),
       RouteNames.nowPlaying: (_) => NowPlayingPage(),
+      RouteNames.nowPlayingQueue: (_) => QueueListPage(),
       RouteNames.proxyPreferences: (_) => const ProxyPreferencesPage(),
     };
 
@@ -41,5 +45,6 @@ Map<String, WidgetBuilder> get _wearRoutes => <String, WidgetBuilder>{
       RouteNames.authenticating: (_) => const SplashPage(),
       RouteNames.collection: (_) => throw UnimplementedError(),
       RouteNames.nowPlaying: (_) => throw UnimplementedError(),
+      RouteNames.nowPlayingQueue: (_) => throw UnimplementedError(),
       RouteNames.proxyPreferences: (_) => throw UnimplementedError(),
     };

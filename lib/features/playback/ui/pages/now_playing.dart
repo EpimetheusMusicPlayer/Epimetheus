@@ -53,6 +53,14 @@ class NowPlayingPage extends StatelessWidget {
                   elevation: isAudioServiceRunning ? 0 : null,
                   backgroundColor:
                       isAudioServiceRunning ? Colors.transparent : null,
+                  actions: [
+                    IconButton(
+                      icon: const Icon(Icons.queue_music_rounded),
+                      tooltip: 'Queue',
+                      onPressed: () => Navigator.of(context)!
+                          .pushNamed(RouteNames.nowPlayingQueue),
+                    )
+                  ],
                 ),
                 body: isAudioServiceRunning
                     ? NowPlayingContent(

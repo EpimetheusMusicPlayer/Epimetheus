@@ -1,4 +1,5 @@
 import 'package:epimetheus/core/ui/utils/sharing.dart';
+import 'package:epimetheus/core/ui/widgets/list_footer_message.dart';
 import 'package:epimetheus/core/ui/widgets/menu_items.dart';
 import 'package:epimetheus/core/ui/widgets/positional_menu_wrapper.dart';
 import 'package:epimetheus/features/collection/entities/collected_item.dart';
@@ -212,12 +213,12 @@ class _CategoryTabState<I extends CollectionItem, A extends Annotation>
           );
         },
         newPageErrorIndicatorBuilder: (context) {
-          return _FooterMessage(_pagingController.error.toString());
+          return ListFooterMessage(_pagingController.error.toString());
         },
         firstPageProgressIndicatorBuilder: (context) {
           return const TabProgressIndicator();
         },
-        newPageProgressIndicatorBuilder: (context) => _FooterMessage(
+        newPageProgressIndicatorBuilder: (context) => ListFooterMessage(
           'Loading more ${_categoryStore.typeName}s...',
         ),
         noItemsFoundIndicatorBuilder: (context) {
@@ -246,30 +247,6 @@ class _CategoryTabState<I extends CollectionItem, A extends Annotation>
               },
             )
           : _buildListView(),
-    );
-  }
-}
-
-class _FooterMessage extends StatelessWidget {
-  final String message;
-
-  const _FooterMessage(
-    this.message, {
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Center(
-        child: Text(
-          message,
-          style: const TextStyle(
-            color: Colors.black54,
-          ),
-        ),
-      ),
     );
   }
 }

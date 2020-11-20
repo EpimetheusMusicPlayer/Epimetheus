@@ -25,6 +25,7 @@ class QueueDisplaySongInfo extends StatelessWidget {
           children: [
             Text(
               queueItem.mediaItem.title,
+              textAlign: TextAlign.center,
               textScaleFactor: 1.3,
               style: TextStyle(
                 color: foregroundColor,
@@ -34,6 +35,7 @@ class QueueDisplaySongInfo extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               queueItem.mediaItem.artist,
+              textAlign: TextAlign.center,
               textScaleFactor: 1.2,
               style: TextStyle(
                 color: foregroundColor,
@@ -42,6 +44,7 @@ class QueueDisplaySongInfo extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               queueItem.mediaItem.album,
+              textAlign: TextAlign.center,
               textScaleFactor: 1.2,
               style: TextStyle(
                 color: foregroundColor,

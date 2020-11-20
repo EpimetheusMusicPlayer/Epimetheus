@@ -1,5 +1,5 @@
 import 'package:epimetheus/core/ui/widgets/playable.dart';
-import 'package:epimetheus/features/collection/ui/widgets/list_tiles/three_line_list_tile.dart';
+import 'package:epimetheus/core/ui/widgets/three_line_list_tile.dart';
 import 'package:fast_marquee/fast_marquee.dart';
 import 'package:flutter/material.dart';
 import 'package:iapetus/iapetus.dart';
