@@ -23,7 +23,7 @@ class QueueDisplay extends StatefulWidget {
 }
 
 class _QueueDisplayState extends State<QueueDisplay> {
-  static const _carouselSkipDuration = Duration(milliseconds: 200);
+  static const _carouselSkipDurationMillis = 200;
 
   final _queueStream = AudioService.queueStream
       .map<List<QueueDisplayItem>?>(QueueDisplayItem.mapQueue);
@@ -49,7 +49,7 @@ class _QueueDisplayState extends State<QueueDisplay> {
   void _selectIndex(int index) {
     _carouselController.animateToPage(
       index,
-      duration: _carouselSkipDuration,
+      duration: const Duration(milliseconds: _carouselSkipDurationMillis),
       curve: QueueCarousel.transitionCurve,
     );
   }
@@ -75,8 +75,12 @@ class _QueueDisplayState extends State<QueueDisplay> {
         // This results in the old item showing the controls until it fades out
         // halfway through the transition, instead of jarringly changing to the
         // return chip before transitioning.
+        //
+        // Setting the state isn't needed, as the value is accessed every frame
+        // during a build invoked by a gesture.
         _isSkipping = true;
-        Future.delayed(_carouselSkipDuration ~/ 2)
+        Future.delayed(
+                const Duration(milliseconds: _carouselSkipDurationMillis ~/ 2))
             .then((_) => _isSkipping = false);
 
         _selectIndex(index);
