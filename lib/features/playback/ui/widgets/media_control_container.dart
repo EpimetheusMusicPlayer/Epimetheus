@@ -44,6 +44,14 @@ class _MediaControlBar extends StatelessWidget {
 
   _MediaControlBar(this._mediaItem);
 
+  Widget _buildImagePlaceholder() {
+    return Image.asset(
+      'assets/music_note.png',
+      width: 64,
+      height: 64,
+    );
+  }
+
   Widget _buildMetadataDisplay() {
     return Padding(
       padding: const EdgeInsets.only(
@@ -56,11 +64,12 @@ class _MediaControlBar extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           _mediaItem.artUri == null
-              ? const SizedBox(width: 64, height: 64)
+              ? _buildImagePlaceholder()
               : CachedNetworkImage(
                   imageUrl: _mediaItem.artUri,
                   width: 64,
                   height: 64,
+                  placeholder: (context, url) => _buildImagePlaceholder(),
                 ),
           const SizedBox(width: 16),
           Expanded(
@@ -101,7 +110,7 @@ class _MediaControlBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
-      decoration: BoxDecoration(color: Theme.of(context)!.primaryColor),
+      decoration: BoxDecoration(color: Theme.of(context).primaryColor),
       child: Column(
         children: [
           GestureDetector(
