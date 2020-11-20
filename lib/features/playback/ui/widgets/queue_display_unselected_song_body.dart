@@ -33,22 +33,28 @@ class QueueDisplayUnselectedSongBody extends StatelessWidget {
             alignment: Alignment.bottomCenter,
             child: Padding(
               padding: const EdgeInsets.all(16),
-              child: ActionChip(
-                avatar: CircleAvatar(
-                  backgroundImage: CachedNetworkImageProvider(
-                    playingMediaItem.artUri,
+              child: Opacity(
+                // The chip seems to change slightly when opacity is applied to
+                // it. As a workaround, opacity is always applied to maintain
+                // visual consistency.
+                opacity: 0.99,
+                child: ActionChip(
+                  avatar: CircleAvatar(
+                    backgroundImage: CachedNetworkImageProvider(
+                      playingMediaItem.artUri,
+                    ),
                   ),
+                  label: Text(
+                    'Now playing: ${playingMediaItem.title} by ${playingMediaItem.artist}',
+                  ),
+                  backgroundColor: dominantColor.withAlpha(200),
+                  labelStyle: TextStyle(
+                    color: isDominantColorDark ? Colors.white : Colors.black,
+                  ),
+                  elevation: 2,
+                  pressElevation: 1,
+                  onPressed: selectPlaying,
                 ),
-                label: Text(
-                  'Now playing: ${playingMediaItem.title} by ${playingMediaItem.artist}',
-                ),
-                backgroundColor: dominantColor.withAlpha(200),
-                labelStyle: TextStyle(
-                  color: isDominantColorDark ? Colors.white : Colors.black,
-                ),
-                elevation: 2,
-                pressElevation: 1,
-                onPressed: selectPlaying,
               ),
             ),
           ),
