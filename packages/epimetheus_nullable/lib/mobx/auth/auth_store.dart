@@ -52,9 +52,13 @@ abstract class _AuthStore with Store {
     // Get the API object.
     final api = apiStore.api;
 
-    // Retrieve the credentials, aborting if they're null.
+    // Retrieve the credentials, logging out if they're null.
     final creds = await getCreds(api);
-    if (!creds.hasRequiredLoginCredentials) return;
+    if (!creds.hasRequiredLoginCredentials) {
+      if (api.isAuthenticated) await api.logout();
+      listener = null;
+      authState = const AuthState.loggedOut();
+    }
 
     try {
       // Configure the proxy.
