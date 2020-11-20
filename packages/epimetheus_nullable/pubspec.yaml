@@ -41,7 +41,8 @@ dependencies:
   # Audio service
   audio_service:
     git:
-      url: 'https://github.com/hacker1024/audio_service'
+      url: 'https://github.com/ryanheise/audio_service'
+      ref: '47e6a88dfce9ac3ab226e124f717d1484da3ed0e'
 
 dev_dependencies:
   #  flutter_test:

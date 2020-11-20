@@ -6,14 +6,14 @@ publish_to: 'none'
 version: 0.1.0+1
 
 environment:
-  sdk: ">=2.11.0-260.0.dev <3.0.0"
+  sdk: ">=2.12.0-29.10.beta <3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
 
   # Language
-  pedantic: ^1.10.0-nullsafety.2
+  pedantic: ^1.10.0-nullsafety.3
 
   # Nullable code
   epimetheus_nullable:
@@ -49,12 +49,12 @@ dependencies:
     git:
       url: 'git://github.com/jawad12345A/esys-flutter-share.git'
       ref: '148e664e0bff7c61266e74104950ae9abe3d1e61'
-  popup_menu_title: 1.0.0-nullsafety.2
+  popup_menu_title: ^1.1.0-nullsafety.1
   prompt_dialog: ^0.1.1
   cached_network_image: ^2.3.3
   flare_flutter: ^2.0.6
-  url_launcher: ^6.0.0-nullsafety
-  scroll_snap_list: ^0.5.1
+  url_launcher: ^6.0.0-nullsafety.1
+  carousel_slider: ^2.3.1
   flutter_visualizers: ^0.0.2
 
   # Logging
@@ -72,7 +72,8 @@ dependencies:
   # Audio
   audio_service:
     git:
-      url: 'https://github.com/hacker1024/audio_service'
+      url: 'https://github.com/ryanheise/audio_service'
+      ref: '47e6a88dfce9ac3ab226e124f717d1484da3ed0e'
   just_audio: ^0.5.6
 
 dependency_overrides:

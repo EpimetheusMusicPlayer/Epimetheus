@@ -3,3 +3,5 @@ include: package:pedantic/analysis_options.yaml
 analyzer:
   enable-experiment:
     - non-nullable
+  errors:
+    import_of_legacy_library_into_null_safe: ignore

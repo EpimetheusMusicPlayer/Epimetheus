@@ -2,9 +2,10 @@ import 'package:audio_service/audio_service.dart';
 import 'package:epimetheus/features/navigation/ui/widgets/navigation_drawer.dart';
 import 'package:epimetheus/features/playback/ui/widgets/embedded_media_controls.dart';
 import 'package:epimetheus/features/playback/ui/widgets/nothing_playing_display.dart';
-import 'package:epimetheus/features/playback/ui/widgets/queue_carousel.dart';
+import 'package:epimetheus/features/playback/ui/widgets/queue_display.dart';
 import 'package:epimetheus/routes.dart';
 import 'package:epimetheus_nullable/mobx/playback/playback_store.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:get_it/get_it.dart';
@@ -36,11 +37,11 @@ class NowPlayingPage extends StatelessWidget {
         return Observer(
           builder: (context) {
             final dominantColor =
-                playbackStore.dominantColor ?? Theme.of(context)!.primaryColor;
+                playbackStore.dominantColor ?? Theme.of(context).primaryColor;
             final isDominantColorDark = playbackStore.isDominantColorDark;
 
             return Theme(
-              data: Theme.of(context)!.copyWith(
+              data: Theme.of(context).copyWith(
                 appBarTheme:
                     isDominantColorDark ? _darkAppBarTheme : _lightAppBarTheme,
               ),
@@ -89,7 +90,7 @@ class NowPlayingContent extends StatelessWidget {
           child: Column(
             children: [
               Expanded(
-                child: QueueCarousel(isDominantColorDark: isDominantColorDark),
+                child: QueueDisplay(isDominantColorDark: isDominantColorDark),
               ),
               const EmbeddedMediaControls(dynamicColors: true),
             ],

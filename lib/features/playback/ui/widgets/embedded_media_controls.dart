@@ -43,7 +43,7 @@ class _EmbeddedMediaControlsState extends State<EmbeddedMediaControls>
   void initState() {
     super.initState();
     _playbackStateListener =
-        AudioService.playbackStateStream.listen((playbackState) {
+        AudioService.playbackStateStream.listen((PlaybackState? playbackState) {
       if (playbackState == null) return;
       if (playbackState.playing) {
         _playPauseController.reverse();

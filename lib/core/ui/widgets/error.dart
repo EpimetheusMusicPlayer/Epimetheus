@@ -27,7 +27,7 @@ Future<void> showErrorDialog({
             : [
                 for (var i = actionLabels.length - 1; i >= 0; --i)
                   FlatButton(
-                    textColor: Theme.of(context)!.accentColor,
+                    textColor: Theme.of(context).accentColor,
                     onPressed: () => actions[i](
                       closeErrorWindow: () => Navigator.of(context)!.pop(),
                     ),

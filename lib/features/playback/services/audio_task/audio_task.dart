@@ -1,9 +1,13 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
+import 'package:epimetheus/features/playback/entities/audio_task_actions.dart';
+import 'package:epimetheus/features/playback/entities/audio_task_events.dart';
 import 'package:epimetheus/features/playback/services/audio_task/audio_task_communicator.dart';
 import 'package:epimetheus/features/playback/services/audio_task/media_sources/media_source.dart';
 import 'package:epimetheus/logging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:iapetus/iapetus.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:logger/logger.dart';
@@ -44,6 +48,8 @@ class AudioTask extends BackgroundAudioTask {
   // * Media source
   late Iapetus _iapetus;
   MediaSource? _mediaSource;
+  Future<List<MediaItem>>? _loadFuture;
+  bool _isLoadingForSkip = false;
 
   // * Audio player
   final _player = AudioPlayer();
@@ -51,6 +57,9 @@ class AudioTask extends BackgroundAudioTask {
   StreamSubscription<int>? _playerCurrentIndexSubscription;
   StreamSubscription<bool>? _playerPlayingSubscription;
   StreamSubscription<ProcessingState>? _playerProcessingStateSubscription;
+  StreamSubscription<int>? _playerAndroidAudioSessionIdSubscription;
+
+  static bool get broadcastMediaSessionId => !kIsWeb && Platform.isAndroid;
 
   // * Communication
   late StreamSubscription<dynamic> _communicatorSubscription;
@@ -83,7 +92,11 @@ class AudioTask extends BackgroundAudioTask {
       androidIcon: 'drawable/ic_rewind',
       action: MediaAction.rewind,
     ),
-    null, // Filled in with a play or pause action later.
+    const MediaControl(
+      label: 'Pause',
+      androidIcon: 'drawable/ic_pause',
+      action: MediaAction.pause,
+    ),
     const MediaControl(
       label: 'Fast-forward',
       androidIcon: 'drawable/ic_fast_forward',
@@ -215,13 +228,20 @@ class AudioTask extends BackgroundAudioTask {
 
   /// Loads the next page of media, provided by the media source.
   Future<void> _loadNextPage([bool initialLoad = false]) async {
+    // Don't load multiple pages at once.
+    if (_loadFuture != null) {
+      await _loadFuture;
+      return;
+    }
+
     try {
       // Record the existing audio service queue size, used later in calculations.
       final oldQueueSize = AudioServiceBackground.queue.length;
 
       // Load the next page of media from the source.
       // TODO background task load error handling?
-      final nextPage = await _mediaSource!.load(_iapetus, initialLoad);
+      _loadFuture = _mediaSource!.load(_iapetus, initialLoad);
+      final nextPage = await _loadFuture!;
 
       // Set the audio service queue.
       await AudioServiceBackground.setQueue(
@@ -253,7 +273,26 @@ class AudioTask extends BackgroundAudioTask {
     } on InvalidatedMediaSourceSessionException {
       logger.log(Level.warning, 'Stopping audio task; session invalidated.');
       await AudioService.stop();
+    } finally {
+      _loadFuture = null;
     }
+  }
+
+  /// Prepares for a skip.
+  ///
+  /// Ensures that media exists at the given index.
+  /// May stop the service if no media exists.
+  ///
+  /// Returns true if the callee should proceed to skip, and false if it
+  /// shouldn't (when a skip is already in progress).
+  Future<bool> _prepareForSkip(int index) async {
+    if (index >= AudioServiceBackground.queue.length) {
+      if (_isLoadingForSkip) return false;
+      _isLoadingForSkip = true;
+      await _loadNextPage();
+      _isLoadingForSkip = false;
+    }
+    return true;
   }
 
   /// Synchronises the audio service metadata with the currently playing
@@ -300,9 +339,16 @@ class AudioTask extends BackgroundAudioTask {
 
   void _listenToPlayerEvents() {
     _playerCurrentIndexSubscription = _player.currentIndexStream.listen(
-      (index) async {
+      (int? index) async {
         // Sometimes, the index can be null. Ignore it if it is.
         if (index == null) return;
+
+        // Assert that the player's new index is smaller than the length of the
+        // queue.
+        assert(
+          index < AudioServiceBackground.queue.length,
+          'Player skipped with nothing to skip to!',
+        );
 
         // Update the player volume to match the song.
         unawaited(_player.setVolume(_mediaSource!.getVolumeFor(index) * 0.5));
@@ -359,12 +405,26 @@ class AudioTask extends BackgroundAudioTask {
         }
       },
     );
+
+    if (broadcastMediaSessionId) {
+      _playerAndroidAudioSessionIdSubscription =
+          _player.androidAudioSessionIdStream.listen(
+        (id) {
+          AudioServiceBackground.sendCustomEvent(
+            AndroidAudioSessionIdChanged(id),
+          );
+        },
+      );
+    }
   }
 
   void _cancelPlayerEventSubscriptions() {
     _playerCurrentIndexSubscription?.cancel();
     _playerPlayingSubscription?.cancel();
     _playerProcessingStateSubscription?.cancel();
+    if (broadcastMediaSessionId) {
+      _playerAndroidAudioSessionIdSubscription?.cancel();
+    }
   }
 
   @override
@@ -397,7 +457,27 @@ class AudioTask extends BackgroundAudioTask {
   Future<void> onPause() => _player.pause();
 
   @override
-  Future<void> onSkipToNext() => _player.seekToNext();
+  Future<void> onSkipToNext() async {
+    if (await _prepareForSkip(_mediaSource!.currentQueueIndex + 1)) {
+      // TODO this should skip once the next page is loaded, but it doesn't.
+      // Work out why.
+      await _player.seekToNext();
+    }
+  }
+
+  @override
+  // TODO test this function (onSkipToQueueItem)
+  Future<void> onSkipToQueueItem(String mediaId) async {
+    final queue = AudioServiceBackground.queue;
+    for (var i = 0; i < queue.length; ++i) {
+      if (queue[i].id == mediaId && i > _mediaSource!.currentQueueIndex) {
+        if (await _prepareForSkip(i)) {
+          await _player.seek(Duration.zero, index: i);
+        }
+        break;
+      }
+    }
+  }
 
   @override
   Future<void> onFastForward() =>
@@ -424,6 +504,18 @@ class AudioTask extends BackgroundAudioTask {
 
       case MediaButton.previous:
         break;
+    }
+  }
+
+  @override
+  Future<dynamic> onCustomAction(String name, arguments) async {
+    switch (name) {
+      case AudioTaskActions.getAndroidAudioSessionId:
+        assert(broadcastMediaSessionId,
+            'Can only get android session ID on some platforms!');
+        return _player.androidAudioSessionId;
+      default:
+        throw UnsupportedError('Custom action $name is not known!');
     }
   }
 
