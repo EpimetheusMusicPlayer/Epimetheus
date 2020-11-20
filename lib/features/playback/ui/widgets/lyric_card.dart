@@ -21,37 +21,12 @@ class LyricCard extends StatelessWidget {
     );
 
     final lines = [...lyricSnippet.lines, '\u2026'];
-    // final backgroundColor = Colors.white.withAlpha(30);
+    final backgroundColor = Colors.white.withAlpha(30);
 
-    // return Card(
-    //   color: backgroundColor,
-    //   shadowColor: backgroundColor,
-    //   elevation: 10,
-    //   child: Padding(
-    //     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-    //     child: ListView.builder(
-    //       shrinkWrap: true,
-    //       itemCount: lines.length,
-    //       itemBuilder: (context, index) {
-    //         return Text(
-    //           lines[index],
-    //           style: textStyle,
-    //           textAlign: TextAlign.center,
-    //           textScaleFactor: 1.1,
-    //           // maxLines: 1,
-    //           // softWrap: false,
-    //           overflow: TextOverflow.fade,
-    //         );
-    //       },
-    //     ),
-    //   ),
-    // );
-
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: Colors.white.withAlpha(30),
-        borderRadius: const BorderRadius.all(Radius.circular(10)),
-      ),
+    return Card(
+      color: backgroundColor,
+      shadowColor: backgroundColor,
+      elevation: 10,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: ListView.builder(
