@@ -5,8 +5,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:epimetheus/features/playback/entities/audio_task_keys.dart';
 import 'package:epimetheus/features/playback/entities/queue_display_item.dart';
 import 'package:epimetheus/features/playback/ui/widgets/queue_carousel.dart';
-import 'package:epimetheus/features/playback/ui/widgets/queue_display_selected_song_body.dart';
-import 'package:epimetheus/features/playback/ui/widgets/queue_display_unselected_song_body.dart';
+import 'package:epimetheus/features/playback/ui/widgets/queue_display_song_controls.dart';
 import 'package:flutter/material.dart';
 
 class QueueDisplay extends StatefulWidget {
@@ -24,6 +23,8 @@ class QueueDisplay extends StatefulWidget {
 }
 
 class _QueueDisplayState extends State<QueueDisplay> {
+  static const _carouselSkipDuration = Duration(milliseconds: 200);
+
   final _queueStream = AudioService.queueStream
       .map<List<QueueDisplayItem>?>(QueueDisplayItem.mapQueue);
   final _carouselController = CarouselController();
@@ -33,6 +34,10 @@ class _QueueDisplayState extends State<QueueDisplay> {
   late int _selectedIndex = _initialIndex;
   double _changeFraction = 0;
 
+  /// True if the carousel is in the middle of skipping based on an event from
+  /// the audio service.
+  bool _isSkipping = false;
+
   /// The subscription used to listen to changes in the currently playing index.
   /// Assigned in [_startListening], and cancelled in [_stopListening].
   late final StreamSubscription<MediaItem> _subscription;
@@ -41,12 +46,10 @@ class _QueueDisplayState extends State<QueueDisplay> {
       AudioService.currentMediaItem!.extras[AudioTaskKeys.mediaItemIndex];
 
   /// Selects the given playing media item.
-  void _selectPlayingMediaItem(MediaItem playingMediaItem) {
-    final index = playingMediaItem.extras[AudioTaskKeys.mediaItemIndex];
-    if (index == _selectedIndex) return;
+  void _selectIndex(int index) {
     _carouselController.animateToPage(
       index,
-      duration: const Duration(milliseconds: 200),
+      duration: _carouselSkipDuration,
       curve: QueueCarousel.transitionCurve,
     );
   }
@@ -63,7 +66,20 @@ class _QueueDisplayState extends State<QueueDisplay> {
           return;
         }
 
-        _selectPlayingMediaItem(mediaItem);
+        // Do nothing if the new index is already selected.
+        final index = mediaItem.extras[AudioTaskKeys.mediaItemIndex];
+        if (index == _selectedIndex) return;
+
+        // Set _isSkipping to true, and change it back halfway through the
+        // carousel transition.
+        // This results in the old item showing the controls until it fades out
+        // halfway through the transition, instead of jarringly changing to the
+        // return chip before transitioning.
+        _isSkipping = true;
+        Future.delayed(_carouselSkipDuration ~/ 2)
+            .then((_) => _isSkipping = false);
+
+        _selectIndex(index);
       },
     );
   }
@@ -95,6 +111,13 @@ class _QueueDisplayState extends State<QueueDisplay> {
         }
 
         final imageHeight = MediaQuery.of(context).size.shortestSide / 1.5;
+        final transitionOpacity =
+            Curves.easeOut.transform(1 - _changeFraction.abs());
+
+        // Keep the old item selected until the skip finishes completely.
+        final uiCurrentlyPlayingQueueIndex = (_isSkipping
+            ? _currentlyPlayingQueueIndex - 1
+            : _currentlyPlayingQueueIndex);
 
         return Column(
           children: [
@@ -120,23 +143,26 @@ class _QueueDisplayState extends State<QueueDisplay> {
               ),
             ),
             Expanded(
-              child: Opacity(
-                opacity: Curves.easeOut.transform(1 - _changeFraction.abs()),
-                child: _selectedIndex == _currentlyPlayingQueueIndex
-                    ? QueueDisplaySelectedSongBody(
-                        queueItem: snapshot.data![_selectedIndex],
-                        isDominantColorDark: widget.isDominantColorDark,
-                      )
-                    : QueueDisplayUnselectedSongBody(
-                        playingMediaItem: AudioService.currentMediaItem,
-                        selectedQueueItem: snapshot.data![_selectedIndex],
-                        dominantColor: widget.dominantColor,
-                        isDominantColorDark: widget.isDominantColorDark,
-                        selectPlaying: () {
-                          _selectPlayingMediaItem(
-                              AudioService.currentMediaItem);
-                        },
-                      ),
+              child: QueueDisplaySongControls(
+                selected: _selectedIndex == uiCurrentlyPlayingQueueIndex,
+                isSelectedChanging:
+                    (uiCurrentlyPlayingQueueIndex == _selectedIndex &&
+                            _changeFraction != 0) ||
+                        (uiCurrentlyPlayingQueueIndex == _selectedIndex - 1 &&
+                            _changeFraction < 0) ||
+                        (uiCurrentlyPlayingQueueIndex == _selectedIndex + 1 &&
+                            _changeFraction > 0),
+                transitionOpacity: transitionOpacity,
+                playingMediaItem: AudioService.currentMediaItem,
+                selectedQueueItem: snapshot.data![_selectedIndex],
+                dominantColor: widget.dominantColor,
+                isDominantColorDark: widget.isDominantColorDark,
+                selectPlaying: () {
+                  _selectIndex(
+                    AudioService
+                        .currentMediaItem.extras[AudioTaskKeys.mediaItemIndex],
+                  );
+                },
               ),
             ),
           ],
