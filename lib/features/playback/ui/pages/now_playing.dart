@@ -90,7 +90,10 @@ class NowPlayingContent extends StatelessWidget {
           child: Column(
             children: [
               Expanded(
-                child: QueueDisplay(isDominantColorDark: isDominantColorDark),
+                child: QueueDisplay(
+                  dominantColor: dominantColor,
+                  isDominantColorDark: isDominantColorDark,
+                ),
               ),
               const EmbeddedMediaControls(dynamicColors: true),
             ],

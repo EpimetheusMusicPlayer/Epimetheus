@@ -3,11 +3,11 @@ import 'package:epimetheus/features/playback/ui/widgets/queue_display_song_info.
 import 'package:epimetheus/features/playback/ui/widgets/seekbar.dart';
 import 'package:flutter/material.dart';
 
-class QueueDisplaySongControls extends StatelessWidget {
+class QueueDisplaySelectedSongBody extends StatelessWidget {
   final QueueDisplayItem queueItem;
   final bool isDominantColorDark;
 
-  const QueueDisplaySongControls({
+  const QueueDisplaySelectedSongBody({
     Key? key,
     required this.queueItem,
     required this.isDominantColorDark,

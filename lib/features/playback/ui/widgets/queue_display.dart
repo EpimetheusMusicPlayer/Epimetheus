@@ -5,15 +5,17 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:epimetheus/features/playback/entities/audio_task_keys.dart';
 import 'package:epimetheus/features/playback/entities/queue_display_item.dart';
 import 'package:epimetheus/features/playback/ui/widgets/queue_carousel.dart';
-import 'package:epimetheus/features/playback/ui/widgets/queue_display_song_controls.dart';
-import 'package:epimetheus/features/playback/ui/widgets/queue_display_song_info.dart';
+import 'package:epimetheus/features/playback/ui/widgets/queue_display_selected_song_body.dart';
+import 'package:epimetheus/features/playback/ui/widgets/queue_display_unselected_song_body.dart';
 import 'package:flutter/material.dart';
 
 class QueueDisplay extends StatefulWidget {
+  final Color dominantColor;
   final bool isDominantColorDark;
 
   const QueueDisplay({
     Key? key,
+    required this.dominantColor,
     required this.isDominantColorDark,
   }) : super(key: key);
 
@@ -38,6 +40,17 @@ class _QueueDisplayState extends State<QueueDisplay> {
   static int get _currentlyPlayingQueueIndex =>
       AudioService.currentMediaItem!.extras[AudioTaskKeys.mediaItemIndex];
 
+  /// Selects the given playing media item.
+  void _selectPlayingMediaItem(MediaItem playingMediaItem) {
+    final index = playingMediaItem.extras[AudioTaskKeys.mediaItemIndex];
+    if (index == _selectedIndex) return;
+    _carouselController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 200),
+      curve: QueueCarousel.transitionCurve,
+    );
+  }
+
   /// Starts listening to changes in the currently playing index.
   void _startListening() {
     _subscription = AudioService.currentMediaItemStream.listen(
@@ -50,13 +63,7 @@ class _QueueDisplayState extends State<QueueDisplay> {
           return;
         }
 
-        final index = mediaItem.extras[AudioTaskKeys.mediaItemIndex];
-        if (index == _selectedIndex) return;
-        _carouselController.animateToPage(
-          index,
-          duration: const Duration(milliseconds: 200),
-          curve: QueueCarousel.transitionCurve,
-        );
+        _selectPlayingMediaItem(mediaItem);
       },
     );
   }
@@ -116,13 +123,19 @@ class _QueueDisplayState extends State<QueueDisplay> {
               child: Opacity(
                 opacity: Curves.easeOut.transform(1 - _changeFraction.abs()),
                 child: _selectedIndex == _currentlyPlayingQueueIndex
-                    ? QueueDisplaySongControls(
+                    ? QueueDisplaySelectedSongBody(
                         queueItem: snapshot.data![_selectedIndex],
                         isDominantColorDark: widget.isDominantColorDark,
                       )
-                    : QueueDisplaySongInfo(
-                        queueItem: snapshot.data![_selectedIndex],
+                    : QueueDisplayUnselectedSongBody(
+                        playingMediaItem: AudioService.currentMediaItem,
+                        selectedQueueItem: snapshot.data![_selectedIndex],
+                        dominantColor: widget.dominantColor,
                         isDominantColorDark: widget.isDominantColorDark,
+                        selectPlaying: () {
+                          _selectPlayingMediaItem(
+                              AudioService.currentMediaItem);
+                        },
                       ),
               ),
             ),
