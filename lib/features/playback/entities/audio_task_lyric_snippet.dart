@@ -16,9 +16,7 @@ class AudioTaskLyricSnippet extends LyricSnippet {
           lyricId: map[_lyricIdKey],
           checksum: map[_checksumKey],
           nonExplicit: map[_nonExplicitKey],
-        ) {
-    print('Creating!');
-  }
+        );
 }
 
 extension AudioTaskLyricSnippetExtensions on LyricSnippet {
