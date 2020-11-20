@@ -42,22 +42,22 @@ class _ProxyPreferencesPageState extends State<ProxyPreferencesPage> {
       },
       child: GestureDetector(
         onTap: FocusScope.of(context).unfocus,
-        child: Observer(
-          builder: (context) {
-            if (_proxyStore.loading) return const SizedBox();
-
-            final Type? selectedProvider = _proxyStore.selectedProvider;
-            return Scaffold(
-              appBar: AppBar(
-                title: const Text('Proxy preferences'),
-                actions: [
-                  IconButton(
-                    icon: const Icon(Icons.refresh),
-                    onPressed: _formKey.currentState?.reset,
-                  ),
-                ],
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text('Proxy preferences'),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.refresh),
+                onPressed: _formKey.currentState?.reset,
               ),
-              body: Column(
+            ],
+          ),
+          body: Observer(
+            builder: (context) {
+              if (_proxyStore.loading) return const SizedBox();
+
+              final Type? selectedProvider = _proxyStore.selectedProvider;
+              return Column(
                 children: [
                   const ProxyInfoListTile(),
                   const SizedBox(height: 16),
@@ -130,9 +130,9 @@ class _ProxyPreferencesPageState extends State<ProxyPreferencesPage> {
                     ),
                   ),
                 ],
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );

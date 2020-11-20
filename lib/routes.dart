@@ -3,7 +3,7 @@ import 'package:epimetheus/features/auth/ui/pages/login.dart';
 import 'package:epimetheus/features/auth/ui/pages/splash.dart';
 import 'package:epimetheus/features/collection/ui/pages/collection.dart';
 import 'package:epimetheus/features/playback/ui/pages/now_playing.dart';
-import 'package:epimetheus/features/proxy/pages/preferences.dart';
+import 'package:epimetheus/features/proxy/ui/pages/preferences.dart';
 import 'package:epimetheus/flags.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
