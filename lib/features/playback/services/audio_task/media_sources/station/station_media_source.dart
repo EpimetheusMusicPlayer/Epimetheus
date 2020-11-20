@@ -96,7 +96,7 @@ extension _StationSongConvertions on StationSong {
         artist: artistName,
         genre: genre.isEmpty ? null : genre.first,
         duration: trackLength,
-        artUri: art.recommendedUri.toString(),
+        artUri: art.recommendedUri?.toString(),
         playable: true,
         displayDescription: '$artistName - $albumTitle',
         // TODO rating
