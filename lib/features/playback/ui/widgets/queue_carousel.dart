@@ -87,24 +87,6 @@ class QueueCarousel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // return queue[selectedIndex].artUri == null
-    //     ? _buildImagePlaceholder()
-    //     : Material(
-    //         elevation: _calculateElevation(
-    //           index: selectedIndex,
-    //           baseElevation: 3,
-    //           variableElevation: 5,
-    //           curve: QueueCarousel.transitionCurve,
-    //         ),
-    //         animationDuration: Duration.zero,
-    //         color: Colors.transparent,
-    //         child: CachedNetworkImage(
-    //           imageUrl: queue[selectedIndex].artUri,
-    //           placeholder: (context, url) => _buildImagePlaceholder(),
-    //           width: imageSize,
-    //           height: imageSize,
-    //         ),
-    //       );
     return CarouselSlider.builder(
       carouselController: carouselController,
       options: CarouselOptions(
