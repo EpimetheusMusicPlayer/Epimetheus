@@ -38,11 +38,13 @@ class QueueDisplaySongControls extends StatelessWidget {
           // visual consistency.
           opacity: (selected ? 0 : 0.99),
           child: ActionChip(
-            avatar: CircleAvatar(
-              backgroundImage: CachedNetworkImageProvider(
-                playingMediaItem.artUri,
-              ),
-            ),
+            avatar: playingMediaItem.artUri == null
+                ? null
+                : CircleAvatar(
+                    backgroundImage: CachedNetworkImageProvider(
+                      playingMediaItem.artUri,
+                    ),
+                  ),
             label: Text(
               'Now playing: ${playingMediaItem.title} by ${playingMediaItem.artist}',
             ),
