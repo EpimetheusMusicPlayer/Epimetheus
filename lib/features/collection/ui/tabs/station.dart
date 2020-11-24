@@ -1,9 +1,12 @@
 import 'package:epimetheus/core/ui/utils/sharing.dart';
 import 'package:epimetheus/core/ui/widgets/menu_items.dart';
 import 'package:epimetheus/core/ui/widgets/positional_menu_wrapper.dart';
+import 'package:epimetheus/core/ui/widgets/sort_icon.dart';
 import 'package:epimetheus/features/collection/ui/utils/collection_modifications.dart';
 import 'package:epimetheus/features/collection/ui/widgets/list_tiles/station.dart';
 import 'package:epimetheus/features/collection/ui/widgets/list_wrapper.dart';
+import 'package:epimetheus/features/collection/ui/widgets/sorting/station_sort_dialog.dart';
+import 'package:epimetheus/features/collection/ui/widgets/sorting/station_sort_icons.dart';
 import 'package:epimetheus/routes.dart';
 import 'package:epimetheus_nullable/mobx/collection/collection_store.dart';
 import 'package:flutter/foundation.dart';
@@ -39,31 +42,63 @@ class _StationTabState extends State<StationTab>
 
     final stationStore = widget._collectionStore.stations;
 
-    return Observer(
-      builder: (context) {
-        return TabListWrapper(
-          typeName: 'station',
-          hasError: stationStore.hasError,
-          errorMessage: stationStore.errorMessage,
-          showProgressIndicator:
-              stationStore.isLoading && !stationStore.anyItemsLoaded,
-          hasData: stationStore.anyItemsLoaded,
-          isEmpty: stationStore.loadedItems?.isEmpty ?? true,
-          onRefresh: stationStore.refresh,
-          child: StationList(
-            stations: stationStore.loadedItems,
-            playingId: widget.playingId,
+    Widget _buildStationList() {
+      return Observer(
+        builder: (context) {
+          return TabListWrapper(
+            typeName: 'station',
+            hasError: stationStore.hasError,
+            errorMessage: stationStore.errorMessage,
+            showProgressIndicator:
+                stationStore.isLoading && !stationStore.anyItemsLoaded,
+            hasData: stationStore.anyItemsLoaded,
+            isEmpty: stationStore.loadedItems?.isEmpty ?? true,
             onRefresh: stationStore.refresh,
-            onStationSelected: (index) {
-              stationStore.xbox(index);
-              Navigator.of(context)!
-                  .pushReplacementNamed(RouteNames.nowPlaying);
+            child: StationList(
+              stations: stationStore.loadedItems,
+              playingId: widget.playingId,
+              onRefresh: stationStore.refresh,
+              onStationSelected: (index) {
+                stationStore.xbox(index);
+                Navigator.of(context)!
+                    .pushReplacementNamed(RouteNames.nowPlaying);
+              },
+              rename: stationStore.renameStation,
+              remove: stationStore.removeStation,
+            ),
+          );
+        },
+      );
+    }
+
+    Widget _buildSortFab() {
+      return Observer(
+        builder: (context) {
+          final selectedSortOrder = stationStore.sortOrder;
+          return FloatingActionButton(
+            onPressed: () async {
+              final sortOrder = await showDialog<StationSortOrder?>(
+                context: context,
+                builder: (context) => StationSortDialog(
+                  selected: selectedSortOrder,
+                ),
+              );
+              if (sortOrder == null) return;
+              stationStore.sortOrder = sortOrder;
             },
-            rename: stationStore.renameStation,
-            remove: stationStore.removeStation,
-          ),
-        );
-      },
+            child: SortIcon(
+              sortOrderIcon: stationSortIcons[selectedSortOrder]!,
+            ),
+          );
+        },
+      );
+    }
+
+    return Stack(
+      children: [
+        Positioned.fill(child: _buildStationList()),
+        Positioned(right: 16, bottom: 16, child: _buildSortFab()),
+      ],
     );
   }
 }

@@ -72,21 +72,6 @@ mixin _$RemoteListStore<ListType> on _RemoteListStore<ListType>, Store {
               name: '_RemoteListStore.anyItemsLoaded'))
           .value;
 
-  final _$loadedItemsAtom = Atom(name: '_RemoteListStore.loadedItems');
-
-  @override
-  List<ListType> get loadedItems {
-    _$loadedItemsAtom.reportRead();
-    return super.loadedItems;
-  }
-
-  @override
-  set loadedItems(List<ListType> value) {
-    _$loadedItemsAtom.reportWrite(value, super.loadedItems, () {
-      super.loadedItems = value;
-    });
-  }
-
   final _$errorMessageAtom = Atom(name: '_RemoteListStore.errorMessage');
 
   @override
@@ -147,7 +132,6 @@ mixin _$RemoteListStore<ListType> on _RemoteListStore<ListType>, Store {
   @override
   String toString() {
     return '''
-loadedItems: ${loadedItems},
 errorMessage: ${errorMessage},
 isLoading: ${isLoading},
 hasError: ${hasError},
@@ -157,10 +141,51 @@ anyItemsLoaded: ${anyItemsLoaded}
 }
 
 mixin _$StationStore on _StationStore, Store {
+  Computed<List<Station>> _$loadedItemsComputed;
+
+  @override
+  List<Station> get loadedItems => (_$loadedItemsComputed ??=
+          Computed<List<Station>>(() => super.loadedItems,
+              name: '_StationStore.loadedItems'))
+      .value;
+
+  final _$sortOrderAtom = Atom(name: '_StationStore.sortOrder');
+
+  @override
+  StationSortOrder get sortOrder {
+    _$sortOrderAtom.reportRead();
+    return super.sortOrder;
+  }
+
+  @override
+  set sortOrder(StationSortOrder value) {
+    _$sortOrderAtom.reportWrite(value, super.sortOrder, () {
+      super.sortOrder = value;
+    });
+  }
+
+  final _$_unsortedLoadedItemsAtom =
+      Atom(name: '_StationStore._unsortedLoadedItems');
+
+  @override
+  List<Station> get _unsortedLoadedItems {
+    _$_unsortedLoadedItemsAtom.reportRead();
+    return super._unsortedLoadedItems;
+  }
+
+  @override
+  set _unsortedLoadedItems(List<Station> value) {
+    _$_unsortedLoadedItemsAtom.reportWrite(value, super._unsortedLoadedItems,
+        () {
+      super._unsortedLoadedItems = value;
+    });
+  }
+
   @override
   String toString() {
     return '''
-
+sortOrder: ${sortOrder},
+loadedItems: ${loadedItems}
     ''';
   }
 }
@@ -174,6 +199,21 @@ mixin _$CategoryStore<I extends CollectionItem, A extends Annotation>
       (_$nextPageOffsetComputed ??= Computed<int>(() => super.nextPageOffset,
               name: '_CategoryStore.nextPageOffset'))
           .value;
+
+  final _$loadedItemsAtom = Atom(name: '_CategoryStore.loadedItems');
+
+  @override
+  List<CollectedItem<I, A>> get loadedItems {
+    _$loadedItemsAtom.reportRead();
+    return super.loadedItems;
+  }
+
+  @override
+  set loadedItems(List<CollectedItem<I, A>> value) {
+    _$loadedItemsAtom.reportWrite(value, super.loadedItems, () {
+      super.loadedItems = value;
+    });
+  }
 
   final _$_loadedSegmentAtom = Atom(name: '_CategoryStore._loadedSegment');
 
@@ -200,6 +240,7 @@ mixin _$CategoryStore<I extends CollectionItem, A extends Annotation>
   @override
   String toString() {
     return '''
+loadedItems: ${loadedItems},
 nextPageOffset: ${nextPageOffset}
     ''';
   }

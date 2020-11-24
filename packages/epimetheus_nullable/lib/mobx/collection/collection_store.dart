@@ -105,8 +105,11 @@ abstract class RemoteListStore<ListType> = _RemoteListStore<ListType>
     with _$RemoteListStore<ListType>;
 
 abstract class _RemoteListStore<ListType> with Store {
-  @observable
-  List<ListType> loadedItems;
+  /// The loaded items. Must be observable.
+  List<ListType> get loadedItems;
+
+  @protected
+  set loadedItems(List<ListType> value);
 
   @observable
   String errorMessage;
@@ -221,7 +224,21 @@ abstract class _StationStore extends RemoteListStore<Station> with Store {
 
   _StationStore({
     @required ApiStore apiStore,
+    this.sortOrder = StationSortOrder.lastPlayed,
   }) : _apiStore = apiStore;
+
+  @observable
+  StationSortOrder sortOrder;
+
+  @observable
+  List<Station> _unsortedLoadedItems;
+
+  @override
+  set loadedItems(List<Station> value) => _unsortedLoadedItems = value;
+
+  @override
+  @computed
+  List<Station> get loadedItems => _unsortedLoadedItems?.sortBy(sortOrder);
 
   Future<void> loadStations() async {
     assert(
@@ -296,6 +313,10 @@ abstract class _CategoryStore<I extends CollectionItem, A extends Annotation>
     @required this.pageSize,
   })  : _apiStore = apiStore,
         _filterTypes = filterTypes;
+
+  @override
+  @observable
+  List<CollectedItem<I, A>> loadedItems;
 
   @observable
   PagedCollectionSegment<I> _loadedSegment;
