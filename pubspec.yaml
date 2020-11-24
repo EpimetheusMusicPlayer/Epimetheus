@@ -55,7 +55,6 @@ dependencies:
   flare_flutter: ^2.0.6
   url_launcher: ^6.0.0-nullsafety.1
   carousel_slider: ^2.3.1
-  flutter_visualizers: ^0.0.2
 
   # Logging
   logger: ^0.9.4
@@ -67,7 +66,6 @@ dependencies:
   # Utilities
   mime: 0.9.7
   email_validator: ^1.0.6
-  permission_handler: ^5.0.1+1
 
   # Audio
   audio_service:
