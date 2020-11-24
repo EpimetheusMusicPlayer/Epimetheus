@@ -31,6 +31,7 @@ class NowPlayingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return StreamBuilder<bool>(
       stream: AudioService.runningStream,
+      initialData: AudioService.running,
       builder: (context, snapshot) {
         if (snapshot.data == null) return const SizedBox();
         final isAudioServiceRunning = snapshot.data!;
