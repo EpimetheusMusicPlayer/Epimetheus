@@ -21,6 +21,8 @@ class QueueDisplayItem {
     return mediaItem.unpack();
   }
 
+  // TODO(optimisation) every time the queue is modified, the whole queue is unpacked here.
+  // It would be more efficient to reuse the old unpacked values that haven't changed.
   static List<QueueDisplayItem>? mapQueue(List<MediaItem>? queue) {
     if (queue == null) return null;
     return [for (final mediaItem in queue) mediaItem.unpack()];
@@ -29,7 +31,7 @@ class QueueDisplayItem {
 
 extension on MediaItem {
   QueueDisplayItem unpack() {
-    final lyricSnippetMap = extras[AudioTaskKeys.lyricSnippet];
+    final lyricSnippetMap = extras[QueueItemMetadataKeys.lyricSnippet];
     return QueueDisplayItem(
       mediaItem: this,
       lyricSnippet: lyricSnippetMap == null

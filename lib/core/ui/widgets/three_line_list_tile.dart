@@ -8,6 +8,7 @@ class ThreeLineListTile extends StatelessWidget {
     indent: 88,
   );
 
+  final bool playing;
   final String? artUrl;
   final Widget line1;
   final Widget line2;
@@ -15,6 +16,7 @@ class ThreeLineListTile extends StatelessWidget {
   final EdgeInsetsGeometry padding;
 
   const ThreeLineListTile({
+    this.playing = false,
     required this.artUrl,
     required this.line1,
     required this.line2,
@@ -28,7 +30,7 @@ class ThreeLineListTile extends StatelessWidget {
       padding: padding,
       child: Row(
         children: [
-          ArtListTileImage(artUrl),
+          ArtListTileImage(artUrl, playing: playing),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
@@ -44,6 +46,7 @@ class ThreeLineListTile extends StatelessWidget {
 }
 
 class ThreeLineMediaListTile extends StatelessWidget {
+  final bool playing;
   final String? artUrl;
   final Widget line1;
   final Widget line2;
@@ -53,6 +56,7 @@ class ThreeLineMediaListTile extends StatelessWidget {
   final VoidCallback? onPlayPress;
 
   const ThreeLineMediaListTile({
+    this.playing = false,
     required this.artUrl,
     required this.line1,
     required this.line2,
@@ -81,6 +85,7 @@ class ThreeLineMediaListTile extends StatelessWidget {
           children: [
             Expanded(
               child: ThreeLineListTile(
+                playing: playing,
                 padding: EdgeInsets.zero,
                 artUrl: artUrl,
                 line1: line1,

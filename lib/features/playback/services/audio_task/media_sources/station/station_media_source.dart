@@ -38,13 +38,13 @@ class StationMediaSource implements MediaSource {
 
   @override
   Future<void> rate(Iapetus iapetus, int index, Rating rating) {
-    // TODO implement station media rating
+    // TODO(feature) implement station media rating
     throw UnimplementedError();
   }
 
   @override
   void tired(int index) {
-    // TODO implement station media tired setting
+    // TODO(feature) implement station media tired setting
     throw UnimplementedError();
   }
 
@@ -85,7 +85,7 @@ class StationMediaSource implements MediaSource {
 
   @override
   List<MediaItem> getChildren(String parentId) {
-    // TODO: implement getChildren
+    // TODO(feature) implement getChildren
     return const [];
   }
 }
@@ -101,9 +101,9 @@ extension _StationSongConvertions on StationSong {
         artUri: art.recommendedUri?.toString(),
         playable: true,
         displayDescription: '$artistName - $albumTitle',
-        // TODO rating
+        // TODO(feature) rating
         extras: {
-          AudioTaskKeys.lyricSnippet: lyricSnippet?.toMap(),
+          QueueItemMetadataKeys.lyricSnippet: lyricSnippet?.toMap(),
         },
       );
 }

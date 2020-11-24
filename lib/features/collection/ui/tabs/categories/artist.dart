@@ -8,10 +8,12 @@ import 'package:popup_menu_title/popup_menu_title.dart';
 
 class ArtistCategoryTab extends StatelessWidget {
   final CollectionStore collectionStore;
+  final String? playingId;
 
   const ArtistCategoryTab({
     Key? key,
     required this.collectionStore,
+    required this.playingId,
   }) : super(key: key);
 
   Widget _buildArtistTile({
@@ -35,7 +37,11 @@ class ArtistCategoryTab extends StatelessWidget {
         );
       },
       onTapDown: (details) => tapDownCallback!(details.menuOffset),
-      child: ArtistListTile(item, annotation),
+      child: ArtistListTile(
+        playing: playingId == item.pandoraId,
+        artist: item,
+        annotation: annotation,
+      ),
     );
   }
 

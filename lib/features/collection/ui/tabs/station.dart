@@ -15,10 +15,12 @@ import 'package:popup_menu_title/popup_menu_title.dart';
 
 class StationTab extends StatefulWidget {
   final CollectionStore _collectionStore;
+  final String? playingId;
 
   const StationTab({
     Key? key,
     required CollectionStore collectionStore,
+    required this.playingId,
   })   : _collectionStore = collectionStore,
         super(key: key);
 
@@ -50,6 +52,7 @@ class _StationTabState extends State<StationTab>
           onRefresh: stationStore.refresh,
           child: StationList(
             stations: stationStore.loadedItems,
+            playingId: widget.playingId,
             onRefresh: stationStore.refresh,
             onStationSelected: (index) {
               stationStore.xbox(index);
@@ -67,6 +70,7 @@ class _StationTabState extends State<StationTab>
 
 class StationList extends StatelessWidget {
   final List<Station>? stations;
+  final String? playingId;
   final RefreshCallback onRefresh;
   final void Function(int index) onStationSelected;
   final Future<String?> Function(int index, String name) rename;
@@ -75,6 +79,7 @@ class StationList extends StatelessWidget {
   const StationList({
     Key? key,
     required this.stations,
+    required this.playingId,
     required this.onRefresh,
     required this.onStationSelected,
     required this.rename,
@@ -126,18 +131,22 @@ class StationList extends StatelessWidget {
       child: PositionalMenuWrapper(
         builder: (context, tapDownCallback, showMenu, child) {
           return ListView.separated(
-            itemBuilder: (context, index) => InkWell(
-              onTap: () => onStationSelected(index),
-              onLongPress: () {
-                _showMenu(context, showMenu, index);
-              },
-              onTapDown: (details) {
-                tapDownCallback(details.menuOffset);
-              },
-              child: StationListTile(
-                station: stations![index],
-              ),
-            ),
+            itemBuilder: (context, index) {
+              final station = stations![index];
+              return InkWell(
+                onTap: () => onStationSelected(index),
+                onLongPress: () {
+                  _showMenu(context, showMenu, index);
+                },
+                onTapDown: (details) {
+                  tapDownCallback(details.menuOffset);
+                },
+                child: StationListTile(
+                  playing: playingId == station.stationId,
+                  station: station,
+                ),
+              );
+            },
             separatorBuilder: (context, _) => StationListTile.separator,
             itemCount: stations!.length,
           );

@@ -47,7 +47,7 @@ class QueueCarousel extends StatelessWidget {
     required this.onChangeFractionUpdated,
   }) : super(key: key);
 
-  // TODO [selectedIndex] can sometimes update after [changeFraction] changes
+  // TODO(fix) [selectedIndex] can sometimes update after [changeFraction] changes
   // its sign, resulting in a frame where the wrong side of the selected index
   // is eleveated.
   /// Calculates an elevation value based on the given index and

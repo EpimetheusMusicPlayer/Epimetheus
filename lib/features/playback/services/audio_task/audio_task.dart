@@ -62,20 +62,6 @@ class AudioTask extends BackgroundAudioTask {
   late StreamSubscription<dynamic> _communicatorSubscription;
   final logger = createLogger('[API (AUDIO_TASK)]');
 
-  // * UI
-  // A media item used to convey a loading status in the UI.
-  MediaItem get _loadingMediaItem => const MediaItem(
-        id: loadingMediaItemId,
-        title: 'Loading...',
-        artist: 'Loading...',
-        album: 'Loading...',
-        displayTitle: 'Loading...',
-        displaySubtitle: 'Loading...',
-        displayDescription: '',
-        playable: false,
-        extras: {AudioTaskKeys.mediaItemIndex: 0},
-      );
-
   // Notification media control properties.
   static const _androidCompactActions = [2, 3, 4];
   final List<MediaControl?> _mediaControls = <MediaControl?>[
@@ -173,7 +159,22 @@ class AudioTask extends BackgroundAudioTask {
     if (hasOldMediaSource && payload.mediaSource.id == _mediaSource!.id) return;
 
     // Send an initial media item to the service to convey the loading status.
-    unawaited(AudioServiceBackground.setMediaItem(_loadingMediaItem));
+    unawaited(AudioServiceBackground.setMediaItem(
+      MediaItem(
+        id: loadingMediaItemId,
+        title: 'Loading...',
+        artist: 'Loading...',
+        album: 'Loading...',
+        displayTitle: 'Loading...',
+        displaySubtitle: 'Loading...',
+        displayDescription: '',
+        playable: false,
+        extras: {
+          AudioTaskMetadataKeys.mediaSourceId: payload.mediaSource.id,
+          AudioTaskMetadataKeys.currentlyPlayingQueueIndex: 0,
+        },
+      ),
+    ));
 
     // Set the service state to playing to show the loading notification.
     await AudioServiceBackground.setState(
@@ -183,7 +184,7 @@ class AudioTask extends BackgroundAudioTask {
     );
 
     // Initialize the media source.
-    // TODO can this happen as the old data is cleared simultaneously?
+    // TODO(optimisation) can this be made to happen as the old data is cleared simultaneously?
     await payload.mediaSource.init(_iapetus);
 
     // If an existing media provider exists, clear out everything.
@@ -227,7 +228,8 @@ class AudioTask extends BackgroundAudioTask {
   Future<void> _loadNextPage([bool initialLoad = false]) async {
     // Don't load multiple pages at once.
     if (_loadFuture != null) {
-      await _loadFuture;
+      // Catch all errors here; they're dealt with in the load function.
+      await _loadFuture!.catchError((e) {});
       return;
     }
 
@@ -236,7 +238,7 @@ class AudioTask extends BackgroundAudioTask {
       final oldQueueSize = AudioServiceBackground.queue.length;
 
       // Load the next page of media from the source.
-      // TODO background task load error handling?
+      // TODO(fix) background task load error handling?
       _loadFuture = _mediaSource!.load(_iapetus, initialLoad);
       final nextPage = await _loadFuture!;
 
@@ -298,7 +300,10 @@ class AudioTask extends BackgroundAudioTask {
     final index = _mediaSource!.currentQueueIndex;
     AudioServiceBackground.setMediaItem(
       AudioServiceBackground.queue[index].copyWith(
-        extras: {AudioTaskKeys.mediaItemIndex: index},
+        extras: {
+          AudioTaskMetadataKeys.mediaSourceId: _mediaSource!.id,
+          AudioTaskMetadataKeys.currentlyPlayingQueueIndex: index,
+        },
       ),
     );
   }
@@ -456,14 +461,14 @@ class AudioTask extends BackgroundAudioTask {
   @override
   Future<void> onSkipToNext() async {
     if (await _prepareForSkip(_mediaSource!.currentQueueIndex + 1)) {
-      // TODO this should skip once the next page is loaded, but it doesn't.
+      // TODO(fix) this should skip once the next page is loaded, but it doesn't.
       // Work out why.
       await _player.seekToNext();
     }
   }
 
   @override
-  // TODO test this function (onSkipToQueueItem)
+  // TODO(test) test this function (onSkipToQueueItem)
   Future<void> onSkipToQueueItem(String mediaId) async {
     final queue = AudioServiceBackground.queue;
     for (var i = 0; i < queue.length; ++i) {
@@ -486,7 +491,7 @@ class AudioTask extends BackgroundAudioTask {
   @override
   Future<void> onSeekTo(Duration position) => _player.seek(position);
 
-  // TODO rating
+  // TODO(feature) rating
 
   @override
   Future<void> onClick(MediaButton button) async {

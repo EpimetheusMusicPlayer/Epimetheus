@@ -42,8 +42,8 @@ class _QueueDisplayState extends State<QueueDisplay> {
   /// Assigned in [_startListening], and cancelled in [_stopListening].
   late final StreamSubscription<MediaItem> _subscription;
 
-  static int get _currentlyPlayingQueueIndex =>
-      AudioService.currentMediaItem!.extras[AudioTaskKeys.mediaItemIndex];
+  static int get _currentlyPlayingQueueIndex => AudioService.currentMediaItem!
+      .extras[AudioTaskMetadataKeys.currentlyPlayingQueueIndex];
 
   /// Selects the given playing media item.
   void _selectIndex(int index) {
@@ -67,7 +67,8 @@ class _QueueDisplayState extends State<QueueDisplay> {
         }
 
         // Do nothing if the new index is already selected.
-        final index = mediaItem.extras[AudioTaskKeys.mediaItemIndex];
+        final index =
+            mediaItem.extras[AudioTaskMetadataKeys.currentlyPlayingQueueIndex];
         if (index == _selectedIndex) return;
 
         // Set _isSkipping to true, and change it back halfway through the
@@ -163,8 +164,8 @@ class _QueueDisplayState extends State<QueueDisplay> {
                 isDominantColorDark: widget.isDominantColorDark,
                 selectPlaying: () {
                   _selectIndex(
-                    AudioService
-                        .currentMediaItem.extras[AudioTaskKeys.mediaItemIndex],
+                    AudioService.currentMediaItem.extras[
+                        AudioTaskMetadataKeys.currentlyPlayingQueueIndex],
                   );
                 },
               ),

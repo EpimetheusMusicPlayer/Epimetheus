@@ -9,10 +9,12 @@ import 'package:popup_menu_title/popup_menu_title.dart';
 
 class PlaylistCategoryTab extends StatelessWidget {
   final CollectionStore collectionStore;
+  final String? playingId;
 
   const PlaylistCategoryTab({
     Key? key,
     required this.collectionStore,
+    required this.playingId,
   }) : super(key: key);
 
   Widget _buildPlaylistTile({
@@ -49,7 +51,11 @@ class PlaylistCategoryTab extends StatelessWidget {
         }
       },
       onTapDown: (details) => tapDownCallback!(details.menuOffset),
-      child: PlaylistListTile(item, annotation),
+      child: PlaylistListTile(
+        playing: playingId == item.pandoraId,
+        playlist: item,
+        annotation: annotation,
+      ),
     );
   }
 
