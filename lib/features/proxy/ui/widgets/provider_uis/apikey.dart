@@ -1,4 +1,4 @@
-import 'package:epimetheus/core/ui/widgets/preference_header.dart';
+import 'package:epimetheus/features/preferences/ui/preference_header.dart';
 import 'package:epimetheus_nullable/mobx/proxy/proxy_store.dart';
 import 'package:flutter/material.dart';
 
