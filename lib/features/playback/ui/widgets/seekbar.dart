@@ -4,14 +4,15 @@ import 'package:flutter/material.dart';
 class Seekbar extends StatefulWidget {
   final MediaItem mediaItem;
   final Color foregroundColor;
+  final bool showLabels;
   final String maxDurationString;
 
   Seekbar({
     Key? key,
     required this.mediaItem,
-    required bool isDominantColorDark,
-  })   : foregroundColor = isDominantColorDark ? Colors.white : Colors.black,
-        maxDurationString = _formatTime(mediaItem.duration),
+    required this.foregroundColor,
+    required this.showLabels,
+  })   : maxDurationString = _formatTime(mediaItem.duration ?? Duration.zero),
         super(key: key);
 
   static String _formatTime(Duration duration) {
@@ -97,7 +98,7 @@ class _SeekbarState extends State<Seekbar> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _buildLabels(duration),
+        if (widget.showLabels) _buildLabels(duration),
         _buildSlider(_getSliderValueFromDuration(duration)),
       ],
     );

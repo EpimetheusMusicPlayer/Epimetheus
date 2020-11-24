@@ -65,7 +65,8 @@ class QueueDisplaySongControls extends StatelessWidget {
         width: MediaQuery.of(context).size.width - 32,
         child: Seekbar(
           mediaItem: selectedQueueItem.mediaItem,
-          isDominantColorDark: isDominantColorDark,
+          foregroundColor: isDominantColorDark ? Colors.white : Colors.black,
+          showLabels: true,
         ),
       );
     }

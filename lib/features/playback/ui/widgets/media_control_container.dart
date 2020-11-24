@@ -1,6 +1,7 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:epimetheus/features/playback/ui/widgets/embedded_media_controls.dart';
+import 'package:epimetheus/features/playback/ui/widgets/seekbar.dart';
 import 'package:epimetheus/routes.dart';
 import 'package:flutter/material.dart';
 
@@ -17,25 +18,26 @@ class MediaControlContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<bool>(
-        stream: AudioService.runningStream,
-        builder: (context, runningSnapshot) {
-          return StreamBuilder<MediaItem>(
-              stream: AudioService.currentMediaItemStream,
-              builder: (context, mediaItemSnapshot) {
-                if ((!runningSnapshot.hasData || !mediaItemSnapshot.hasData) ||
-                    (!runningSnapshot.data! ||
-                        mediaItemSnapshot.data == null)) {
-                  return child;
-                }
+      stream: AudioService.runningStream,
+      builder: (context, runningSnapshot) {
+        return StreamBuilder<MediaItem>(
+          stream: AudioService.currentMediaItemStream,
+          builder: (context, mediaItemSnapshot) {
+            if ((!runningSnapshot.hasData || !mediaItemSnapshot.hasData) ||
+                (!runningSnapshot.data! || mediaItemSnapshot.data == null)) {
+              return child;
+            }
 
-                return Column(
-                  children: [
-                    Expanded(child: child),
-                    _MediaControlBar(mediaItemSnapshot.data!),
-                  ],
-                );
-              });
-        });
+            return Column(
+              children: [
+                Expanded(child: child),
+                _MediaControlBar(mediaItemSnapshot.data!),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 }
 
@@ -119,6 +121,14 @@ class _MediaControlBar extends StatelessWidget {
                   .pushReplacementNamed(RouteNames.nowPlaying);
             },
             child: _buildMetadataDisplay(),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Seekbar(
+              mediaItem: _mediaItem,
+              foregroundColor: const Color(0xEEFFFFFF),
+              showLabels: false,
+            ),
           ),
           const EmbeddedMediaControls(),
         ],
