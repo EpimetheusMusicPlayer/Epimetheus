@@ -81,6 +81,9 @@ class _MediaControlBar extends StatelessWidget {
                 Text(
                   _mediaItem.title,
                   textScaleFactor: 1.1,
+                  maxLines: 1,
+                  softWrap: false,
+                  overflow: TextOverflow.fade,
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -89,6 +92,9 @@ class _MediaControlBar extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   _mediaItem.artist,
+                  maxLines: 1,
+                  softWrap: false,
+                  overflow: TextOverflow.fade,
                   style: const TextStyle(
                     color: Colors.white,
                   ),
@@ -96,6 +102,9 @@ class _MediaControlBar extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   _mediaItem.album,
+                  maxLines: 1,
+                  softWrap: false,
+                  overflow: TextOverflow.fade,
                   style: const TextStyle(
                     color: Colors.white,
                     fontStyle: FontStyle.italic,
