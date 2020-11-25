@@ -114,7 +114,7 @@ class _SeekbarState extends State<Seekbar> {
             ),
             initialData: AudioService.playbackState.currentPosition,
             builder: (context, snapshot) {
-              return _buildSeekbar(snapshot.data!);
+              return _buildSeekbar(snapshot.data ?? Duration.zero);
             },
           )
         : _buildSeekbar(_getDurationFromSliderValue(_changeValue!));
