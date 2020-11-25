@@ -22,7 +22,7 @@ jobs:
       # Set up Java (for the Android SDK).
       - uses: actions/setup-java@v1.4.2
         with:
-          java-version: '8.x'
+          java-version: '8'
 
       # Set up Flutter.
       - uses: subosito/flutter-action@v1
