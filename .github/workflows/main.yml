@@ -30,7 +30,7 @@ jobs:
           channel: 'dev'
 
       # Configure Flutter.
-      - run: flutter config --no-analytics
+      - run: flutter config --suppress-analytics --no-analytics
       - run: flutter config --enable-macos-desktop
       - run: flutter config --enable-web
 
