@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [ dev-new-architecture ]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      # Check out the repository.
+      - uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+
+      # Set up Java (for the Android SDK).
+      - uses: actions/setup-java@v1.4.2
+        with:
+          java-version: '8.x'
+
+      # Set up Flutter.
+      - uses: subosito/flutter-action@v1
+        with:
+          channel: 'dev'
+
+      # Configure Flutter.
+      - run: flutter config --no-analytics
+      - run: flutter config --enable-macos-desktop
+      - run: flutter config --enable-web
+
+      # Download Pub packages.
+      - run: flutter pub get
+
+      # Build for Android.
+      - run: flutter build apk --no-sound-null-safety --split-per-abi --release
+      - run: flutter build apk --no-sound-null-safety --split-per-abi --debug
+
+      # Build for macOS, and zip the .apps.
+      - run: flutter build macos --no-sound-null-safety --release
+      - run: flutter build macos --no-sound-null-safety --debug
+      - uses: papeloto/action-zip@v1
+        with:
+          files: build/macos/Build/Products/Release/Epimetheus.app
+          dest:  build/macos/Build/Products/Release/Epimetheus.app.zip
+      - uses: papeloto/action-zip@v1
+        with:
+          files: build/macos/Build/Products/Debug/Epimetheus.app
+          dest: build/macos/Build/Products/Debug/Epimetheus.app.zip
+
+      # Push the builds to the automatic build repository.
+      - name: Push builds
+        run:
+          git clone https://${{ secrets.ACCESS_TOKEN }}@github.com/EpimetheusMusicPlayer/Epimetheus-Automatic-Builds publish # Clone the automatic build repository.
+          cd publish # Change directory into the cloned repository.
+          git switch -c ${{ github.head_ref }} # Switch to the proper branch, creating it if necessary.
+          mkdir -p Android && rm -rf Android/* # Create the Android directory if it's missing, and wipe it clean.
+          cp ../build/app/outputs/flutter-apk/app-*-*.apk Android/ # Copy in the Android build artifacts.
+          mkdir -p macOS && rm -rf macOS/* # Create the macOS directory if it's missing, and wipe it clean.
+          cp ../build/macos/Build/Products/*/Epimetheus.app.zip macOS/ # Copy in the macOS build artifacts.
+          git commit -m "{{ github.sha }}" # Commit the changes.
+          if (( $(git rev-list --count {{ github.head_ref }}) > 10 )); then git replace -f --graft HEAD~9 && git filter-branch -- --all; fi # Remove old commits.
+          git push --force origin ${{ github.head_ref }} # Push the changes.
