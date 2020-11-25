@@ -43,7 +43,7 @@ dependencies:
   infinite_scroll_pagination:
     git:
       url: 'git://github.com/EdsonBueno/infinite_scroll_pagination.git'
-      ref: 'f566f01cdc5a7a8916139b4ebfe6e08058edad75'
+      ref: '4a8c8e1561e3ea98ccefc93f11565da0285c3574'
   fast_marquee: ^0.1.1
   esys_flutter_share:
     git:
