@@ -25,12 +25,11 @@ class QueueDisplay extends StatefulWidget {
 class _QueueDisplayState extends State<QueueDisplay> {
   static const _carouselSkipDurationMillis = 200;
 
-  final _queueStream = AudioService.queueStream
-      .map<List<QueueDisplayItem>?>(QueueDisplayItem.mapQueue);
+  // Carousel
   final _carouselController = CarouselController();
 
+  // Selected item state
   late final _initialIndex = _currentlyPlayingQueueIndex;
-
   late int _selectedIndex = _initialIndex;
   double _changeFraction = 0;
 
@@ -40,7 +39,16 @@ class _QueueDisplayState extends State<QueueDisplay> {
 
   /// The subscription used to listen to changes in the currently playing index.
   /// Assigned in [_startListening], and cancelled in [_stopListening].
-  late final StreamSubscription<MediaItem> _subscription;
+  late final StreamSubscription<MediaItem> _currentMediaItemSubscription;
+
+  /// The subscription used to respond to queue updates.
+  /// Assigned in [_startListening], and cancelled in [_stopListening].
+  late final StreamSubscription<List<MediaItem>> _queueSubscription;
+
+  /// A stream controller that controls a stream of [QueueDisplayItem] objects.
+  /// The objects are generated from the [AudioService.queueStream].
+  final _queueDisplayStreamController =
+      StreamController<List<QueueDisplayItem>?>();
 
   static int get _currentlyPlayingQueueIndex => AudioService.currentMediaItem!
       .extras[AudioTaskMetadataKeys.currentlyPlayingQueueIndex];
@@ -56,7 +64,13 @@ class _QueueDisplayState extends State<QueueDisplay> {
 
   /// Starts listening to changes in the currently playing index.
   void _startListening() {
-    _subscription = AudioService.currentMediaItemStream.listen(
+    // Listen to the queue stream first, as the UI is updated upon receiving an
+    // event from the _currentMediaItemSubscription and is dependent on
+    // this subscription.
+    _queueSubscription = AudioService.queueStream.listen((queue) {
+      _queueDisplayStreamController.add(QueueDisplayItem.mapQueue(queue));
+    });
+    _currentMediaItemSubscription = AudioService.currentMediaItemStream.listen(
       (MediaItem? mediaItem) {
         if (mediaItem == null) {
           // Navigate back to the collection page when the service ends.
@@ -91,7 +105,8 @@ class _QueueDisplayState extends State<QueueDisplay> {
 
   /// Stops what was started in [_startListening].
   void _stopListening() {
-    _subscription.cancel();
+    _queueSubscription.cancel();
+    _currentMediaItemSubscription.cancel();
   }
 
   @override
@@ -109,7 +124,7 @@ class _QueueDisplayState extends State<QueueDisplay> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<QueueDisplayItem>?>(
-      stream: _queueStream,
+      stream: _queueDisplayStreamController.stream,
       builder: (context, snapshot) {
         if (snapshot.data == null || snapshot.data!.isEmpty) {
           return const SizedBox();
