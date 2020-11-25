@@ -66,5 +66,5 @@ jobs:
           mkdir -p macOS && rm -rf macOS/*
           cp ../build/macos/Build/Products/*/Epimetheus.app.zip macOS/
           git commit -m "{{ github.sha }}"
-          if (( $(git rev-list --count {{ github.head_ref }}) > 10 )); then git replace -f --graft HEAD~9 && git filter-branch -- --all; fi
+          (git replace -f --graft HEAD~9 && git filter-branch -- --all) || true
           git push --force origin ${{ github.head_ref }}
