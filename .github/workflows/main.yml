@@ -58,6 +58,8 @@ jobs:
         run:
           git clone https://${{ secrets.ACCESS_TOKEN }}@github.com/EpimetheusMusicPlayer/Epimetheus-Automatic-Builds publish
           cd publish
+          git config user.name "Epimetheus CI"
+          git config user.email "ci@epimetheus.tk"
           git switch -c ${{ github.head_ref }}
           mkdir -p Android && rm -rf Android/*
           cp ../build/app/outputs/flutter-apk/app-*-*.apk Android/
