@@ -31,7 +31,7 @@ class QueueDisplayItem {
 
 extension on MediaItem {
   QueueDisplayItem unpack() {
-    final lyricSnippetMap = extras[QueueItemMetadataKeys.lyricSnippet];
+    final lyricSnippetMap = extras?[QueueItemMetadataKeys.lyricSnippet];
     return QueueDisplayItem(
       mediaItem: this,
       lyricSnippet: lyricSnippetMap == null
