@@ -9,10 +9,15 @@ jobs:
     runs-on: macos-latest
     steps:
       # Check out the repository.
+      # https://github.com/actions/checkout/issues/116#issuecomment-573880976.
       - uses: actions/checkout@v2
-        with:
-          submodules: 'recursive'
-          token: '{{ secrets.ACCESS_TOKEN }}'
+      - name: Checkout submodules
+        run: |
+          git config --file .gitmodules --get-regexp url | while read url; do
+            git config --file=.gitmodules $(echo "$url" | sed -E "s/git@github.com:|https:\/\/github.com\//https:\/\/${{ secrets.ACCESS_TOKEN }}:${{ secrets.ACCESS_TOKEN }}@github.com\//")
+          done
+          git submodule sync
+          git submodule update --init --recursive
 
       # Set up Java (for the Android SDK).
       - uses: actions/setup-java@v1.4.2
